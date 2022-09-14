@@ -6,7 +6,7 @@ import { promisify } from "util";
 import { Targets } from "./targets";
 import { create } from "@actions/glob";
 import path from "path";
-import { writeFile } from "fs/promises";
+import { appendFile } from "fs/promises";
 import { execFile } from "child_process";
 
 export function GetSteampipeDownloadLink(version: string): string {
@@ -96,7 +96,7 @@ export async function InstallMod(modRepository: string) {
 export async function WriteConnections(connections: string) {
   const d = new Date()
   const configFileName = `${d.getTime()}.spc`
-  await writeFile(`${env['HOME']}/.steampipe/config/${configFileName}`, connections)
+  await appendFile(`${env['HOME']}/.steampipe/config/${configFileName}`, connections)
   return
 }
 
