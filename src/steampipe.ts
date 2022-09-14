@@ -6,7 +6,7 @@ import { promisify } from "util";
 import { Targets } from "./targets";
 import { create } from "@actions/glob";
 import path from "path";
-import { appendFile } from "fs/promises";
+import { writeFile } from "fs/promises";
 import { execFile } from "child_process";
 
 export function GetSteampipeDownloadLink(version: string): string {
@@ -81,11 +81,17 @@ export async function InstallMod(modRepository: string) {
   if (modRepository.trim().length === 0) {
     return Promise.resolve("")
   }
-  const cloneTo = `mod-dir-${new Date().getTime()}`
   const execP = promisify(execFile)
   info(`Installing mod ${modRepository}`)
-  await execP("git", ["clone", modRepository, cloneTo])
-  return cloneTo
+  await execP("git", ["clone", modRepository])
+  const globber = await create('**/*.mod.sp', { followSymbolicLinks: false })
+  const files = await globber.glob()
+  debug(`files:${files}`)
+  if (files.length > 0) {
+    // return the location of the mod.sp file - not the ones in dependencies (incase they exist in the repository)
+    return path.dirname(files[0])
+  }
+  return Promise.resolve("")
 }
 
 /**
@@ -96,7 +102,7 @@ export async function InstallMod(modRepository: string) {
 export async function WriteConnections(connections: string) {
   const d = new Date()
   const configFileName = `${d.getTime()}.spc`
-  await appendFile(`${env['HOME']}/.steampipe/config/${configFileName}`, connections)
+  await writeFile(`${env['HOME']}/.steampipe/config/${configFileName}`, connections)
   return
 }
 
