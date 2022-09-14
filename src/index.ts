@@ -1,4 +1,5 @@
 import { addPath, getInput, setFailed } from "@actions/core";
+import { chdir } from "process";
 import { DownloadSteampipe, InstallMod, InstallPlugins, InstallSteampipe, SteampipeServiceStart, WriteConnections } from "./steampipe";
 
 async function run() {
@@ -19,6 +20,10 @@ async function run() {
         setFailed("bad repository for mod")
         return
       }
+
+      // change to the mod directory, since Steampipe needs to be executed in the mod directory
+      // for it to be able to resolve the mod properly
+      chdir(modPath)
     }
     await WriteConnections(connectionConfig)
     await SteampipeServiceStart(steampipePath)
