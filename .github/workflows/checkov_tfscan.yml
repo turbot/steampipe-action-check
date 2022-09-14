@@ -2,11 +2,11 @@ name: checkov_scan
 on:
   repository_dispatch:
   workflow_dispatch:
-  push:
-    branches:
-      - first-setup
-      - first-setup-rk
-      - main
+  # push:
+  #   branches:
+  #     - first-setup
+  #     - first-setup-rk
+  #     - main
   pull_request:
 
 jobs:

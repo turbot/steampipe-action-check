@@ -1,10 +1,10 @@
 name: Run Steampipe
 on:
-  push:
-    branches:
-      - first-setup
-      - first-setup-rk
-      - main
+  # push:
+  #   branches:
+  #     - first-setup
+  #     - first-setup-rk
+  #     - main
   pull_request:
   workflow_dispatch:
 
@@ -27,3 +27,4 @@ jobs:
           mod: 'https://github.com/turbot/steampipe-mod-terraform-aws-compliance.git'
           export: json
           control: ec2_ebs_default_encryption_enabled
+          output: json
