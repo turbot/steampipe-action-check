@@ -1,3 +1,4 @@
+import { ActionInput } from "./input";
 export declare function GetSteampipeDownloadLink(version: string): string;
 /**
  *
@@ -39,4 +40,4 @@ export declare function cleanConnectionConfigDir(configDir: string): Promise<voi
  * @returns void
  */
 export declare function WriteConnections(connectionData: string): Promise<void>;
-export declare function RunSteampipeCheck(cliCmd: string, workspaceChdir: string): Promise<void>;
+export declare function RunSteampipeCheck(cliCmd: string, workspaceChdir: string, actionInputs: ActionInput): Promise<void>;
