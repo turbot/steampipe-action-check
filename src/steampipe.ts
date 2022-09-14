@@ -97,21 +97,21 @@ export async function cleanConnectionConfigDir(configDir: string) {
 
 /**
  * 
- * @param connections The connection configuration HCL. All connection configs are to be appended into a single HCL string.
+ * @param connectionData The connection configuration HCL. All connection configs are to be appended into a single HCL string.
  * @returns void
  */
-export async function WriteConnections(connections: string) {
+export async function WriteConnections(connectionData: string) {
   const d = new Date()
   const configDir = `${env['HOME']}/.steampipe/config`
   cleanConnectionConfigDir(configDir)
 
   const configFileName = `${d.getTime()}.spc`
-  await writeFile(`${configDir}/${configFileName}`, connections)
+  await writeFile(`${configDir}/${configFileName}`, connectionData)
   return
 }
 
 export async function RunSteampipeCheck(cliCmd: string = "steampipe") {
-  await exec(cliCmd, ["check", "all", "--output=md"])
+  await exec(cliCmd, ["check", "all", `--output=md`])
 }
 
 async function extractArchive(archivePath: string) {

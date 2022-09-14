@@ -6625,20 +6625,20 @@ async function cleanConnectionConfigDir(configDir) {
 exports.cleanConnectionConfigDir = cleanConnectionConfigDir;
 /**
  *
- * @param connections The connection configuration HCL. All connection configs are to be appended into a single HCL string.
+ * @param connectionData The connection configuration HCL. All connection configs are to be appended into a single HCL string.
  * @returns void
  */
-async function WriteConnections(connections) {
+async function WriteConnections(connectionData) {
     const d = new Date();
     const configDir = `${process_1.env['HOME']}/.steampipe/config`;
     cleanConnectionConfigDir(configDir);
     const configFileName = `${d.getTime()}.spc`;
-    await (0, promises_1.writeFile)(`${configDir}/${configFileName}`, connections);
+    await (0, promises_1.writeFile)(`${configDir}/${configFileName}`, connectionData);
     return;
 }
 exports.WriteConnections = WriteConnections;
 async function RunSteampipeCheck(cliCmd = "steampipe") {
-    await (0, exec_1.exec)(cliCmd, ["check", "all", "--output=md"]);
+    await (0, exec_1.exec)(cliCmd, ["check", "all", `--output=md`]);
 }
 exports.RunSteampipeCheck = RunSteampipeCheck;
 async function extractArchive(archivePath) {
