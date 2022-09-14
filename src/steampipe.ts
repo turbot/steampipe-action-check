@@ -81,17 +81,11 @@ export async function InstallMod(modRepository: string) {
   if (modRepository.trim().length === 0) {
     return Promise.resolve("")
   }
+  const cloneTo = `mod-dir-${new Date().getTime()}`
   const execP = promisify(execFile)
   info(`Installing mod ${modRepository}`)
-  await execP("git", ["clone", modRepository])
-  const globber = await create('**/*.mod.sp', { followSymbolicLinks: false })
-  const files = await globber.glob()
-  debug(`files:${files}`)
-  if (files.length > 0) {
-    // return the location of the mod.sp file - not the ones in dependencies (incase they exist in the repository)
-    return path.dirname(files[0])
-  }
-  return Promise.resolve("")
+  await execP("git", ["clone", modRepository, cloneTo])
+  return cloneTo
 }
 
 /**
