@@ -6880,7 +6880,7 @@ async function run() {
                 return;
             }
         }
-        await (0, steampipe_1.RunSteampipeCheck)(steampipePath, modPath);
+        // await RunSteampipeCheck(steampipePath, modPath)
     }
     catch (error) {
         (0, core_1.setFailed)(error.message);
