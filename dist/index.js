@@ -6535,13 +6535,13 @@ const core_1 = __nccwpck_require__(2186);
 function GetInputs() {
     let inputs = {
         version: (0, core_1.getInput)("version", { required: false, trimWhitespace: true }) || "latest",
-        plugins: (0, core_1.getInput)("plugins", { required: true, trimWhitespace: false }).split(",").map(p => p.trim()),
+        plugins: (0, core_1.getInput)("plugins", { required: true, trimWhitespace: false }).split(",").map(p => p.trim()).filter(p => p.length > 0),
         modRepository: (0, core_1.getInput)("mod", { required: false, trimWhitespace: true }) || "",
         connectionData: (0, core_1.getInput)("connection_config", { required: true, trimWhitespace: false }),
         control: (0, core_1.getInput)("control", { required: false, trimWhitespace: true }) || "",
         benchmark: (0, core_1.getInput)("benchmark", { required: false, trimWhitespace: true }) || "",
         output: (0, core_1.getInput)("output", { required: false, trimWhitespace: true }) || "",
-        export: (0, core_1.getInput)("export", { required: false, trimWhitespace: true }) || "",
+        export: ((0, core_1.getInput)("export", { required: false, trimWhitespace: true }) || "").split(",").map(e => e.trim()).filter(e => e.length > 0),
         where: (0, core_1.getInput)("where", { required: false, trimWhitespace: false }) || ""
     };
     if (inputs.benchmark.length > 0 && inputs.control.length > 0) {
@@ -6688,7 +6688,7 @@ async function RunSteampipeCheck(cliCmd = "steampipe", workspaceChdir, actionInp
 }
 exports.RunSteampipeCheck = RunSteampipeCheck;
 function getCheckArg(input) {
-    if (input.benchmark.length === 0 || input.control.length === 0) {
+    if (input.benchmark.length === 0 && input.control.length === 0) {
         return "all";
     }
     return input.benchmark.length > 0 ? input.benchmark : input.control;

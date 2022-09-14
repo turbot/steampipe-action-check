@@ -6,7 +6,7 @@ export interface ActionInput {
     control: string;
     benchmark: string;
     output: string;
-    export: string;
+    export: Array<string>;
     where: string | null;
 }
 export declare function GetInputs(): ActionInput;

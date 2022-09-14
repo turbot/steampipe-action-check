@@ -136,7 +136,7 @@ export async function RunSteampipeCheck(cliCmd: string = "steampipe", workspaceC
 }
 
 function getCheckArg(input: ActionInput): string {
-  if (input.benchmark.length === 0 || input.control.length === 0) {
+  if (input.benchmark.length === 0 && input.control.length === 0) {
     return "all"
   }
   return input.benchmark.length > 0 ? input.benchmark : input.control

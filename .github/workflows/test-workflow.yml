@@ -13,7 +13,7 @@ jobs:
       - name: Use local my-action
         uses: ./
         with:
-          version: 'latest'
+          version: latest
           connection_config: |
             connection "terraform" {
               plugin = "terraform"

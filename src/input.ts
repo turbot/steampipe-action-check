@@ -10,7 +10,7 @@ export interface ActionInput {
   benchmark: string;
 
   output: string;
-  export: string;
+  export: Array<string>;
 
   where: string | null;
 }
@@ -18,7 +18,7 @@ export interface ActionInput {
 export function GetInputs() {
   let inputs: ActionInput = {
     version: getInput("version", { required: false, trimWhitespace: true }) || "latest",
-    plugins: getInput("plugins", { required: true, trimWhitespace: false }).split(",").map(p => p.trim()),
+    plugins: getInput("plugins", { required: true, trimWhitespace: false }).split(",").map(p => p.trim()).filter(p => p.length > 0),
     modRepository: getInput("mod", { required: false, trimWhitespace: true }) || "",
     connectionData: getInput("connection_config", { required: true, trimWhitespace: false }),
 
@@ -26,7 +26,7 @@ export function GetInputs() {
     benchmark: getInput("benchmark", { required: false, trimWhitespace: true }) || "",
 
     output: getInput("output", { required: false, trimWhitespace: true }) || "",
-    export: getInput("export", { required: false, trimWhitespace: true }) || "",
+    export: (getInput("export", { required: false, trimWhitespace: true }) || "").split(",").map(e => e.trim()).filter(e => e.length > 0),
 
     where: getInput("where", { required: false, trimWhitespace: false }) || ""
   }
