@@ -1,14 +1,17 @@
 import { info } from "@actions/core";
 import { cacheDir, downloadTool, extractTar, extractZip, find } from "@actions/tool-cache";
-import { exec, execFile, spawn } from "child_process";
-import { arch, execArgv, platform } from "process";
+import { exec } from "@actions/exec";
+import { arch, env, execArgv, platform } from "process";
 import { promisify } from "util";
 import { Targets } from "./targets";
+import { create } from "@actions/glob";
+import path from "path";
+import { writeFile } from "fs/promises";
 
 export function GetSteampipeDownloadLink(version: string): string {
-  if (version === 'latest'){
+  if (version === 'latest') {
     return `https://github.com/turbot/steampipe/releases/latest/download/steampipe_${Targets[platform][arch]}`
-  }else {
+  } else {
     return `https://github.com/turbot/steampipe/releases/download/${version}/steampipe_${Targets[platform][arch]}`
   }
 }
@@ -36,10 +39,10 @@ export async function DownloadSteampipe(version: string = "latest") {
 
   const downloadLink = GetSteampipeDownloadLink(version)
   info(`download link: ${downloadLink}`)
-  
+
   const downloadedArchive = await downloadTool(downloadLink)
   info(`downloaded to: ${downloadedArchive}`)
-  
+
   const extractedTo = await extractArchive(downloadedArchive)
   info(`extracted to: ${extractedTo}`)
 
@@ -52,8 +55,7 @@ export async function DownloadSteampipe(version: string = "latest") {
  * @param cliCmd The path to the steampipe binary
  */
 export async function InstallSteampipe(cliCmd = "steampipe") {
-  const execP = promisify(execFile)
-  await execP(cliCmd, ["query", "select 1"])
+  await exec(cliCmd, ["query", "select 1"])
   return
 }
 
@@ -65,9 +67,49 @@ export async function InstallSteampipe(cliCmd = "steampipe") {
  * @returns 
  */
 export async function InstallPlugins(cliCmd = "steampipe", plugins: Array<string> = []) {
-  const execP = promisify(execFile)
-  await execP(cliCmd, ["plugin", "install", ...plugins])
+  await exec(cliCmd, ["plugin", "install", ...plugins])
   return
+}
+
+/**
+ * 
+ * @param modRepository The HTTP/SSH url of the mod repository. This will be passed in as-is to `git clone`
+ * @returns void
+ */
+export async function InstallMod(modRepository: string) {
+  if (modRepository.trim().length === 0) {
+    return Promise.resolve("")
+  }
+  await exec("git", ["clone", modRepository])
+  const globber = await create('./*.mod', { followSymbolicLinks: false })
+  const files = await globber.glob()
+  if (files.length > 0) {
+    // return the location of the mod.sp file - not the ones in dependencies (incase they exist in the repository)
+    return path.dirname(files[0])
+  }
+  return Promise.resolve("")
+}
+
+/**
+ * 
+ * @param connections The connection configuration HCL. All connection configs are to be appended into a single HCL string.
+ * @returns void
+ */
+export async function WriteConnections(connections: string) {
+  const d = new Date()
+  const configFileName = `${d.getTime()}.spc`
+  await writeFile(`${env['HOME']}/.steampipe/config/${configFileName}`, connections)
+  return
+}
+
+/**
+ * Starts the steampipe service in the background
+ * 
+ * @param cliCmd The full path to the Steampipe CLI
+ */
+export async function SteampipeServiceStart(cliCmd: string = "steampipe") {
+  await exec(cliCmd, ["service", "start"])
+  await exec(cliCmd, ["query", "select 1"])
 }
 
 async function extractArchive(archivePath: string) {
