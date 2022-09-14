@@ -23,7 +23,7 @@ jobs:
           connection_config: |
             connection "terraform" {
               plugin = "terraform"
-              paths = [ "test_dir/*" ]
+              paths = [ "test_dir/ec2/*.tf" ]
             }
           plugins: "[\"terraform\"]"
           mod: 'https://github.com/turbot/steampipe-mod-terraform-aws-compliance.git'
