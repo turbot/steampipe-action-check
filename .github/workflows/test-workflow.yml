@@ -1,3 +1,6 @@
+# 1. Set up secrets in your workspace:
+#   - TF_PATH with the path to the directory having the terraform files
+
 name: Test workflow
 on:
   push:
@@ -17,7 +20,8 @@ jobs:
           connection_config: |
             connection "terraform" {
               plugin = "terraform"
-              paths = [ "test_dir/**/*.tf" ]
+              paths = ${{ secrets.TF_PATH }}
             }
           plugins: "[\"terraform\"]"
           mod: 'https://github.com/turbot/steampipe-mod-terraform-aws-compliance.git'
+          command: steampipe check all
