@@ -32,6 +32,7 @@ export declare function InstallPlugins(cliCmd?: string, plugins?: Array<string>)
  * @returns void
  */
 export declare function InstallMod(modRepository: string): Promise<string>;
+export declare function cleanConnectionConfigDir(configDir: string): Promise<void>;
 /**
  *
  * @param connections The connection configuration HCL. All connection configs are to be appended into a single HCL string.

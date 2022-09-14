@@ -6530,13 +6530,14 @@ exports["default"] = _default;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.RunSteampipeCheck = exports.WriteConnections = exports.InstallMod = exports.InstallPlugins = exports.InstallSteampipe = exports.DownloadSteampipe = exports.GetSteampipeDownloadLink = void 0;
+exports.RunSteampipeCheck = exports.WriteConnections = exports.cleanConnectionConfigDir = exports.InstallMod = exports.InstallPlugins = exports.InstallSteampipe = exports.DownloadSteampipe = exports.GetSteampipeDownloadLink = void 0;
 const core_1 = __nccwpck_require__(2186);
 const tool_cache_1 = __nccwpck_require__(7784);
 const exec_1 = __nccwpck_require__(1514);
 const process_1 = __nccwpck_require__(7282);
 const util_1 = __nccwpck_require__(3837);
 const targets_1 = __nccwpck_require__(2531);
+const path_1 = __nccwpck_require__(1017);
 const promises_1 = __nccwpck_require__(3292);
 const child_process_1 = __nccwpck_require__(2081);
 function GetSteampipeDownloadLink(version) {
@@ -6615,6 +6616,13 @@ async function InstallMod(modRepository) {
     return cloneTo;
 }
 exports.InstallMod = InstallMod;
+async function cleanConnectionConfigDir(configDir) {
+    const files = await (0, promises_1.readdir)(configDir);
+    for (const file of files) {
+        await (0, promises_1.unlink)((0, path_1.join)(configDir, file));
+    }
+}
+exports.cleanConnectionConfigDir = cleanConnectionConfigDir;
 /**
  *
  * @param connections The connection configuration HCL. All connection configs are to be appended into a single HCL string.
@@ -6622,8 +6630,10 @@ exports.InstallMod = InstallMod;
  */
 async function WriteConnections(connections) {
     const d = new Date();
+    const configDir = `${process_1.env['HOME']}/.steampipe/config`;
+    cleanConnectionConfigDir(configDir);
     const configFileName = `${d.getTime()}.spc`;
-    await (0, promises_1.writeFile)(`${process_1.env['HOME']}/.steampipe/config/${configFileName}`, connections);
+    await (0, promises_1.writeFile)(`${configDir}/${configFileName}`, connections);
     return;
 }
 exports.WriteConnections = WriteConnections;
