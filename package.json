@@ -2,7 +2,7 @@
   "name": "steampipe-action",
   "version": "0.1.0",
   "description": "This Github Action runs Steampipe against your cloud infrastructure. Use SQL to instantly query your cloud services (AWS, Azure, GCP and more). Open source CLI. No DB required.",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
     "tsc": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -19,6 +19,8 @@
   "homepage": "https://github.com/turbot/steampipe-action#readme",
   "dependencies": {
     "@actions/core": "1.9.1",
+    "@actions/exec": "1.1.1",
+    "@actions/glob": "0.3.0",
     "@actions/tool-cache": "2.0.1"
   },
   "devDependencies": {
