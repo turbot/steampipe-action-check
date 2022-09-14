@@ -9056,7 +9056,7 @@ async function InstallMod(modRepository) {
     const execP = (0, util_1.promisify)(child_process_1.execFile);
     (0, core_1.info)(`Installing mod ${modRepository}`);
     await execP("git", ["clone", modRepository]);
-    const globber = await (0, glob_1.create)('./**/*.mod.sp', { followSymbolicLinks: false });
+    const globber = await (0, glob_1.create)('**/*.mod.sp', { followSymbolicLinks: false });
     const files = await globber.glob();
     (0, core_1.debug)(`files:${files}`);
     if (files.length > 0) {

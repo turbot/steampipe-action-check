@@ -84,7 +84,7 @@ export async function InstallMod(modRepository: string) {
   const execP = promisify(execFile)
   info(`Installing mod ${modRepository}`)
   await execP("git", ["clone", modRepository])
-  const globber = await create('./**/*.mod.sp', { followSymbolicLinks: false })
+  const globber = await create('**/*.mod.sp', { followSymbolicLinks: false })
   const files = await globber.glob()
   debug(`files:${files}`)
   if (files.length > 0) {
