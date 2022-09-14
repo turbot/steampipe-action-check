@@ -1,0 +1,16 @@
+name: Test workflow
+on:
+  push:
+    branches:
+      - main
+
+
+jobs:
+  my_first_job:
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v3
+      - name: Use local my-action
+        uses: ./
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
