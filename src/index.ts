@@ -1,4 +1,4 @@
-import { addPath, getInput, setFailed } from "@actions/core";
+import { addPath, getInput, info, setFailed } from "@actions/core";
 import { chdir } from "process";
 import { DownloadSteampipe, InstallMod, InstallPlugins, InstallSteampipe, RunSteampipeCheck, WriteConnections } from "./steampipe";
 
@@ -17,6 +17,7 @@ async function run() {
     await WriteConnections(connectionConfig)
     if (modRepositoryPath.length > 0) {
       const modPath = await InstallMod(modRepositoryPath)
+      info(`Mod Path: ${modPath}`)
       if (modPath.length == 0) {
         setFailed("bad repository for mod")
         return

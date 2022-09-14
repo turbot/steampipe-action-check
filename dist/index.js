@@ -9054,8 +9054,9 @@ async function InstallMod(modRepository) {
         return Promise.resolve("");
     }
     const execP = (0, util_1.promisify)(child_process_1.execFile);
+    (0, core_1.info)(`Installing mod ${modRepository}`);
     await execP("git", ["clone", modRepository]);
-    const globber = await (0, glob_1.create)('./*.mod', { followSymbolicLinks: false });
+    const globber = await (0, glob_1.create)('./*.mod.sp', { followSymbolicLinks: false });
     const files = await globber.glob();
     if (files.length > 0) {
         // return the location of the mod.sp file - not the ones in dependencies (incase they exist in the repository)
@@ -9306,6 +9307,7 @@ async function run() {
         await (0, steampipe_1.WriteConnections)(connectionConfig);
         if (modRepositoryPath.length > 0) {
             const modPath = await (0, steampipe_1.InstallMod)(modRepositoryPath);
+            (0, core_1.info)(`Mod Path: ${modPath}`);
             if (modPath.length == 0) {
                 (0, core_1.setFailed)("bad repository for mod");
                 return;
