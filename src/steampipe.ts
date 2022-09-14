@@ -1,16 +1,18 @@
 import { debug, endGroup, info, startGroup } from "@actions/core";
 import { cacheDir, downloadTool, extractTar, extractZip, find } from "@actions/tool-cache";
-import { exec } from "@actions/exec";
-import { arch, env, execArgv, platform } from "process";
-import { promisify } from "util";
-import { Targets } from "./targets";
-import { create } from "@actions/glob";
-import path, { join } from "path";
-import { readdir, unlink, writeFile } from "fs/promises";
+import { exec as actionsExec } from "@actions/exec"
 import { execFile } from "child_process";
+import { readdir, unlink, writeFile } from "fs/promises";
+import { join } from "path";
+import { arch, env, platform } from "process";
+import { promisify } from "util";
+import { ActionInput } from "./input";
+import { Targets } from "./targets";
+
+const execP = promisify(execFile)
 
 export function GetSteampipeDownloadLink(version: string): string {
-  if (version === 'latest') {
+  if (version === "latest") {
     return `https://github.com/turbot/steampipe/releases/latest/download/steampipe_${Targets[platform][arch]}`
   } else {
     return `https://github.com/turbot/steampipe/releases/download/${version}/steampipe_${Targets[platform][arch]}`
@@ -30,8 +32,8 @@ export function GetSteampipeDownloadLink(version: string): string {
  * @param version The version of steampipe to download. Default: `latest`
  */
 export async function DownloadSteampipe(version: string = "latest") {
-  if (version !== 'latest') {
-    const toolPath = find('steampipe', version, arch);
+  if (version !== "latest") {
+    const toolPath = find("steampipe", version, arch);
     if (toolPath) {
       info(`Found in cache @ ${toolPath}`);
       return toolPath;
@@ -39,15 +41,9 @@ export async function DownloadSteampipe(version: string = "latest") {
   }
 
   const downloadLink = GetSteampipeDownloadLink(version)
-  info(`download link: ${downloadLink}`)
-
   const downloadedArchive = await downloadTool(downloadLink)
-  info(`downloaded to: ${downloadedArchive}`)
-
   const extractedTo = await extractArchive(downloadedArchive)
-  info(`extracted to: ${extractedTo}`)
-
-  return await cacheDir(extractedTo, 'steampipe', version, arch)
+  return await cacheDir(extractedTo, "steampipe", version, arch)
 }
 
 /**
@@ -56,7 +52,7 @@ export async function DownloadSteampipe(version: string = "latest") {
  * @param cliCmd The path to the steampipe binary
  */
 export async function InstallSteampipe(cliCmd = "steampipe") {
-  await exec(cliCmd, ["query", "select 1"])
+  await execP(cliCmd, ["query", "select 1"])
   return
 }
 
@@ -68,7 +64,7 @@ export async function InstallSteampipe(cliCmd = "steampipe") {
  * @returns 
  */
 export async function InstallPlugins(cliCmd = "steampipe", plugins: Array<string> = []) {
-  await exec(cliCmd, ["plugin", "install", ...plugins])
+  await execP(cliCmd, ["plugin", "install", ...plugins])
   return
 }
 
@@ -108,20 +104,45 @@ export async function cleanConnectionConfigDir(configDir: string) {
 export async function WriteConnections(connectionData: string) {
   startGroup("WriteConnections")
   const d = new Date()
-  const configDir = `${env['HOME']}/.steampipe/config`
+  const configDir = `${env["HOME"]}/.steampipe/config`
   cleanConnectionConfigDir(configDir)
 
   const configFileName = `${d.getTime()}.spc`
-  info(`WRITING CONFIG: ${connectionData} to ${configDir}`)
   await writeFile(`${configDir}/${configFileName}`, connectionData)
   endGroup()
 }
 
-export async function RunSteampipeCheck(cliCmd: string = "steampipe", workspaceChdir: string) {
-  await exec(cliCmd, ["check", "all", "--output=md", `--workspace-chdir=${workspaceChdir}`])
+export async function RunSteampipeCheck(cliCmd: string = "steampipe", workspaceChdir: string, actionInputs: ActionInput) {
+  let args = new Array<string>()
+
+  args.push(
+    "check",
+    getCheckArg(actionInputs),
+  )
+
+  if (actionInputs.output.length > 0) {
+    args.push(`--output=${actionInputs.output}`)
+  }
+  if (actionInputs.export.length > 0) {
+    args.push(`--export=${actionInputs.export}`)
+  }
+  if (actionInputs.where.length > 0) {
+    args.push(`--where=${actionInputs.where}`)
+  }
+
+  args.push(`--workspace-chdir=${workspaceChdir}`)
+
+  await actionsExec(cliCmd, args)
+}
+
+function getCheckArg(input: ActionInput): string {
+  if (input.benchmark.length === 0 || input.control.length === 0) {
+    return "all"
+  }
+  return input.benchmark.length > 0 ? input.benchmark : input.control
 }
 
 async function extractArchive(archivePath: string) {
-  let extractor = platform === 'linux' ? extractTar : extractZip;
+  let extractor = platform === "linux" ? extractTar : extractZip;
   return await extractor(archivePath)
 }
