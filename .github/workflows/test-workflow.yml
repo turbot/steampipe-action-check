@@ -21,5 +21,13 @@ jobs:
           echo test, and deploy your project.
       - name: Use local my-action
         uses: ./
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          version: 'latest'
+          connection_config: |
+            connection "terraform" {
+              plugin = "terraform"
+              paths = [ "test_dir/*" ]
+            }
+          plugins: "[\"terraform\"]"
+          mod: 'https://github.com/turbot/steampipe-mod-terraform-aws-compliance.git'
+        run: steampipe check terraform_aws_compliance.benchmark.ec2
