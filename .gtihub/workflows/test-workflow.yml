@@ -3,14 +3,20 @@ on:
   push:
     branches:
       - first-setup
-
-
+  workflow_dispatch:
 jobs:
-  my_first_job:
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v3
-      - name: Use local my-action
-        uses: ./
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  build:
+    runs-on: ubuntu-latest
+      steps:
+        - name: Check out repository
+          uses: actions/checkout@v3
+        - name: Run a one-line script
+          run: echo Hello, world!
+        - name: Run a multi-line script
+          run: |
+            echo Add other actions to build,
+            echo test, and deploy your project.
+        - name: Use local my-action
+          uses: ./
+          env:
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
