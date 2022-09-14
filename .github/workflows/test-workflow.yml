@@ -30,4 +30,3 @@ jobs:
             }
           plugins: "[\"terraform\"]"
           mod: 'https://github.com/turbot/steampipe-mod-terraform-aws-compliance.git'
-        run: steampipe check terraform_aws_compliance.benchmark.ec2
