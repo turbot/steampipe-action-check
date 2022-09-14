@@ -14,7 +14,6 @@ async function run() {
 
     await InstallSteampipe(steampipePath)
     await InstallPlugins(steampipePath, pluginsToInstall)
-    await WriteConnections(connectionConfig)
     if (modRepositoryPath.length > 0) {
       const modPath = await InstallMod(modRepositoryPath)
       info(`Mod Path: ${modPath}`)
@@ -27,6 +26,7 @@ async function run() {
       // for it to be able to resolve the mod properly
       chdir(modPath)
     }
+    await WriteConnections(connectionConfig)
     await RunSteampipeCheck(steampipePath)
   } catch (error) {
     setFailed(error.message);
