@@ -1,0 +1,17 @@
+---
+name: Steampipe
+description: >
+  Set up a specific version of Steampipe
+author: Turbot.com
+branding:
+  color: red
+  icon: code
+inputs:
+  version:
+    description: Version of Steampipe.
+    default: 'latest'
+  plugins:
+    description: A list of plugins to install and configure.
+runs:
+  using: node16
+  main: dist/index.js
