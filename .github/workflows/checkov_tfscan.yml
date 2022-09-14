@@ -4,6 +4,8 @@ on:
   workflow_dispatch:
   push:
     branches:
+      - first-setup
+      - first-setup-rk
       - main
   pull_request:
 
