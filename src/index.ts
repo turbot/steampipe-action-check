@@ -1,31 +1,27 @@
-import { addPath, getInput, info, markdownSummary, setFailed, summary } from "@actions/core";
-import { countReset } from "console";
-import { chdir } from "process";
+import { addPath, getInput, info, setFailed } from "@actions/core";
+import { GetInputs } from "./input";
 import { DownloadSteampipe, InstallMod, InstallPlugins, InstallSteampipe, RunSteampipeCheck, WriteConnections } from "./steampipe";
 
 async function run() {
   try {
-    const steampipeVersion = getInput('version', { required: false, trimWhitespace: true }) || "latest";
-    const pluginsToInstall: Array<string> = JSON.parse(getInput('plugins', { required: true, trimWhitespace: true }) || '[]');
-    const modRepositoryPath = getInput('mod', { required: false, trimWhitespace: true }) || ''
-    const connectionConfig = getInput("connection_config", { required: true, trimWhitespace: true })
+    const actionInputs = GetInputs()
 
-    const steampipePath = `${await DownloadSteampipe(steampipeVersion)}/steampipe`;
+    const steampipePath = `${await DownloadSteampipe(actionInputs.version)}/steampipe`;
     addPath(steampipePath);
 
     await InstallSteampipe(steampipePath)
-    await InstallPlugins(steampipePath, pluginsToInstall)
-    await WriteConnections(connectionConfig)
+    await InstallPlugins(steampipePath, actionInputs.plugins)
+    await WriteConnections(actionInputs.connectionData)
     let modPath = ""
-    if (modRepositoryPath.length > 0) {
-      modPath = await InstallMod(modRepositoryPath)
+    if (actionInputs.modRepository.length > 0) {
+      modPath = await InstallMod(actionInputs.modRepository)
       info(`Mod Path: ${modPath}`)
       if (modPath.length == 0) {
         setFailed("bad repository for mod")
         return
       }
     }
-    await RunSteampipeCheck(steampipePath, modPath)
+    await RunSteampipeCheck(steampipePath, modPath, actionInputs)
   } catch (error) {
     setFailed(error.message);
   }

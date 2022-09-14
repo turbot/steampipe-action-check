@@ -8,21 +8,30 @@ branding:
   icon: code
 inputs:
   version:
-    description: Version of Steampipe.
+    description: Version of Steampipe that will be installed.
     required: false
-    default: 'latest'
+    default: latest
   plugins:
-    description: A list of plugins to install and configure.
+    description: A list of plugins to install and configure (comma-separated)
     required: true ## no point running steampipe without any plugins.
-    default: '[]'
   connection_config:
     description: Connection config that steampipe will be initialized with.
-    default: ''
     required: true ## no point if the plugins are not configured
   mod:
     description: Git URL of a mod that will be installed. Will be passed on to `git clone`.
-    default: ''
+    required: true
+  output:
+    description: "Select a console output format: brief, csv, html, json, md, text or none"
     required: false
+    default: md
+  export:
+    description: "Export output to files in various output formats: csv, html, json, md, nunit3 or asff (json)"
+    required: false
+    default: ""
+  where:
+    description: SQL 'where' clause, or named query, used to filter controls (cannot be used with '--tag')
+    required: false
+    default: ""
 runs:
   using: node16
   main: dist/index.js
