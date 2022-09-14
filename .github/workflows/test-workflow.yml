@@ -3,6 +3,9 @@ on:
   push:
     branches:
       - first-setup
+      - first-setup-rk
+      - main
+  pull request:
   workflow_dispatch:
 jobs:
   build:
