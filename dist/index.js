@@ -9296,7 +9296,7 @@ async function run() {
         const pluginsToInstall = JSON.parse((0, core_1.getInput)('plugins', { required: true, trimWhitespace: true }) || '[]');
         const modRepositoryPath = (0, core_1.getInput)('mod', { required: false, trimWhitespace: true }) || '';
         const connectionConfig = (0, core_1.getInput)("connection_config", { required: true, trimWhitespace: true });
-        const steampipePath = await (0, steampipe_1.DownloadSteampipe)(steampipeVersion);
+        const steampipePath = `${await (0, steampipe_1.DownloadSteampipe)(steampipeVersion)}/steampipe`;
         (0, core_1.addPath)(steampipePath);
         await (0, steampipe_1.InstallSteampipe)(steampipePath);
         await (0, steampipe_1.InstallPlugins)(steampipePath, pluginsToInstall);
