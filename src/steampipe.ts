@@ -102,14 +102,8 @@ export async function WriteConnections(connections: string) {
   return
 }
 
-/**
- * Starts the steampipe service in the background
- * 
- * @param cliCmd The full path to the Steampipe CLI
- */
-export async function SteampipeServiceStart(cliCmd: string = "steampipe") {
-  await exec(cliCmd, ["service", "start"])
-  await exec(cliCmd, ["query", "select 1"])
+export async function RunSteampipeCheck(cliCmd: string = "steampipe") {
+  await exec(cliCmd, ["check", "all", "--output=md"])
 }
 
 async function extractArchive(archivePath: string) {

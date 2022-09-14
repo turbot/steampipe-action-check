@@ -1,6 +1,6 @@
 import { addPath, getInput, setFailed } from "@actions/core";
 import { chdir } from "process";
-import { DownloadSteampipe, InstallMod, InstallPlugins, InstallSteampipe, SteampipeServiceStart, WriteConnections } from "./steampipe";
+import { DownloadSteampipe, InstallMod, InstallPlugins, InstallSteampipe, RunSteampipeCheck, WriteConnections } from "./steampipe";
 
 async function run() {
   try {
@@ -14,6 +14,7 @@ async function run() {
 
     await InstallSteampipe(steampipePath)
     await InstallPlugins(steampipePath, pluginsToInstall)
+    await WriteConnections(connectionConfig)
     if (modRepositoryPath.length > 0) {
       const modPath = await InstallMod(modRepositoryPath)
       if (modPath.length == 0) {
@@ -25,8 +26,7 @@ async function run() {
       // for it to be able to resolve the mod properly
       chdir(modPath)
     }
-    await WriteConnections(connectionConfig)
-    await SteampipeServiceStart(steampipePath)
+    await RunSteampipeCheck(steampipePath)
   } catch (error) {
     setFailed(error.message);
   }
