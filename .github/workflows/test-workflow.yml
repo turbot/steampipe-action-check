@@ -24,4 +24,3 @@ jobs:
             }
           plugins: "[\"terraform\"]"
           mod: 'https://github.com/turbot/steampipe-mod-terraform-aws-compliance.git'
-          command: steampipe check all
