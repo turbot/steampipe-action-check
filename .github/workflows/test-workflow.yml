@@ -24,3 +24,4 @@ jobs:
           plugins: |
             ["github"]
           # mod: "https://github.com/turbot/steampipe-utils.git"
+          mod: "."
