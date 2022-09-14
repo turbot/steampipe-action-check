@@ -25,7 +25,7 @@ async function run() {
         return
       }
     }
-    // await RunSteampipeCheck(steampipePath, modPath)
+    await RunSteampipeCheck(steampipePath, modPath)
   } catch (error) {
     setFailed(error.message);
   }
