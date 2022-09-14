@@ -9,7 +9,7 @@ async function run() {
     const modRepositoryPath = getInput('mod', { required: false, trimWhitespace: true }) || ''
     const connectionConfig = getInput("connection_config", { required: true, trimWhitespace: true })
 
-    const steampipePath = await DownloadSteampipe(steampipeVersion);
+    const steampipePath = `${await DownloadSteampipe(steampipeVersion)}/steampipe`;
     addPath(steampipePath);
 
     await InstallSteampipe(steampipePath)
