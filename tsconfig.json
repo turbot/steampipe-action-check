@@ -5,7 +5,7 @@
     ],
     "declaration": true,
     "target": "ES2022",
-    "module": "ESNext",
+    "module": "Node16",
     "rootDir": "./src",
     "outDir": "./dist",
     "declarationDir": "./dist/.d.ts",

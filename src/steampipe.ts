@@ -6,7 +6,11 @@ import { promisify } from "util";
 import { Targets } from "./targets";
 
 export function GetSteampipeDownloadLink(version: string): string {
-  return `https://github.com/turbot/steampipe/releases/download/${version}/steampipe_${Targets[platform][arch]}`
+  if (version === 'latest'){
+    return `https://github.com/turbot/steampipe/releases/latest/download/steampipe_${Targets[platform][arch]}`
+  }else {
+    return `https://github.com/turbot/steampipe/releases/download/${version}/steampipe_${Targets[platform][arch]}`
+  }
 }
 
 /**
@@ -31,8 +35,13 @@ export async function DownloadSteampipe(version: string = "latest") {
   }
 
   const downloadLink = GetSteampipeDownloadLink(version)
-  const steampipeArchivePath = await downloadTool(downloadLink)
-  const extractedTo = await extractArchive(steampipeArchivePath)
+  info(`download link: ${downloadLink}`)
+  
+  const downloadedArchive = await downloadTool(downloadLink)
+  info(`downloaded to: ${downloadedArchive}`)
+  
+  const extractedTo = await extractArchive(downloadedArchive)
+  info(`extracted to: ${extractedTo}`)
 
   return await cacheDir(extractedTo, 'steampipe', version, arch)
 }
