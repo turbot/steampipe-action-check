@@ -17,6 +17,12 @@ inputs:
   connection_config:
     description: Connection config that steampipe will be initialized with.
     required: true ## no point if the plugins are not configured
+  control:
+    description: List of controls to be executed. Will be passed on to `steampipe check`.
+    required: false
+  benchmark:
+    description: List of benchmarks to be executed. Will be passed on to `steampipe check`.
+    required: false
   mod:
     description: Git URL of a mod that will be installed. Will be passed on to `git clone`.
     required: true
