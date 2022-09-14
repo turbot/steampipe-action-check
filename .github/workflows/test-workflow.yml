@@ -19,5 +19,5 @@ jobs:
               plugin = "terraform"
               paths = ${{ secrets.TF_PATH }}
             }
-          plugins: "[\"terraform\"]"
+          plugins: terraform
           mod: 'https://github.com/turbot/steampipe-mod-terraform-aws-compliance.git'
