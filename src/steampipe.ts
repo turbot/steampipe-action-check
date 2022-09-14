@@ -1,4 +1,4 @@
-import { debug, info } from "@actions/core";
+import { debug, endGroup, info, startGroup } from "@actions/core";
 import { cacheDir, downloadTool, extractTar, extractZip, find } from "@actions/tool-cache";
 import { exec } from "@actions/exec";
 import { arch, env, execArgv, platform } from "process";
@@ -89,10 +89,15 @@ export async function InstallMod(modRepository: string) {
 }
 
 export async function cleanConnectionConfigDir(configDir: string) {
+  startGroup("cleanConnectionConfigDir")
+  debug(`cleaning config directory: ${configDir}`)
   const files = await readdir(configDir)
+  debug(`found files: ${configDir}`)
   for (const file of files) {
+    debug(`removing file: ${configDir}`)
     await unlink(join(configDir, file))
   }
+  endGroup()
 }
 
 /**
@@ -101,13 +106,15 @@ export async function cleanConnectionConfigDir(configDir: string) {
  * @returns void
  */
 export async function WriteConnections(connectionData: string) {
+  startGroup("WriteConnections")
   const d = new Date()
   const configDir = `${env['HOME']}/.steampipe/config`
   cleanConnectionConfigDir(configDir)
 
   const configFileName = `${d.getTime()}.spc`
+  info(`WRITING CONFIG: ${connectionData} to ${configDir}`)
   await writeFile(`${configDir}/${configFileName}`, connectionData)
-  return
+  endGroup()
 }
 
 export async function RunSteampipeCheck(cliCmd: string = "steampipe") {

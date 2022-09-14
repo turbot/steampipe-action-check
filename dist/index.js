@@ -6617,10 +6617,15 @@ async function InstallMod(modRepository) {
 }
 exports.InstallMod = InstallMod;
 async function cleanConnectionConfigDir(configDir) {
+    (0, core_1.startGroup)("cleanConnectionConfigDir");
+    (0, core_1.debug)(`cleaning config directory: ${configDir}`);
     const files = await (0, promises_1.readdir)(configDir);
+    (0, core_1.debug)(`found files: ${configDir}`);
     for (const file of files) {
+        (0, core_1.debug)(`removing file: ${configDir}`);
         await (0, promises_1.unlink)((0, path_1.join)(configDir, file));
     }
+    (0, core_1.endGroup)();
 }
 exports.cleanConnectionConfigDir = cleanConnectionConfigDir;
 /**
@@ -6629,12 +6634,14 @@ exports.cleanConnectionConfigDir = cleanConnectionConfigDir;
  * @returns void
  */
 async function WriteConnections(connectionData) {
+    (0, core_1.startGroup)("WriteConnections");
     const d = new Date();
     const configDir = `${process_1.env['HOME']}/.steampipe/config`;
     cleanConnectionConfigDir(configDir);
     const configFileName = `${d.getTime()}.spc`;
+    (0, core_1.info)(`WRITING CONFIG: ${connectionData} to ${configDir}`);
     await (0, promises_1.writeFile)(`${configDir}/${configFileName}`, connectionData);
-    return;
+    (0, core_1.endGroup)();
 }
 exports.WriteConnections = WriteConnections;
 async function RunSteampipeCheck(cliCmd = "steampipe") {

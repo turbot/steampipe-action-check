@@ -1,4 +1,4 @@
-import { addPath, getInput, info, setFailed, summary } from "@actions/core";
+import { addPath, getInput, info, markdownSummary, setFailed, summary } from "@actions/core";
 import { countReset } from "console";
 import { chdir } from "process";
 import { DownloadSteampipe, InstallMod, InstallPlugins, InstallSteampipe, RunSteampipeCheck, WriteConnections } from "./steampipe";
