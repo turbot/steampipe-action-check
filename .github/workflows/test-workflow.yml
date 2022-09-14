@@ -16,6 +16,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
         with:
           version: "latest"
+          export: "./github_checker_output.md"
           connection_config: |
             connection "github" {
               plugin = "github"
@@ -25,3 +26,9 @@ jobs:
             ["github"]
           # mod: "https://github.com/turbot/steampipe-utils.git"
           mod: "."
+      - name: Check repository health
+        id: check-repository-health
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          cat ./github_checker_output.md >> $GITHUB_STEP_SUMMARY
