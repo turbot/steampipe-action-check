@@ -22,8 +22,7 @@ jobs:
               plugin = "github"
               # paths = [ "" ]
             }
-          plugins: |
-            ["github"]
+          plugins: "github"
           # mod: "https://github.com/turbot/steampipe-utils.git"
           mod: "."
       - name: Check repository health
