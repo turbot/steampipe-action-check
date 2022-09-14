@@ -38,9 +38,4 @@ export declare function InstallMod(modRepository: string): Promise<string>;
  * @returns void
  */
 export declare function WriteConnections(connections: string): Promise<void>;
-/**
- * Starts the steampipe service in the background
- *
- * @param cliCmd The full path to the Steampipe CLI
- */
-export declare function SteampipeServiceStart(cliCmd?: string): Promise<void>;
+export declare function RunSteampipeCheck(cliCmd?: string): Promise<void>;
