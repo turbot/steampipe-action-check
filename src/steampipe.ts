@@ -84,7 +84,7 @@ export async function InstallMod(modRepository: string) {
   const execP = promisify(execFile)
   info(`Installing mod ${modRepository}`)
   await execP("git", ["clone", modRepository])
-  const globber = await create('./*.mod.sp', { followSymbolicLinks: false })
+  const globber = await create('./**/*.mod.sp', { followSymbolicLinks: false })
   const files = await globber.glob()
   if (files.length > 0) {
     // return the location of the mod.sp file - not the ones in dependencies (incase they exist in the repository)
