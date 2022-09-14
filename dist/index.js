@@ -8978,10 +8978,12 @@ const core_1 = __nccwpck_require__(2186);
 const tool_cache_1 = __nccwpck_require__(7784);
 const exec_1 = __nccwpck_require__(1514);
 const process_1 = __nccwpck_require__(7282);
+const util_1 = __nccwpck_require__(3837);
 const targets_1 = __nccwpck_require__(2531);
 const glob_1 = __nccwpck_require__(8090);
 const path_1 = __importDefault(__nccwpck_require__(1017));
 const promises_1 = __nccwpck_require__(3292);
+const child_process_1 = __nccwpck_require__(2081);
 function GetSteampipeDownloadLink(version) {
     if (version === 'latest') {
         return `https://github.com/turbot/steampipe/releases/latest/download/steampipe_${targets_1.Targets[process_1.platform][process_1.arch]}`;
@@ -9051,7 +9053,8 @@ async function InstallMod(modRepository) {
     if (modRepository.trim().length === 0) {
         return Promise.resolve("");
     }
-    await (0, exec_1.exec)("git", ["clone", modRepository]);
+    const execP = (0, util_1.promisify)(child_process_1.execFile);
+    await execP("git", ["clone", modRepository]);
     const globber = await (0, glob_1.create)('./*.mod', { followSymbolicLinks: false });
     const files = await globber.glob();
     if (files.length > 0) {

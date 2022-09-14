@@ -7,6 +7,7 @@ import { Targets } from "./targets";
 import { create } from "@actions/glob";
 import path from "path";
 import { writeFile } from "fs/promises";
+import { execFile } from "child_process";
 
 export function GetSteampipeDownloadLink(version: string): string {
   if (version === 'latest') {
@@ -80,7 +81,8 @@ export async function InstallMod(modRepository: string) {
   if (modRepository.trim().length === 0) {
     return Promise.resolve("")
   }
-  await exec("git", ["clone", modRepository])
+  const execP = promisify(execFile)
+  await execP("git", ["clone", modRepository])
   const globber = await create('./*.mod', { followSymbolicLinks: false })
   const files = await globber.glob()
   if (files.length > 0) {
