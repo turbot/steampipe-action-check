@@ -3,7 +3,7 @@ on:
   push:
     branches:
       - first-setup
-  pull-request:
+  pull_request:
     branches:
       - main
   workflow_dispatch:
