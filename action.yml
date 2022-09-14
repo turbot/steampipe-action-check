@@ -23,7 +23,7 @@ inputs:
   output:
     description: "Select a console output format: brief, csv, html, json, md, text or none"
     required: false
-    default: text
+    default: md
   export:
     description: "Export output to files in various output formats: csv, html, json, md, nunit3 or asff (json)"
     required: false
