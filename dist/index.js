@@ -9058,6 +9058,7 @@ async function InstallMod(modRepository) {
     await execP("git", ["clone", modRepository]);
     const globber = await (0, glob_1.create)('./**/*.mod.sp', { followSymbolicLinks: false });
     const files = await globber.glob();
+    (0, core_1.debug)(`files:${files}`);
     if (files.length > 0) {
         // return the location of the mod.sp file - not the ones in dependencies (incase they exist in the repository)
         return path_1.default.dirname(files[0]);

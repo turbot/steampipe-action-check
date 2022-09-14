@@ -1,4 +1,4 @@
-import { info } from "@actions/core";
+import { debug, info } from "@actions/core";
 import { cacheDir, downloadTool, extractTar, extractZip, find } from "@actions/tool-cache";
 import { exec } from "@actions/exec";
 import { arch, env, execArgv, platform } from "process";
@@ -86,6 +86,7 @@ export async function InstallMod(modRepository: string) {
   await execP("git", ["clone", modRepository])
   const globber = await create('./**/*.mod.sp', { followSymbolicLinks: false })
   const files = await globber.glob()
+  debug(`files:${files}`)
   if (files.length > 0) {
     // return the location of the mod.sp file - not the ones in dependencies (incase they exist in the repository)
     return path.dirname(files[0])
