@@ -9,9 +9,20 @@ branding:
 inputs:
   version:
     description: Version of Steampipe.
+    required: false
     default: 'latest'
   plugins:
     description: A list of plugins to install and configure.
+    required: true ## no point running steampipe without any plugins.
+    default: '[]'
+  connection_config:
+    description: Connection config that steampipe will be initialized with.
+    default: ''
+    required: true ## no point if the plugins are not configured
+  mod:
+    description: Git URL of a mod that will be installed. Will be passed on to `git clone`.
+    default: ''
+    required: false
 runs:
   using: node16
   main: dist/index.js
