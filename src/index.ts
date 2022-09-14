@@ -16,19 +16,16 @@ async function run() {
     await InstallSteampipe(steampipePath)
     await InstallPlugins(steampipePath, pluginsToInstall)
     await WriteConnections(connectionConfig)
+    let modPath = ""
     if (modRepositoryPath.length > 0) {
-      const modPath = await InstallMod(modRepositoryPath)
+      modPath = await InstallMod(modRepositoryPath)
       info(`Mod Path: ${modPath}`)
       if (modPath.length == 0) {
         setFailed("bad repository for mod")
         return
       }
-
-      // change to the mod directory, since Steampipe needs to be executed in the mod directory
-      // for it to be able to resolve the mod properly
-      chdir(modPath)
     }
-    await RunSteampipeCheck(steampipePath)
+    await RunSteampipeCheck(steampipePath, modPath)
   } catch (error) {
     setFailed(error.message);
   }

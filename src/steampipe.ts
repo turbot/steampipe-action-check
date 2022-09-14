@@ -117,8 +117,8 @@ export async function WriteConnections(connectionData: string) {
   endGroup()
 }
 
-export async function RunSteampipeCheck(cliCmd: string = "steampipe") {
-  await exec(cliCmd, ["check", "all", `--output=md`])
+export async function RunSteampipeCheck(cliCmd: string = "steampipe", workspaceChdir: string) {
+  await exec(cliCmd, ["check", "all", "--output=md", `--workspace-chdir=${workspaceChdir}`])
 }
 
 async function extractArchive(archivePath: string) {

@@ -6644,8 +6644,8 @@ async function WriteConnections(connectionData) {
     (0, core_1.endGroup)();
 }
 exports.WriteConnections = WriteConnections;
-async function RunSteampipeCheck(cliCmd = "steampipe") {
-    await (0, exec_1.exec)(cliCmd, ["check", "all", `--output=md`]);
+async function RunSteampipeCheck(cliCmd = "steampipe", workspaceChdir) {
+    await (0, exec_1.exec)(cliCmd, ["check", "all", "--output=md", `--workspace-chdir=${workspaceChdir}`]);
 }
 exports.RunSteampipeCheck = RunSteampipeCheck;
 async function extractArchive(archivePath) {
@@ -6859,7 +6859,6 @@ var exports = __webpack_exports__;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core_1 = __nccwpck_require__(2186);
-const process_1 = __nccwpck_require__(7282);
 const steampipe_1 = __nccwpck_require__(9885);
 async function run() {
     try {
@@ -6872,18 +6871,16 @@ async function run() {
         await (0, steampipe_1.InstallSteampipe)(steampipePath);
         await (0, steampipe_1.InstallPlugins)(steampipePath, pluginsToInstall);
         await (0, steampipe_1.WriteConnections)(connectionConfig);
+        let modPath = "";
         if (modRepositoryPath.length > 0) {
-            const modPath = await (0, steampipe_1.InstallMod)(modRepositoryPath);
+            modPath = await (0, steampipe_1.InstallMod)(modRepositoryPath);
             (0, core_1.info)(`Mod Path: ${modPath}`);
             if (modPath.length == 0) {
                 (0, core_1.setFailed)("bad repository for mod");
                 return;
             }
-            // change to the mod directory, since Steampipe needs to be executed in the mod directory
-            // for it to be able to resolve the mod properly
-            (0, process_1.chdir)(modPath);
         }
-        await (0, steampipe_1.RunSteampipeCheck)(steampipePath);
+        await (0, steampipe_1.RunSteampipeCheck)(steampipePath, modPath);
     }
     catch (error) {
         (0, core_1.setFailed)(error.message);

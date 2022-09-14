@@ -39,4 +39,4 @@ export declare function cleanConnectionConfigDir(configDir: string): Promise<voi
  * @returns void
  */
 export declare function WriteConnections(connectionData: string): Promise<void>;
-export declare function RunSteampipeCheck(cliCmd?: string): Promise<void>;
+export declare function RunSteampipeCheck(cliCmd: string, workspaceChdir: string): Promise<void>;
