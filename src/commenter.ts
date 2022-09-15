@@ -33,7 +33,6 @@ function ParseOnRun(group: Group, actionInputs: ActionInput) {
 
 async function CommentOnLine(actionInputs: ActionInput, result: Result) {
   const fileSHAMap = await GetPRFileInfos(actionInputs, result)
-  console.log("fileSHAMap======================>>>>>>>>>.", fileSHAMap)
   try {
     const octokit = new Octokit({
       auth: actionInputs.githubToken
@@ -51,7 +50,7 @@ async function CommentOnLine(actionInputs: ActionInput, result: Result) {
       ...github.context.repo,
       pull_number: github.context.payload.pull_request.number,
       body: result.reason,
-      commit_id: fileSHAMap[splitted[0].replace(process.cwd() + "/", '')],
+      commit_id: fileSHAMap.get(splitted[0].replace(process.cwd() + "/", '')),
       path: splitted[0].replace(process.cwd() + "/", ''), //examples/terraform/aws/ec2/ec2_ebs_default_encryption_enabled.tf
       line: +splitted[1]
     })
@@ -119,14 +118,14 @@ async function AnnotationOnLine(actionInputs: ActionInput, result: Result) {
 
 }
 
-async function GetPRFileInfos(actionInputs: ActionInput, result: Result) {
+async function GetPRFileInfos(actionInputs: ActionInput, result: Result): Promise<Map<string, string>> {
   try {
     const files = await github.getOctokit(actionInputs.githubToken).rest.pulls.listFiles({
       ...github.context.repo,
       pull_number: github.context.payload.pull_request.number,
       per_page: 3000
     })
-    const fileSHAMap = new Map();
+    const fileSHAMap = new Map<string, string>();
     files.data.forEach(function (val) {
       fileSHAMap.set(val.filename, val.sha)
     })

@@ -15714,7 +15714,6 @@ function ParseOnRun(group, actionInputs) {
 }
 async function CommentOnLine(actionInputs, result) {
     const fileSHAMap = await GetPRFileInfos(actionInputs, result);
-    console.log("fileSHAMap======================>>>>>>>>>.", fileSHAMap);
     try {
         const octokit = new rest_1.Octokit({
             auth: actionInputs.githubToken
@@ -15732,7 +15731,7 @@ async function CommentOnLine(actionInputs, result) {
             ...github.context.repo,
             pull_number: github.context.payload.pull_request.number,
             body: result.reason,
-            commit_id: fileSHAMap[splitted[0].replace(process.cwd() + "/", '')],
+            commit_id: fileSHAMap.get(splitted[0].replace(process.cwd() + "/", '')),
             path: splitted[0].replace(process.cwd() + "/", ''),
             line: +splitted[1]
         });
