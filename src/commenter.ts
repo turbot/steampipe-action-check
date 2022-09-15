@@ -40,7 +40,7 @@ async function CommentOnLine(actionInputs: ActionInput, result: Result) {
     var splitted = result.dimensions[0].value.split(":", 2);
     var input = {
       ...github.context.repo,
-      owner: github.context.actor,
+      owner: 'turbot',
       pull_number: github.context.payload.pull_request.number,
       body: result.reason,
       line: +(splitted[1]),
