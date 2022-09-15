@@ -1,0 +1,28 @@
+name: Run Steampipe Terraform Compliance
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        folder: [aws, azure, gcp]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v3
+      - name: Run Steampipe Terraform Compliance - ${{ matrix.folder }}
+        uses: ./
+        with:
+          version: latest
+          connection_config: |
+            connection "terraform" {
+              plugin = "terraform"
+              paths = ["examples/terraform/${{ matrix.folder }}/**/*.tf"] # Provide the path to terraform files
+            }
+          plugins: terraform
+          mod: 'https://github.com/turbot/steampipe-mod-terraform-${{ matrix.folder }}-compliance.git'
+          output: md ## Default is markdown if not provided
