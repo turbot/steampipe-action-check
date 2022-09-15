@@ -6649,7 +6649,7 @@ async function InstallMod(modRepository) {
     }
     const cloneTo = `workspace_dir_${new Date().getTime()}`;
     (0, core_1.info)(`Installing mod from ${modRepository}`);
-    await (0, exec_1.exec)(await (0, io_1.which)("git", true), ["clone", modRepository, cloneTo], {});
+    await (0, exec_1.exec)(await (0, io_1.which)("git", true), ["clone", modRepository, cloneTo]);
     (0, core_1.endGroup)();
     return cloneTo;
 }
