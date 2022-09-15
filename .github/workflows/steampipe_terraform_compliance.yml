@@ -1,30 +1,34 @@
-name: Run Steampipe
+name: Run Steampipe Checks
 on:
-  # push:
-  #   branches:
-  #     - first-setup
-  #     - first-setup-rk
-  #     - main
+  push:
+    branches:
+      - main
   pull_request:
   workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - name: Check out repository
         uses: actions/checkout@v3
+
       - name: Use local my-action
+        continue-on-error: true
         uses: ./
         with:
-          version: latest
+          version: 'latest'
+          export: "./check_output.md"
           connection_config: |
             connection "terraform" {
               plugin = "terraform"
-              paths = ${{ secrets.TF_PATH }}
+              paths = ["examples/terraform/aws/**/*.tf"]
             }
           plugins: terraform
           mod: 'https://github.com/turbot/steampipe-mod-terraform-aws-compliance.git'
-          export: json
-          control: control.ec2_ebs_default_encryption_enabled
-          output: json
+
+      - name: Check terraform compliance health
+        id: terraform-compliance-health
+        run: |
+          cat ./check_output.md >> $GITHUB_STEP_SUMMARY
