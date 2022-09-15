@@ -30,7 +30,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  steampipe-terraform-checks:
     runs-on: ubuntu-latest
 
     steps:
@@ -42,6 +42,7 @@ jobs:
         uses: ./
         with:
           version: 'latest'
+          export: "./check_output.md"
           connection_config: |
             connection "terraform" {
               plugin = "terraform"
@@ -49,6 +50,8 @@ jobs:
             }
           plugins: terraform
           mod: 'https://github.com/turbot/steampipe-mod-terraform-aws-compliance.git'
+          # run: control.ec2_instance_not_use_default_vpc, control.ec2_ebs_default_encryption_enabled
+          output: text
 ```
 
 ## GitHub action Parameters
