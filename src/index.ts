@@ -1,4 +1,4 @@
-import { addPath, debug, setFailed } from "@actions/core";
+import { addPath, info, setFailed } from "@actions/core";
 import { appendFile, constants, copyFile, readdir, readFile, unlink, writeFile } from "fs/promises";
 import { extname } from "path";
 import { ActionInput, GetInputs } from "./input";
@@ -53,15 +53,15 @@ async function removeFiles(files: Array<string>) {
 }
 
 async function combineFiles(files: Array<string>, writeTo: string) {
-  debug("writing seed file for combining")
+  info("writing seed file for combining")
   await writeFile("", writeTo)
   for (let file of files) {
-    debug(`reading ${file}`)
+    info(`reading ${file}`)
     const content = await readFile(file)
     await appendFile(writeTo, content, {
       flag: constants.O_CREAT | constants.O_APPEND
     })
-    debug(`appended contents of ${file} to ${writeTo}`)
+    info(`appended contents of ${file} to ${writeTo}`)
   }
 }
 
