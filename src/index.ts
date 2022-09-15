@@ -26,7 +26,7 @@ async function run() {
     // create an export file so that we can use it for commenting and annotating pull requests 
     const jsonExportFile = `check-output-for-action-${new Date().getTime()}.json`
     const mdExportFile = `check-output-for-action-${new Date().getTime()}.md`
-    
+
     try {
       // since `steampipe check` may exit with a non-zero exit code
       await RunSteampipeCheck(steampipePath, modPath, actionInputs, [jsonExportFile, mdExportFile])
