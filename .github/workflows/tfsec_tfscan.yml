@@ -14,4 +14,4 @@ jobs:
       - name: tfsec
         uses: aquasecurity/tfsec-pr-commenter-action@v1.2.0
         with:
-          github_token: ${{ secret.GH_TOKEN }}
+          github_token: ${{ secrets.GH_TOKEN }}
