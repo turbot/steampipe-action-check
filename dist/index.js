@@ -15744,25 +15744,27 @@ async function AnnotationOnLine(actionInputs, result) {
         const octokit = new rest_1.Octokit({
             auth: actionInputs.githubToken
         });
+        var splitted = result.dimensions[0].value.split(":", 2);
         const check = await octokit.rest.checks.create({
-            owner: github.context.repo.owner,
+            owner: 'turbot',
+            pull_number: github.context.payload.pull_request.number,
             repo: github.context.repo.repo,
-            name: 'Readme Validator',
-            head_sha: github.context.sha,
+            name: 'Terraform Validator',
+            head_sha: github.context.payload.pull_request['head']['sha'],
             status: 'completed',
             conclusion: 'failure',
             output: {
-                title: 'README.md must start with a title',
-                summary: 'Please use markdown syntax to create a title',
+                title: result.resource,
+                summary: result.reason,
                 annotations: [
                     {
-                        path: 'README.md',
-                        start_line: 1,
-                        end_line: 1,
+                        path: splitted[0].split("/")[splitted[0].split("/").length - 1],
+                        start_line: +(splitted[1]),
+                        end_line: +(splitted[1]),
                         annotation_level: 'failure',
-                        message: 'README.md must start with a header',
-                        start_column: 1,
-                        end_column: 1
+                        message: result.reason,
+                        start_column: +(splitted[1]),
+                        end_column: +(splitted[1])
                     }
                 ]
             }
