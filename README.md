@@ -67,3 +67,11 @@ jobs:
 | where | SQL 'where' clause, or named query, used to filter controls | No | | Input parameters |
 
 ## Example Screenshots
+
+*(To be updated)*
+
+Workflow with successful execution
+![](images/successful_action.png)
+
+Workflow with failed execution
+![](images/failed_execution.png)
