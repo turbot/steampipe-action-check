@@ -18,19 +18,17 @@ inputs:
   connection_config:
     description: Connection config that steampipe will be initialized with.
     required: true ## no point if the plugins are not configured
-  control:
-    description: List of controls to be executed. Will be passed on to `steampipe check`.
+  run:
+    description: A list of benchmarks and controls to run (comma-separated). If left blank, `all` controls and benchmarks are run.
     required: false
-  benchmark:
-    description: List of benchmarks to be executed. Will be passed on to `steampipe check`.
-    required: false
+    default: ""
   mod:
     description: Git URL of a mod that will be installed. Will be passed on to `git clone`.
     required: true
   output:
     description: Select a console output format i.e. brief, csv, html, json, md, text or none
     required: false
-    default: md
+    default: text
   export:
     description: "Export output to files in various output formats: csv, html, json, md, nunit3 or asff (json) - comma separated"
     required: false
