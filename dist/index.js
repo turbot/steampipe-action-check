@@ -15671,28 +15671,39 @@ const rest_1 = __nccwpck_require__(5375);
 const core_1 = __nccwpck_require__(2186);
 const github_1 = __importDefault(__nccwpck_require__(5438));
 async function AddPRComments(actionInputs, myExportFile) {
-    console.log('=================>>>>>>>>>');
+    (0, core_1.startGroup)(`Add Comments`);
     // const context = github.context;
     // if (context.payload.pull_request == null) {
     //   setFailed('No pull request found.');
     //   return;
     // }
     const content = await (0, promises_1.readFile)(myExportFile, 'utf-8');
-    console.log('--------------->>>>>>>>>', content);
+    // console.log('--------------->>>>>>>>>', content);
     const group = JSON.parse(content);
-    console.log('--------------->>>>>>>>>', group);
+    // console.log('--------------->>>>>>>>>', group);
+    ParseOnRun(group, actionInputs);
+    (0, core_1.endGroup)();
 }
 exports.AddPRComments = AddPRComments;
-async function CommentOnLine(actionInputs) {
+function ParseOnRun(group, actionInputs) {
+    group.controls[0].results.forEach(function (result) {
+        if (result.status = 'alarm') {
+            console.log('result==============>>>>>>>>>', result);
+            // CommentOnLine(actionInputs, result)
+        }
+    });
+}
+async function CommentOnLine(actionInputs, result) {
     try {
         const octokit = new rest_1.Octokit({
             auth: actionInputs.githubToken
         });
+        var splitted = result.dimensions[0].value.split(":", 2);
         const new_comment = await octokit.pulls.createReviewComment({
             ...github_1.default.context.repo,
             pull_number: github_1.default.context.payload.pull_request.number,
-            body: "message",
-            line: 1,
+            body: result.reason,
+            line: +(splitted[1]),
             commit_id: github_1.default.context.sha,
             path: "string"
         });
