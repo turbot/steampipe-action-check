@@ -9,6 +9,7 @@ export interface ActionInput {
     where: string | null;
     output: string;
     export: Array<string>;
+    summaryFile: string;
 }
 export interface GroupJson {
     groupId: string;

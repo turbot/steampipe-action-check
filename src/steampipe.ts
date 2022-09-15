@@ -1,6 +1,5 @@
 import { debug, endGroup, info, startGroup } from "@actions/core";
 import { exec } from "@actions/exec";
-import { which } from "@actions/io";
 import { cacheDir, downloadTool, extractTar, extractZip, find } from "@actions/tool-cache";
 import { readdir, unlink, writeFile } from "fs/promises";
 import { join } from "path";
@@ -124,13 +123,13 @@ export async function WriteConnections(connectionData: string) {
  * @param workspaceChdir string - The path to the workspace directory where a mod (if any) is installed. 
  * @param actionInputs string - The inputs that we got when this action was started.
  */
-export async function RunSteampipeCheck(cliCmd: string = "steampipe", workspaceChdir: string, actionInputs: ActionInput, myExportFile: string) {
+export async function RunSteampipeCheck(cliCmd: string = "steampipe", workspaceChdir: string, actionInputs: ActionInput, xtraExports: Array<string>) {
   startGroup(`Running Check`)
   let args = new Array<string>()
 
   args.push(
     "check",
-    getCheckArg(actionInputs),
+    ...getCheckArg(actionInputs),
   )
 
   if (actionInputs.output.length > 0) {
@@ -139,8 +138,11 @@ export async function RunSteampipeCheck(cliCmd: string = "steampipe", workspaceC
   if (actionInputs.export.length > 0) {
     args.push(`--export=${actionInputs.export}`)
   }
-  // add an export for myself, which we will remove later on
-  args.push(`--export=${myExportFile}`)
+
+  for (let f of xtraExports) {
+    // add an export for self, which we will remove later on
+    args.push(`--export=${f}`)
+  }
 
   if (actionInputs.where.length > 0) {
     args.push(`--where=${actionInputs.where}`)
@@ -149,10 +151,10 @@ export async function RunSteampipeCheck(cliCmd: string = "steampipe", workspaceC
   args.push(`--workspace-chdir=${workspaceChdir}`)
 
   const execEnv = env
-  env.STEAMPIPE_CHECK_DISPLAY_WIDTH = "200"
+  execEnv.STEAMPIPE_CHECK_DISPLAY_WIDTH = "120"
 
   await exec(cliCmd, args, {
-    env: env,
+    env: execEnv,
   })
 
   endGroup()
@@ -165,14 +167,11 @@ async function cleanConnectionConfigDir(configDir: string) {
   }
 }
 
-function getCheckArg(input: ActionInput): string {
+function getCheckArg(input: ActionInput): Array<string> {
   if (input.run.length === 0) {
-    return "all"
+    return ["all"]
   }
   return input.run
-    .map(r => r.trim())
-    .filter(r => (r.length > 0))
-    .join(" ")
 }
 
 function getSteampipeDownloadLink(version: string): URL {

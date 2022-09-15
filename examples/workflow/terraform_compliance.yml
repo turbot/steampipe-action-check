@@ -1,28 +1,30 @@
-name: Run Steampipe Terraform Compliance
+name: Run Steampipe Checks
 on:
-  # push:
-  #   branches:
-  #     - main
+  push:
+    branches:
+      - main
   pull_request:
   workflow_dispatch:
 
 jobs:
-  check:
+  steampipe-terraform-checks:
     runs-on: ubuntu-latest
+
     steps:
       - name: Check out repository
         uses: actions/checkout@v3
-      - name: Use local my-action
+
+      - name: Steampipe terraform scan action
+        continue-on-error: true
         uses: ./
         with:
-          version: latest
+          version: 'latest'
           connection_config: |
             connection "terraform" {
               plugin = "terraform"
-              paths = ["examples/terraform/aws/**/*.tf"] # Provide the path to terraform files
+              paths = ["examples/terraform/aws/**/*.tf"]
             }
           plugins: terraform
           mod: 'https://github.com/turbot/steampipe-mod-terraform-aws-compliance.git'
-          export: json
-          run: control.ec2_ebs_default_encryption_enabled ## You can provide multiple controls or benchmarks separated by comma
-          output: test 
+          run: control.ec2_instance_not_use_default_vpc,control.ec2_ebs_default_encryption_enabled
+          output: text
