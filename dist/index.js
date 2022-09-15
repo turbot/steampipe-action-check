@@ -6682,7 +6682,7 @@ exports.WriteConnections = WriteConnections;
 async function RunSteampipeCheck(cliCmd = "steampipe", workspaceChdir, actionInputs, myExportFile) {
     (0, core_1.startGroup)(`Running Check`);
     let args = new Array();
-    args.push("check", getCheckArg(actionInputs));
+    args.push("check", ...getCheckArg(actionInputs));
     if (actionInputs.output.length > 0) {
         args.push(`--output=${actionInputs.output}`);
     }

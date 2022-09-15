@@ -129,7 +129,7 @@ export async function RunSteampipeCheck(cliCmd: string = "steampipe", workspaceC
 
   args.push(
     "check",
-    getCheckArg(actionInputs),
+    ...getCheckArg(actionInputs),
   )
 
   if (actionInputs.output.length > 0) {
