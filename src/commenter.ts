@@ -38,45 +38,43 @@ async function CommentOnLine(actionInputs: ActionInput, result: Result) {
       auth: actionInputs.githubToken
     });
     var splitted = result.dimensions[0].value.split(":", 2);
-    // var input = {
+    const new_comment = await octokit.pulls.createReviewComment({
+      ...github.context.repo,
+      owner: 'turbot',
+      pull_number: github.context.payload.pull_request.number,
+      body: result.reason,
+      // commit_id: github.context.payload.pull_request['head']['sha'],
+      commit_id: github.context.sha,
+      // path: splitted[0].replace(process.cwd(), '') //examples/terraform/aws/ec2/ec2_ebs_default_encryption_enabled.tf
+      path: splitted[0].split("/")[splitted[0].split("/").length - 1],
+      start_side: "RIGHT",
+      start_line: +(splitted[1]),
+      side: "RIGHT",
+      line: +(splitted[1])
+    })
+    // const new_comment = await octokit.request('POST /repos/{owner}/{repo}/pulls/{pull_number}/comments', {
     //   ...github.context.repo,
-    //   owner: 'turbot',
     //   pull_number: github.context.payload.pull_request.number,
     //   body: result.reason,
-    //   // commit_id: github.context.payload.pull_request['head']['sha'],
     //   commit_id: github.context.sha,
-    //   // path: splitted[0].replace(process.cwd(), '') //examples/terraform/aws/ec2/ec2_ebs_default_encryption_enabled.tf
     //   path: splitted[0].split("/")[splitted[0].split("/").length - 1],
-    //   start_side: "RIGHT",
     //   start_line: +(splitted[1]),
-    //   side: "RIGHT",
-    //   line: +(splitted[1])
-    // }
-    // console.log('result==============>>>>>>>>>', input)
-    const new_comment = await octokit.request('POST /repos/{owner}/{repo}/pulls/{pull_number}/comments', {
-      ...github.context.repo,
-      pull_number: github.context.payload.pull_request.number,
-      body: result.reason,
-      commit_id: github.context.sha,
-      path: splitted[0].split("/")[splitted[0].split("/").length - 1],
-      start_line: +(splitted[1]),
-      start_side: 'RIGHT',
-      line: +(splitted[1]),
-      side: 'RIGHT'
-    })
-    console.log('result==============>>>>>>>>>', {
-      ...github.context.repo,
-      pull_number: github.context.payload.pull_request.number,
-      body: result.reason,
-      commit_id: github.context.sha,
-      path: splitted[0].split("/")[splitted[0].split("/").length - 1],
-      start_line: +(splitted[1]),
-      start_side: 'RIGHT',
-      line: +(splitted[1]),
-      side: 'RIGHT'
-    })
-    console.log("new_comment---------------->>>>>>>>>>", new_comment)
-
+    //   start_side: 'RIGHT',
+    //   line: +(splitted[1]),
+    //   side: 'RIGHT'
+    // })
+    // console.log('result==============>>>>>>>>>', {
+    //   ...github.context.repo,
+    //   pull_number: github.context.payload.pull_request.number,
+    //   body: result.reason,
+    //   commit_id: github.context.sha,
+    //   path: splitted[0].split("/")[splitted[0].split("/").length - 1],
+    //   start_line: +(splitted[1]),
+    //   start_side: 'RIGHT',
+    //   line: +(splitted[1]),
+    //   side: 'RIGHT'
+    // })
+    console.log("new_comment---------->>>>>>>>>>>.", new_comment)
   } catch (error) {
     setFailed(error);
   }
