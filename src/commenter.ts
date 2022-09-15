@@ -45,8 +45,8 @@ async function CommentOnLine(actionInputs: ActionInput, result: Result) {
       body: result.reason,
       line: +(splitted[1]),
       commit_id: github.context.payload.pull_request['head']['sha'],
-      // path: splitted[0].replace(process.cwd(), '')
-      path: splitted[0].split("/")[splitted[0].split("/").length - 1]
+      path: splitted[0].replace(process.cwd(), '') //examples/terraform/aws/ec2/ec2_ebs_default_encryption_enabled.tf
+      // path: splitted[0].split("/")[splitted[0].split("/").length - 1]
       // start_line: +(splitted[1]),
       // start_side: "RIGHT",
       // side: "RIGHT"
