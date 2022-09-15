@@ -15750,7 +15750,7 @@ async function AnnotationOnLine(actionInputs, result) {
             pull_number: github.context.payload.pull_request.number,
             repo: github.context.repo.repo,
             name: 'Terraform Validator',
-            head_sha: github.context.payload.pull_request['head']['sha'],
+            head_sha: github.context.sha,
             status: 'completed',
             conclusion: 'failure',
             output: {
