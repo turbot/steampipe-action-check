@@ -15698,7 +15698,7 @@ async function AddPRComments(actionInputs, myExportFile) {
     //   return;
     // }
     const content = await (0, promises_1.readFile)(myExportFile, 'utf-8');
-    console.log('github.context--------------->>>>>>>>>', actionInputs.githubToken);
+    console.log('github.context--------------->>>>>>>>>', github.context.payload.pull_request['head']['sha']);
     const group = JSON.parse(content);
     // console.log('--------------->>>>>>>>>', group);
     ParseOnRun(group, actionInputs);
@@ -15723,7 +15723,7 @@ async function CommentOnLine(actionInputs, result) {
             pull_number: github.context.payload.pull_request.number,
             body: result.reason,
             line: +(splitted[1]),
-            commit_id: github.context.sha,
+            commit_id: github.context.payload.pull_request['head']['sha'],
             path: splitted[0].replace('/home/runner/work/steampipe-action', '')
         };
         const new_comment = await octokit.pulls.createReviewComment(input);
