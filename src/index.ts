@@ -32,9 +32,7 @@ async function run() {
     }
     finally {
       const mdFiles = await getExportedSummaryMarkdownFiles(actionInputs)
-      info(`MD Files: ${mdFiles}`)
       const jsonFiles = await getExportedJSONFiles(actionInputs)
-      info(`JSON Files: ${jsonFiles}`)
       await combineFiles(mdFiles, "summary.md")
 
       await copyFile("summary.md", actionInputs.summaryFile)
@@ -55,13 +53,10 @@ async function removeFiles(files: Array<string>) {
 }
 
 async function combineFiles(files: Array<string>, writeTo: string) {
-  info(`writing seed file for combining ${files}`)
   await writeFile(writeTo, "")
   for (let file of files) {
-    info(`reading ${file}`)
     const content = await readFile(file)
     await appendFile(writeTo, content)
-    info(`appended contents of ${file} to ${writeTo}`)
   }
 }
 
@@ -76,7 +71,6 @@ async function getExportedFileWithExtn(input: ActionInput, extn: string) {
   let files = new Array<string>()
 
   const dirContents = await readdir(".")
-  info(`Contents: ${dirContents}`)
   for (let d of dirContents) {
     const s = await stat(d)
     if (!s.isFile()) {
@@ -88,9 +82,6 @@ async function getExportedFileWithExtn(input: ActionInput, extn: string) {
     }
 
     for (let r of input.run) {
-      info(`** Checking ${d} with ${r}`)
-      info(`=== EXTN: ${extname(d)}`)
-      info(` >>> Getting ${d.startsWith(r)} and ${extname(d) == extn}`)
       if (d.startsWith(r) && extname(d) == `.${extn}`) {
         files.push(d)
       }

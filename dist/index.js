@@ -6973,9 +6973,7 @@ async function run() {
         }
         finally {
             const mdFiles = await getExportedSummaryMarkdownFiles(actionInputs);
-            (0, core_1.info)(`MD Files: ${mdFiles}`);
             const jsonFiles = await getExportedJSONFiles(actionInputs);
-            (0, core_1.info)(`JSON Files: ${jsonFiles}`);
             await combineFiles(mdFiles, "summary.md");
             await (0, promises_1.copyFile)("summary.md", actionInputs.summaryFile);
             removeFiles(mdFiles);
@@ -6992,13 +6990,10 @@ async function removeFiles(files) {
     }
 }
 async function combineFiles(files, writeTo) {
-    (0, core_1.info)(`writing seed file for combining ${files}`);
     await (0, promises_1.writeFile)(writeTo, "");
     for (let file of files) {
-        (0, core_1.info)(`reading ${file}`);
         const content = await (0, promises_1.readFile)(file);
         await (0, promises_1.appendFile)(writeTo, content);
-        (0, core_1.info)(`appended contents of ${file} to ${writeTo}`);
     }
 }
 async function getExportedSummaryMarkdownFiles(input) {
@@ -7010,7 +7005,6 @@ async function getExportedJSONFiles(input) {
 async function getExportedFileWithExtn(input, extn) {
     let files = new Array();
     const dirContents = await (0, promises_1.readdir)(".");
-    (0, core_1.info)(`Contents: ${dirContents}`);
     for (let d of dirContents) {
         const s = await (0, promises_1.stat)(d);
         if (!s.isFile()) {
@@ -7020,9 +7014,6 @@ async function getExportedFileWithExtn(input, extn) {
             continue;
         }
         for (let r of input.run) {
-            (0, core_1.info)(`** Checking ${d} with ${r}`);
-            (0, core_1.info)(`=== EXTN: ${(0, path_1.extname)(d)}`);
-            (0, core_1.info)(` >>> Getting ${d.startsWith(r)} and ${(0, path_1.extname)(d) == extn}`);
             if (d.startsWith(r) && (0, path_1.extname)(d) == `.${extn}`) {
                 files.push(d);
             }
