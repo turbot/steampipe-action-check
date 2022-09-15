@@ -6679,7 +6679,7 @@ exports.WriteConnections = WriteConnections;
  * @param workspaceChdir string - The path to the workspace directory where a mod (if any) is installed.
  * @param actionInputs string - The inputs that we got when this action was started.
  */
-async function RunSteampipeCheck(cliCmd = "steampipe", workspaceChdir, actionInputs, myExportFile) {
+async function RunSteampipeCheck(cliCmd = "steampipe", workspaceChdir, actionInputs, xtraExports) {
     (0, core_1.startGroup)(`Running Check`);
     let args = new Array();
     args.push("check", ...getCheckArg(actionInputs));
@@ -6689,10 +6689,9 @@ async function RunSteampipeCheck(cliCmd = "steampipe", workspaceChdir, actionInp
     if (actionInputs.export.length > 0) {
         args.push(`--export=${actionInputs.export}`);
     }
-    for (let f of myExportFile) {
+    for (let f of xtraExports) {
         // add an export for self, which we will remove later on
-        args.push(`--export=md`);
-        args.push(`--export=json`);
+        args.push(`--export=${f}`);
     }
     if (actionInputs.where.length > 0) {
         args.push(`--where=${actionInputs.where}`);
@@ -6945,6 +6944,8 @@ var exports = __webpack_exports__;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core_1 = __nccwpck_require__(2186);
+const promises_1 = __nccwpck_require__(3292);
+const path_1 = __nccwpck_require__(1017);
 const input_1 = __nccwpck_require__(6747);
 const steampipe_1 = __nccwpck_require__(9885);
 async function run() {
@@ -6963,25 +6964,54 @@ async function run() {
                 return;
             }
         }
-        // create an export file so that we can use it for commenting and annotating pull requests 
-        const jsonExportFile = `check-output-for-action-${new Date().getTime()}.json`;
-        const mdExportFile = `check-output-for-action-${new Date().getTime()}.md`;
         try {
             // since `steampipe check` may exit with a non-zero exit code
-            await (0, steampipe_1.RunSteampipeCheck)(steampipePath, modPath, actionInputs, [jsonExportFile, mdExportFile]);
+            await (0, steampipe_1.RunSteampipeCheck)(steampipePath, modPath, actionInputs, ["json", "md"]);
         }
         catch (e) {
             throw e;
         }
         finally {
-            // await copyFile(mdExportFile, actionInputs.summaryFile)
-            // await unlink(jsonExportFile)
-            // await unlink(mdExportFile)
+            const mdFiles = await getExportedSummaryMarkdownFiles(actionInputs);
+            const jsonFiles = await getExportedJSONFiles(actionInputs);
+            await combineFiles(mdFiles, "summary.md");
+            await (0, promises_1.copyFile)("summary.md", actionInputs.summaryFile);
+            removeFiles(mdFiles);
+            removeFiles(jsonFiles);
         }
     }
     catch (error) {
         (0, core_1.setFailed)(error.message);
     }
+}
+async function removeFiles(files) {
+    for (let f of files) {
+        await (0, promises_1.unlink)(f);
+    }
+}
+async function combineFiles(files, writeTo) {
+    for (let file of files) {
+        const content = await (0, promises_1.readFile)(file);
+        await (0, promises_1.appendFile)(writeTo, content);
+    }
+}
+async function getExportedSummaryMarkdownFiles(input) {
+    return await getExportedFileWithExtn(input, "md");
+}
+async function getExportedJSONFiles(input) {
+    return await getExportedFileWithExtn(input, "json");
+}
+async function getExportedFileWithExtn(input, extn) {
+    let files = new Array();
+    const dirContents = await (0, promises_1.readdir)(".");
+    for (let d of dirContents) {
+        for (let r of input.run) {
+            if (d.startsWith(r) && (0, path_1.extname)(d) == extn) {
+                files.push(r);
+            }
+        }
+    }
+    return files;
 }
 run();
 
