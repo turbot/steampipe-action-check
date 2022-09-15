@@ -15708,7 +15708,7 @@ exports.AddPRComments = AddPRComments;
 function ParseOnRun(group, actionInputs) {
     group.controls[0].results.forEach(function (result) {
         if (result.status = 'alarm') {
-            CommentOnLine(actionInputs, result);
+            AnnotationOnLine(actionInputs, result);
         }
     });
 }
@@ -15734,6 +15734,39 @@ async function CommentOnLine(actionInputs, result) {
         };
         console.log('result==============>>>>>>>>>', input);
         const new_comment = await octokit.pulls.createReviewComment(input);
+    }
+    catch (error) {
+        (0, core_1.setFailed)(error);
+    }
+}
+async function AnnotationOnLine(actionInputs, result) {
+    try {
+        const octokit = new rest_1.Octokit({
+            auth: actionInputs.githubToken
+        });
+        const check = await octokit.rest.checks.create({
+            owner: github.context.repo.owner,
+            repo: github.context.repo.repo,
+            name: 'Readme Validator',
+            head_sha: github.context.sha,
+            status: 'completed',
+            conclusion: 'failure',
+            output: {
+                title: 'README.md must start with a title',
+                summary: 'Please use markdown syntax to create a title',
+                annotations: [
+                    {
+                        path: 'README.md',
+                        start_line: 1,
+                        end_line: 1,
+                        annotation_level: 'failure',
+                        message: 'README.md must start with a header',
+                        start_column: 1,
+                        end_column: 1
+                    }
+                ]
+            }
+        });
     }
     catch (error) {
         (0, core_1.setFailed)(error);
