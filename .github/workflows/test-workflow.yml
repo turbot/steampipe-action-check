@@ -1,6 +1,5 @@
 name: Run Steampipe Action
 on:
-  pull_request:
   push:
     branches:
       - cleanup
@@ -21,8 +20,9 @@ jobs:
             }
           plugins: terraform
           mod: "https://github.com/turbot/steampipe-mod-terraform-aws-compliance.git"
-          export: export.json
+          export: summary.md
           run: control.ec2_ebs_default_encryption_enabled
-      - name: Save to sumary
+      - name: Save to summary
         run: |
-          cat export.json > $GITHUB_STEP_SUMMARY
+          cat summary.md > $GITHUB_STEP_SUMMARY
+          rm -rf summary.md
