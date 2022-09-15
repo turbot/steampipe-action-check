@@ -17,5 +17,5 @@ jobs:
       - name: tfsec
         uses: aquasecurity/tfsec-pr-commenter-action@main
         with:
-          # working_directory: $
+          working_directory: "test_dir"
           github_token: ${{ secrets.GH_TOKEN }}
