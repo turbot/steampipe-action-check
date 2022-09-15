@@ -16441,6 +16441,7 @@ function ParseOnRun(group, actionInputs) {
     });
 }
 async function CommentOnLine(actionInputs, result) {
+    const fileSHAMap = await GetPRFileInfos(actionInputs, result);
     try {
         const octokit = new rest_1.Octokit({
             auth: actionInputs.githubToken
@@ -16448,17 +16449,11 @@ async function CommentOnLine(actionInputs, result) {
         var splitted = result.dimensions[0].value.split(":", 2);
         const new_comment = await github.getOctokit(actionInputs.githubToken).pulls.createReviewComment({
             ...github.context.repo,
-            owner: 'turbot',
             pull_number: github.context.payload.pull_request.number,
             body: result.reason,
-            // commit_id: github.context.payload.pull_request['head']['sha'],
-            commit_id: github.context.sha,
-            // path: splitted[0].replace(process.cwd(), '') //examples/terraform/aws/ec2/ec2_ebs_default_encryption_enabled.tf
-            path: splitted[0].split("/")[splitted[0].split("/").length - 1],
-            start_line: +(splitted[1]),
-            start_side: "RIGHT",
-            line: 1 + (+splitted[1]),
-            side: "LEFT"
+            commit_id: fileSHAMap[splitted[0].replace(process.cwd() + "/", '')],
+            path: splitted[0].replace(process.cwd() + "/", ''),
+            position: +splitted[1]
         });
         // const new_comment = await octokit.request('POST /repos/{owner}/{repo}/pulls/{pull_number}/comments', {
         //   ...github.context.repo,
@@ -16522,6 +16517,23 @@ async function AnnotationOnLine(actionInputs, result) {
     }
     catch (error) {
         (0, core_1.setFailed)(error);
+    }
+}
+async function GetPRFileInfos(actionInputs, result) {
+    try {
+        const files = await github.getOctokit(actionInputs.githubToken).pulls.listFiles({
+            ...github.context.repo,
+            pull_number: github.context.payload.pull_request.number,
+            per_page: 3000
+        });
+        const fileSHAMap = new Map();
+        files.data.forEach(function (val) {
+            fileSHAMap.set(val.filename, val.sha);
+        });
+        return fileSHAMap;
+    }
+    catch (error) {
+        return null;
     }
 }
 
