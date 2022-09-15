@@ -1,6 +1,6 @@
 import { addPath, info, setFailed } from "@actions/core";
-import { appendFile, constants, copyFile, readdir, readFile, unlink, writeFile } from "fs/promises";
-import { extname } from "path";
+import { appendFile, constants, copyFile, readdir, readFile, stat, unlink, writeFile } from "fs/promises";
+import { extname, join } from "path";
 import { ActionInput, GetInputs } from "./input";
 import { DownloadAndDeflateSteampipe, InstallMod, InstallPlugins, InstallSteampipe, RunSteampipeCheck, WriteConnections } from "./steampipe";
 
@@ -78,7 +78,12 @@ async function getExportedFileWithExtn(input: ActionInput, extn: string) {
   let files = new Array<string>()
 
   const dirContents = await readdir(".")
+  info(`Contents: ${dirContents}`)
   for (let d of dirContents) {
+    const s = await stat(d)
+    if (!s.isFile()) {
+      continue
+    }
     for (let r of input.run) {
       if (d.startsWith(r) && extname(d) == extn) {
         files.push(r)

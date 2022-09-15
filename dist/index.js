@@ -7012,7 +7012,12 @@ async function getExportedJSONFiles(input) {
 async function getExportedFileWithExtn(input, extn) {
     let files = new Array();
     const dirContents = await (0, promises_1.readdir)(".");
+    (0, core_1.info)(`Contents: ${dirContents}`);
     for (let d of dirContents) {
+        const s = await (0, promises_1.stat)(d);
+        if (!s.isFile()) {
+            continue;
+        }
         for (let r of input.run) {
             if (d.startsWith(r) && (0, path_1.extname)(d) == extn) {
                 files.push(r);
