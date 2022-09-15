@@ -6991,7 +6991,7 @@ async function removeFiles(files) {
 }
 async function combineFiles(files, writeTo) {
     (0, core_1.info)("writing seed file for combining");
-    await (0, promises_1.writeFile)("", writeTo);
+    await (0, promises_1.writeFile)(writeTo, "");
     for (let file of files) {
         (0, core_1.info)(`reading ${file}`);
         const content = await (0, promises_1.readFile)(file);
