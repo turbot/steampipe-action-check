@@ -15708,7 +15708,7 @@ exports.AddPRComments = AddPRComments;
 function ParseOnRun(group, actionInputs) {
     group.controls[0].results.forEach(function (result) {
         if (result.status = 'alarm') {
-            AnnotationOnLine(actionInputs, result);
+            CommentOnLine(actionInputs, result);
         }
     });
 }
@@ -15724,10 +15724,10 @@ async function CommentOnLine(actionInputs, result) {
             pull_number: github.context.payload.pull_request.number,
             body: result.reason,
             line: +(splitted[1]),
-            commit_id: github.context.payload.pull_request['head']['sha'],
+            // commit_id: github.context.payload.pull_request['head']['sha'],
+            commit_id: github.context.sha,
             // path: splitted[0].replace(process.cwd(), '') //examples/terraform/aws/ec2/ec2_ebs_default_encryption_enabled.tf
-            // path: splitted[0].split("/")[splitted[0].split("/").length - 1]
-            path: 'https://github.com/turbot/steampipe-action/pull/7/files#diff-1540d0669c3b13577f36bef3c817e7c60f61323750282f0e8a20f908413b5e66'
+            path: splitted[0].split("/")[splitted[0].split("/").length - 1]
             // start_line: +(splitted[1]),
             // start_side: "RIGHT",
             // side: "RIGHT"
