@@ -15661,15 +15661,35 @@ function wrappy (fn, cb) {
 
 "use strict";
 
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.AddPRComments = void 0;
 const promises_1 = __nccwpck_require__(3292);
 const rest_1 = __nccwpck_require__(5375);
 const core_1 = __nccwpck_require__(2186);
-const github_1 = __importDefault(__nccwpck_require__(5438));
+const github = __importStar(__nccwpck_require__(5438));
 async function AddPRComments(actionInputs, myExportFile) {
     (0, core_1.startGroup)(`Add Comments`);
     // const context = github.context;
@@ -15678,7 +15698,7 @@ async function AddPRComments(actionInputs, myExportFile) {
     //   return;
     // }
     const content = await (0, promises_1.readFile)(myExportFile, 'utf-8');
-    console.log('github.context--------------->>>>>>>>>', github_1.default.context);
+    console.log('github.context--------------->>>>>>>>>', github.context);
     const group = JSON.parse(content);
     // console.log('--------------->>>>>>>>>', group);
     ParseOnRun(group, actionInputs);
@@ -15699,11 +15719,11 @@ async function CommentOnLine(actionInputs, result) {
         });
         var splitted = result.dimensions[0].value.split(":", 2);
         var input = {
-            ...github_1.default.context.repo,
-            pull_number: github_1.default.context.payload.pull_request.number,
+            ...github.context.repo,
+            pull_number: github.context.payload.pull_request.number,
             body: result.reason,
             line: +(splitted[1]),
-            commit_id: github_1.default.context.sha,
+            commit_id: github.context.sha,
             path: splitted[0].replace('/home/runner/work/steampipe-action', '')
         };
         const new_comment = await octokit.pulls.createReviewComment(input);

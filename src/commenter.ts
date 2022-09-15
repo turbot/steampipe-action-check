@@ -3,7 +3,7 @@ import { Group, Result } from "./output";
 import { readFile } from "fs/promises";
 import { Octokit } from '@octokit/rest';
 import { setFailed, startGroup, endGroup } from "@actions/core";
-import github from "@actions/github";
+import * as github from '@actions/github';
 
 
 export async function AddPRComments(actionInputs: ActionInput, myExportFile: string) {
