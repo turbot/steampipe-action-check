@@ -6990,12 +6990,15 @@ async function removeFiles(files) {
     }
 }
 async function combineFiles(files, writeTo) {
+    (0, core_1.debug)("writing seed file for combining");
     await (0, promises_1.writeFile)("", writeTo);
     for (let file of files) {
+        (0, core_1.debug)(`reading ${file}`);
         const content = await (0, promises_1.readFile)(file);
         await (0, promises_1.appendFile)(writeTo, content, {
             flag: promises_1.constants.O_CREAT | promises_1.constants.O_APPEND
         });
+        (0, core_1.debug)(`appended contents of ${file} to ${writeTo}`);
     }
 }
 async function getExportedSummaryMarkdownFiles(input) {
