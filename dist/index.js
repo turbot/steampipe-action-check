@@ -6713,12 +6713,9 @@ async function cleanConnectionConfigDir(configDir) {
 }
 function getCheckArg(input) {
     if (input.run.length === 0) {
-        return "all";
+        return ["all"];
     }
-    return input.run
-        .map(r => r.trim())
-        .filter(r => (r.length > 0))
-        .join(" ");
+    return input.run;
 }
 function getSteampipeDownloadLink(version) {
     if (version === "latest") {

@@ -167,14 +167,11 @@ async function cleanConnectionConfigDir(configDir: string) {
   }
 }
 
-function getCheckArg(input: ActionInput): string {
+function getCheckArg(input: ActionInput): Array<string> {
   if (input.run.length === 0) {
-    return "all"
+    return ["all"]
   }
   return input.run
-    .map(r => r.trim())
-    .filter(r => (r.length > 0))
-    .join(" ")
 }
 
 function getSteampipeDownloadLink(version: string): URL {
