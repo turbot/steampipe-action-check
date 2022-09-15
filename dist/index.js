@@ -6561,10 +6561,12 @@ const core_1 = __nccwpck_require__(2186);
 const exec_1 = __nccwpck_require__(1514);
 const io_1 = __nccwpck_require__(7436);
 const tool_cache_1 = __nccwpck_require__(7784);
+const child_process_1 = __nccwpck_require__(2081);
 const promises_1 = __nccwpck_require__(3292);
 const path_1 = __nccwpck_require__(1017);
 const process_1 = __nccwpck_require__(7282);
 const url_1 = __nccwpck_require__(7310);
+const util_1 = __nccwpck_require__(3837);
 const targets_1 = __nccwpck_require__(2531);
 /**
  *
@@ -6649,7 +6651,7 @@ async function InstallMod(modRepository) {
     }
     const cloneTo = `workspace_dir_${new Date().getTime()}`;
     (0, core_1.info)(`Installing mod from ${modRepository}`);
-    await (0, exec_1.exec)(await (0, io_1.which)("git", true), ["clone", modRepository, cloneTo]);
+    await (0, util_1.promisify)(child_process_1.execFile)(await (0, io_1.which)("git", true), ["clone", modRepository, cloneTo]);
     (0, core_1.endGroup)();
     return cloneTo;
 }
