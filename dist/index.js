@@ -15719,7 +15719,15 @@ async function CommentOnLine(actionInputs, result) {
             auth: actionInputs.githubToken
         });
         var splitted = result.dimensions[0].value.split(":", 2);
-        const new_comment = await github.getOctokit(actionInputs.githubToken).rest.pulls.createReviewComment({
+        // const new_comment = await github.getOctokit(actionInputs.githubToken).rest.pulls.createReviewComment({
+        //   ...github.context.repo,
+        //   pull_number: github.context.payload.pull_request.number,
+        //   body: result.reason,
+        //   commit_id: fileSHAMap[splitted[0].replace(process.cwd() + "/", '')],
+        //   path: splitted[0].replace(process.cwd() + "/", ''), //examples/terraform/aws/ec2/ec2_ebs_default_encryption_enabled.tf
+        //   line: +splitted[1]
+        // })
+        console.log("results---------------->>>>>>>>>", {
             ...github.context.repo,
             pull_number: github.context.payload.pull_request.number,
             body: result.reason,
@@ -15727,17 +15735,14 @@ async function CommentOnLine(actionInputs, result) {
             path: splitted[0].replace(process.cwd() + "/", ''),
             line: +splitted[1]
         });
-        // const new_comment = await octokit.request('POST /repos/{owner}/{repo}/pulls/{pull_number}/comments', {
-        //   ...github.context.repo,
-        //   pull_number: github.context.payload.pull_request.number,
-        //   body: result.reason,
-        //   commit_id: github.context.sha,
-        //   path: splitted[0].split("/")[splitted[0].split("/").length - 1],
-        //   start_line: +(splitted[1]),
-        //   start_side: 'RIGHT',
-        //   line: +(splitted[1]),
-        //   side: 'RIGHT'
-        // })
+        const new_comment = await octokit.request('POST /repos/{owner}/{repo}/pulls/{pull_number}/comments', {
+            ...github.context.repo,
+            pull_number: github.context.payload.pull_request.number,
+            body: result.reason,
+            commit_id: fileSHAMap[splitted[0].replace(process.cwd() + "/", '')],
+            path: splitted[0].replace(process.cwd() + "/", ''),
+            line: +splitted[1]
+        });
         // console.log('result==============>>>>>>>>>', {
         //   ...github.context.repo,
         //   pull_number: github.context.payload.pull_request.number,
