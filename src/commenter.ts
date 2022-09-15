@@ -45,7 +45,7 @@ async function CommentOnLine(actionInputs: ActionInput, result: Result) {
       body: result.reason,
       line: +(splitted[1]),
       commit_id: github.context.payload.pull_request['head']['sha'],
-      path: splitted[0].replace('/home/runner/work/steampipe-action', '')
+      path: splitted[0].replace('/home/runner/work/steampipe-action/steampipe-action/', '')
     }
     console.log('result==============>>>>>>>>>', input)
     const new_comment = await octokit.pulls.createReviewComment(input)
