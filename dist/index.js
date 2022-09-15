@@ -6538,15 +6538,11 @@ function GetInputs() {
         plugins: (0, core_1.getInput)("plugins", { required: true, trimWhitespace: false }).split(",").map(p => p.trim()).filter(p => p.length > 0),
         modRepository: (0, core_1.getInput)("mod", { required: false, trimWhitespace: true }) || "",
         connectionData: (0, core_1.getInput)("connection_config", { required: true, trimWhitespace: false }),
-        control: (0, core_1.getInput)("control", { required: false, trimWhitespace: true }) || "",
-        benchmark: (0, core_1.getInput)("benchmark", { required: false, trimWhitespace: true }) || "",
+        run: (0, core_1.getInput)("run", { required: false, trimWhitespace: true }).split(",").map(r => r.trim()).filter(r => (r.length > 0)) || [],
+        where: (0, core_1.getInput)("where", { required: false, trimWhitespace: false }) || "",
         output: (0, core_1.getInput)("output", { required: false, trimWhitespace: true }) || "",
         export: ((0, core_1.getInput)("export", { required: false, trimWhitespace: true }) || "").split(",").map(e => e.trim()).filter(e => e.length > 0),
-        where: (0, core_1.getInput)("where", { required: false, trimWhitespace: false }) || ""
     };
-    if (inputs.benchmark.length > 0 && inputs.control.length > 0) {
-        throw new Error("cannot use `control` and `benchmark` in the same `check` run");
-    }
     return inputs;
 }
 exports.GetInputs = GetInputs;
@@ -6560,59 +6556,65 @@ exports.GetInputs = GetInputs;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.RunSteampipeCheck = exports.WriteConnections = exports.cleanConnectionConfigDir = exports.InstallMod = exports.InstallPlugins = exports.InstallSteampipe = exports.DownloadSteampipe = exports.GetSteampipeDownloadLink = void 0;
+exports.RunSteampipeCheck = exports.WriteConnections = exports.InstallMod = exports.InstallPlugins = exports.InstallSteampipe = exports.DownloadAndDeflateSteampipe = void 0;
 const core_1 = __nccwpck_require__(2186);
-const tool_cache_1 = __nccwpck_require__(7784);
 const exec_1 = __nccwpck_require__(1514);
-const child_process_1 = __nccwpck_require__(2081);
+const tool_cache_1 = __nccwpck_require__(7784);
 const promises_1 = __nccwpck_require__(3292);
 const path_1 = __nccwpck_require__(1017);
 const process_1 = __nccwpck_require__(7282);
-const util_1 = __nccwpck_require__(3837);
+const url_1 = __nccwpck_require__(7310);
 const targets_1 = __nccwpck_require__(2531);
-const execP = (0, util_1.promisify)(child_process_1.execFile);
-function GetSteampipeDownloadLink(version) {
-    if (version === "latest") {
-        return `https://github.com/turbot/steampipe/releases/latest/download/steampipe_${targets_1.Targets[process_1.platform][process_1.arch]}`;
-    }
-    else {
-        return `https://github.com/turbot/steampipe/releases/download/${version}/steampipe_${targets_1.Targets[process_1.platform][process_1.arch]}`;
-    }
-}
-exports.GetSteampipeDownloadLink = GetSteampipeDownloadLink;
 /**
  *
- * DownloadSteampipe downloads and extracts the given steampipe version from the official steampipe releases in turbot/steampipe repository
+ * Downloads and extracts the given steampipe version from the official steampipe releases in turbot/steampipe repository
  *
- * DownloadSteampipe attempts to cache the downloaded binary by platform and architecture.
+ * Attempts to cache the downloaded binary by platform and architecture.
  *
- * Note: when using the `latest` release, it is NEVER cached.
+ * Note: when using the `latest` release, it is NEVER cached. This is because, `latest` is a pointer to an actual version which keeps changing as new releases are pushed out.
  *
  * TODO: attempt to extract the actual version of `latest` and use it.
  *
  * @param version The version of steampipe to download. Default: `latest`
  */
-async function DownloadSteampipe(version = "latest") {
+async function DownloadAndDeflateSteampipe(version = "latest") {
+    (0, core_1.startGroup)("Download Steampipe");
     if (version !== "latest") {
+        (0, core_1.info)(`Checking if ${version} is cached`);
+        // try to find out if the cache has an entry for this.
         const toolPath = (0, tool_cache_1.find)("steampipe", version, process_1.arch);
         if (toolPath) {
-            (0, core_1.info)(`Found in cache @ ${toolPath}`);
+            (0, core_1.info)(`Found ${version} in cache @ ${toolPath}`);
             return toolPath;
         }
+        (0, core_1.info)(`Could not find ${version} in cache. Need to download.`);
     }
-    const downloadLink = GetSteampipeDownloadLink(version);
-    const downloadedArchive = await (0, tool_cache_1.downloadTool)(downloadLink);
+    const downloadLink = getSteampipeDownloadLink(version);
+    (0, core_1.info)(`Downloading ${version}...`);
+    const downloadedArchive = await (0, tool_cache_1.downloadTool)(downloadLink.toString());
+    (0, core_1.info)(`Download complete`);
+    (0, core_1.info)(`Extracting...`);
     const extractedTo = await extractArchive(downloadedArchive);
+    if (version == "latest") {
+        (0, core_1.info)(`Skipping cache for 'latest' release.`);
+        // no caching of `latest` binary
+        return extractedTo;
+    }
+    (0, core_1.info)(`Caching ${version}`);
     return await (0, tool_cache_1.cacheDir)(extractedTo, "steampipe", version, process_1.arch);
 }
-exports.DownloadSteampipe = DownloadSteampipe;
+exports.DownloadAndDeflateSteampipe = DownloadAndDeflateSteampipe;
 /**
  * InstallSteampipe installs steampipe by setting up the embedded postgres database
  *
  * @param cliCmd The path to the steampipe binary
  */
 async function InstallSteampipe(cliCmd = "steampipe") {
-    await execP(cliCmd, ["query", "select 1"]);
+    (0, core_1.startGroup)("Installing Steampipe");
+    await (0, exec_1.exec)(cliCmd, ["query", "select 1"], {
+        silent: true
+    });
+    (0, core_1.endGroup)();
     return;
 }
 exports.InstallSteampipe = InstallSteampipe;
@@ -6624,54 +6626,65 @@ exports.InstallSteampipe = InstallSteampipe;
  * @returns
  */
 async function InstallPlugins(cliCmd = "steampipe", plugins = []) {
-    await execP(cliCmd, ["plugin", "install", ...plugins]);
+    (0, core_1.startGroup)("Installing plugins");
+    if (plugins.length > 0) {
+        (0, core_1.info)(`Installing ${plugins}`);
+        await (0, exec_1.exec)(cliCmd, ["plugin", "install", ...plugins], {
+            silent: true
+        });
+        (0, core_1.info)(`Installation complete`);
+    }
+    (0, core_1.endGroup)();
     return;
 }
 exports.InstallPlugins = InstallPlugins;
 /**
+ * Installs a mod from the given Git Clone URL.
+ * Forwards the GitURL as-is to `git clone`
  *
  * @param modRepository The HTTP/SSH url of the mod repository. This will be passed in as-is to `git clone`
- * @returns void
  */
 async function InstallMod(modRepository) {
+    (0, core_1.startGroup)("Installing Mod");
     if (modRepository.trim().length === 0) {
+        (0, core_1.endGroup)();
         return Promise.resolve("");
     }
-    const cloneTo = `mod-dir-${new Date().getTime()}`;
-    const execP = (0, util_1.promisify)(child_process_1.execFile);
-    (0, core_1.info)(`Installing mod ${modRepository}`);
-    await execP("git", ["clone", modRepository, cloneTo]);
+    const cloneTo = `workspace_dir_${new Date().getTime()}`;
+    (0, core_1.info)(`Installing mod from ${modRepository}`);
+    await (0, exec_1.exec)("git", ["clone", modRepository, cloneTo], {
+        silent: true
+    });
+    (0, core_1.endGroup)();
     return cloneTo;
 }
 exports.InstallMod = InstallMod;
-async function cleanConnectionConfigDir(configDir) {
-    (0, core_1.startGroup)("cleanConnectionConfigDir");
-    (0, core_1.debug)(`cleaning config directory: ${configDir}`);
-    const files = await (0, promises_1.readdir)(configDir);
-    (0, core_1.debug)(`found files: ${configDir}`);
-    for (const file of files) {
-        (0, core_1.debug)(`removing file: ${configDir}`);
-        await (0, promises_1.unlink)((0, path_1.join)(configDir, file));
-    }
-    (0, core_1.endGroup)();
-}
-exports.cleanConnectionConfigDir = cleanConnectionConfigDir;
 /**
  *
  * @param connectionData The connection configuration HCL. All connection configs are to be appended into a single HCL string.
  * @returns void
  */
 async function WriteConnections(connectionData) {
-    (0, core_1.startGroup)("WriteConnections");
+    (0, core_1.startGroup)("Writing Connections");
     const d = new Date();
     const configDir = `${process_1.env["HOME"]}/.steampipe/config`;
+    (0, core_1.debug)("Cleaning up old config directory");
     cleanConnectionConfigDir(configDir);
     const configFileName = `${d.getTime()}.spc`;
+    (0, core_1.info)("Writing connection data");
     await (0, promises_1.writeFile)(`${configDir}/${configFileName}`, connectionData);
+    (0, core_1.info)("Finished writing connection data");
     (0, core_1.endGroup)();
 }
 exports.WriteConnections = WriteConnections;
-async function RunSteampipeCheck(cliCmd = "steampipe", workspaceChdir, actionInputs) {
+/**
+ *
+ * @param cliCmd string - The path to the installed steampipe CLI.
+ * @param workspaceChdir string - The path to the workspace directory where a mod (if any) is installed.
+ * @param actionInputs string - The inputs that we got when this action was started.
+ */
+async function RunSteampipeCheck(cliCmd = "steampipe", workspaceChdir, actionInputs, myExportFile) {
+    (0, core_1.startGroup)(`Running Check`);
     let args = new Array();
     args.push("check", getCheckArg(actionInputs));
     if (actionInputs.output.length > 0) {
@@ -6680,18 +6693,42 @@ async function RunSteampipeCheck(cliCmd = "steampipe", workspaceChdir, actionInp
     if (actionInputs.export.length > 0) {
         args.push(`--export=${actionInputs.export}`);
     }
+    // add an export for myself, which we will remove later on
+    args.push(`--export=${myExportFile}`);
     if (actionInputs.where.length > 0) {
         args.push(`--where=${actionInputs.where}`);
     }
     args.push(`--workspace-chdir=${workspaceChdir}`);
-    await (0, exec_1.exec)(cliCmd, args);
+    await (0, exec_1.exec)(cliCmd, args, {
+        env: {
+            STEAMPIPE_CHECK_DISPLAY_WIDTH: "200",
+        },
+    });
+    (0, core_1.endGroup)();
 }
 exports.RunSteampipeCheck = RunSteampipeCheck;
+async function cleanConnectionConfigDir(configDir) {
+    const files = await (0, promises_1.readdir)(configDir);
+    for (const file of files) {
+        await (0, promises_1.unlink)((0, path_1.join)(configDir, file));
+    }
+}
 function getCheckArg(input) {
-    if (input.benchmark.length === 0 && input.control.length === 0) {
+    if (input.run.length === 0) {
         return "all";
     }
-    return input.benchmark.length > 0 ? input.benchmark : input.control;
+    return input.run
+        .map(r => r.trim())
+        .filter(r => (r.length > 0))
+        .join(" ");
+}
+function getSteampipeDownloadLink(version) {
+    if (version === "latest") {
+        return new url_1.URL(`https://github.com/turbot/steampipe/releases/latest/download/steampipe_${targets_1.Targets[process_1.platform][process_1.arch]}`);
+    }
+    else {
+        return new url_1.URL(`https://github.com/turbot/steampipe/releases/download/${version}/steampipe_${targets_1.Targets[process_1.platform][process_1.arch]}`);
+    }
 }
 async function extractArchive(archivePath) {
     let extractor = process_1.platform === "linux" ? tool_cache_1.extractTar : tool_cache_1.extractZip;
@@ -6850,6 +6887,14 @@ module.exports = require("tls");
 
 /***/ }),
 
+/***/ 7310:
+/***/ ((module) => {
+
+"use strict";
+module.exports = require("url");
+
+/***/ }),
+
 /***/ 3837:
 /***/ ((module) => {
 
@@ -6904,12 +6949,13 @@ var exports = __webpack_exports__;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core_1 = __nccwpck_require__(2186);
+const promises_1 = __nccwpck_require__(3292);
 const input_1 = __nccwpck_require__(6747);
 const steampipe_1 = __nccwpck_require__(9885);
 async function run() {
     try {
         const actionInputs = (0, input_1.GetInputs)();
-        const steampipePath = `${await (0, steampipe_1.DownloadSteampipe)(actionInputs.version)}/steampipe`;
+        const steampipePath = `${await (0, steampipe_1.DownloadAndDeflateSteampipe)(actionInputs.version)}/steampipe`;
         (0, core_1.addPath)(steampipePath);
         await (0, steampipe_1.InstallSteampipe)(steampipePath);
         await (0, steampipe_1.InstallPlugins)(steampipePath, actionInputs.plugins);
@@ -6917,13 +6963,15 @@ async function run() {
         let modPath = "";
         if (actionInputs.modRepository.length > 0) {
             modPath = await (0, steampipe_1.InstallMod)(actionInputs.modRepository);
-            (0, core_1.info)(`Mod Path: ${modPath}`);
             if (modPath.length == 0) {
                 (0, core_1.setFailed)("bad repository for mod");
                 return;
             }
         }
-        await (0, steampipe_1.RunSteampipeCheck)(steampipePath, modPath, actionInputs);
+        // create an export file so that we can use it for commenting and annotating pull requests 
+        const myExportFile = `check-output-for-action-${new Date().getTime()}.json`;
+        await (0, steampipe_1.RunSteampipeCheck)(steampipePath, modPath, actionInputs, myExportFile);
+        await (0, promises_1.unlink)(myExportFile);
     }
     catch (error) {
         (0, core_1.setFailed)(error.message);
