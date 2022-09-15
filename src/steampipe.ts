@@ -136,7 +136,8 @@ export async function RunSteampipeCheck(cliCmd: string = "steampipe", workspaceC
     args.push(`--output=${actionInputs.output}`)
   }
   if (actionInputs.export.length > 0) {
-    args.push(`--export=${actionInputs.export}`)
+    args.push(`--export=md`)
+    args.push(`--export=json`)
   }
 
   for (let f of myExportFile) {

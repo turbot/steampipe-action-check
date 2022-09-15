@@ -35,9 +35,9 @@ async function run() {
       throw e
     }
     finally {
-      await copyFile(mdExportFile, actionInputs.summaryFile)
-      await unlink(jsonExportFile)
-      await unlink(mdExportFile)
+      // await copyFile(mdExportFile, actionInputs.summaryFile)
+      // await unlink(jsonExportFile)
+      // await unlink(mdExportFile)
     }
 
   } catch (error) {
