@@ -1,8 +1,8 @@
 name: Run Steampipe Checks
 on:
-  push:
-    branches:
-      - action-kp
+  # push:
+  #   branches:
+  #     - action-kp
   pull_request:
   workflow_dispatch:
 

@@ -15708,7 +15708,7 @@ exports.AddPRComments = AddPRComments;
 function ParseOnRun(group, actionInputs) {
     group.controls[0].results.forEach(function (result) {
         if (result.status = 'alarm') {
-            // CommentOnLine(actionInputs, result)
+            CommentOnLine(actionInputs, result);
         }
     });
 }

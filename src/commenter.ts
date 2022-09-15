@@ -26,7 +26,7 @@ export async function AddPRComments(actionInputs: ActionInput, myExportFile: str
 function ParseOnRun(group: Group, actionInputs: ActionInput) {
   group.controls[0].results.forEach(function (result) {
     if (result.status = 'alarm') {
-      // CommentOnLine(actionInputs, result)
+      CommentOnLine(actionInputs, result)
     }
   })
 }
