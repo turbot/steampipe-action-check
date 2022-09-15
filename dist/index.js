@@ -6558,7 +6558,6 @@ exports.GetInputs = GetInputs;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.RunSteampipeCheck = exports.WriteConnections = exports.InstallMod = exports.InstallPlugins = exports.InstallSteampipe = exports.DownloadAndDeflateSteampipe = void 0;
 const core_1 = __nccwpck_require__(2186);
-const exec_1 = __nccwpck_require__(1514);
 const io_1 = __nccwpck_require__(7436);
 const tool_cache_1 = __nccwpck_require__(7784);
 const child_process_1 = __nccwpck_require__(2081);
@@ -6568,6 +6567,7 @@ const process_1 = __nccwpck_require__(7282);
 const url_1 = __nccwpck_require__(7310);
 const util_1 = __nccwpck_require__(3837);
 const targets_1 = __nccwpck_require__(2531);
+const exec = (0, util_1.promisify)(child_process_1.execFile);
 /**
  *
  * Downloads and extracts the given steampipe version from the official steampipe releases in turbot/steampipe repository
@@ -6614,7 +6614,7 @@ exports.DownloadAndDeflateSteampipe = DownloadAndDeflateSteampipe;
  */
 async function InstallSteampipe(cliCmd = "steampipe") {
     (0, core_1.startGroup)("Installing Steampipe");
-    await (0, exec_1.exec)(cliCmd, ["query", "select 1"]);
+    await exec(cliCmd, ["query", "select 1"]);
     (0, core_1.endGroup)();
     return;
 }
@@ -6630,7 +6630,7 @@ async function InstallPlugins(cliCmd = "steampipe", plugins = []) {
     (0, core_1.startGroup)("Installing plugins");
     if (plugins.length > 0) {
         (0, core_1.info)(`Installing ${plugins}`);
-        await (0, exec_1.exec)(cliCmd, ["plugin", "install", ...plugins]);
+        await exec(cliCmd, ["plugin", "install", ...plugins]);
         (0, core_1.info)(`Installation complete`);
     }
     (0, core_1.endGroup)();
@@ -6651,7 +6651,7 @@ async function InstallMod(modRepository) {
     }
     const cloneTo = `workspace_dir_${new Date().getTime()}`;
     (0, core_1.info)(`Installing mod from ${modRepository}`);
-    await (0, util_1.promisify)(child_process_1.execFile)(await (0, io_1.which)("git", true), ["clone", modRepository, cloneTo]);
+    await exec(await (0, io_1.which)("git", true), ["clone", modRepository, cloneTo]);
     (0, core_1.endGroup)();
     return cloneTo;
 }
@@ -6696,7 +6696,7 @@ async function RunSteampipeCheck(cliCmd = "steampipe", workspaceChdir, actionInp
         args.push(`--where=${actionInputs.where}`);
     }
     args.push(`--workspace-chdir=${workspaceChdir}`);
-    await (0, exec_1.exec)(cliCmd, args, {
+    await exec(cliCmd, args, {
         env: {
             STEAMPIPE_CHECK_DISPLAY_WIDTH: "200",
         },
