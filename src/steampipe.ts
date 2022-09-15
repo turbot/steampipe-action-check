@@ -2,10 +2,12 @@ import { debug, endGroup, info, startGroup } from "@actions/core";
 import { exec } from "@actions/exec";
 import { which } from "@actions/io";
 import { cacheDir, downloadTool, extractTar, extractZip, find } from "@actions/tool-cache";
+import { execFile } from "child_process";
 import { readdir, unlink, writeFile } from "fs/promises";
 import { join } from "path";
 import { arch, env, platform } from "process";
 import { URL } from "url";
+import { promisify } from "util";
 import { ActionInput } from "./input";
 import { Targets } from "./targets";
 
@@ -94,7 +96,7 @@ export async function InstallMod(modRepository: string) {
   }
   const cloneTo = `workspace_dir_${new Date().getTime()}`
   info(`Installing mod from ${modRepository}`)
-  await exec(await which("git", true), ["clone", modRepository, cloneTo])
+  await promisify(execFile)(await which("git", true), ["clone", modRepository, cloneTo])
   endGroup()
   return cloneTo
 }
