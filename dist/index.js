@@ -15734,8 +15734,7 @@ async function CommentOnLine(actionInputs, result) {
         // }
         // console.log('result==============>>>>>>>>>', input)
         const new_comment = await octokit.request('POST /repos/{owner}/{repo}/pulls/{pull_number}/comments', {
-            owner: 'OWNER',
-            repo: 'REPO',
+            ...github.context.repo,
             pull_number: github.context.payload.pull_request.number,
             body: result.reason,
             commit_id: github.context.sha,
@@ -15746,8 +15745,7 @@ async function CommentOnLine(actionInputs, result) {
             side: 'RIGHT'
         });
         console.log('result==============>>>>>>>>>', {
-            owner: 'OWNER',
-            repo: 'REPO',
+            ...github.context.repo,
             pull_number: github.context.payload.pull_request.number,
             body: result.reason,
             commit_id: github.context.sha,
