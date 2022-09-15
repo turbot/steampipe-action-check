@@ -123,7 +123,7 @@ export async function WriteConnections(connectionData: string) {
  * @param workspaceChdir string - The path to the workspace directory where a mod (if any) is installed. 
  * @param actionInputs string - The inputs that we got when this action was started.
  */
-export async function RunSteampipeCheck(cliCmd: string = "steampipe", workspaceChdir: string, actionInputs: ActionInput, myExportFile: [string, string]) {
+export async function RunSteampipeCheck(cliCmd: string = "steampipe", workspaceChdir: string, actionInputs: ActionInput, xtraExports: Array<string>) {
   startGroup(`Running Check`)
   let args = new Array<string>()
 
@@ -136,12 +136,11 @@ export async function RunSteampipeCheck(cliCmd: string = "steampipe", workspaceC
     args.push(`--output=${actionInputs.output}`)
   }
   if (actionInputs.export.length > 0) {
-    args.push(`--export=md`)
-    args.push(`--export=json`)
+    args.push(`--export=${actionInputs.export}`)
   }
 
-  for (let f of myExportFile) {
-    // add an export for myself, which we will remove later on
+  for (let f of xtraExports) {
+    // add an export for self, which we will remove later on
     args.push(`--export=${f}`)
   }
 

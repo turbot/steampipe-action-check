@@ -1,7 +1,7 @@
-import { addPath, setFailed } from "@actions/core";
-import { copyFile, unlink } from "fs/promises";
-import { exit } from "process";
-import { GetInputs } from "./input";
+import { addPath, info, setFailed } from "@actions/core";
+import { appendFile, constants, copyFile, readdir, readFile, stat, unlink, writeFile } from "fs/promises";
+import { extname, join } from "path";
+import { ActionInput, GetInputs } from "./input";
 import { DownloadAndDeflateSteampipe, InstallMod, InstallPlugins, InstallSteampipe, RunSteampipeCheck, WriteConnections } from "./steampipe";
 
 async function run() {
@@ -23,26 +23,72 @@ async function run() {
       }
     }
 
-    // create an export file so that we can use it for commenting and annotating pull requests 
-    const jsonExportFile = `check-output-for-action-${new Date().getTime()}.json`
-    const mdExportFile = `check-output-for-action-${new Date().getTime()}.md`
-
     try {
       // since `steampipe check` may exit with a non-zero exit code
-      await RunSteampipeCheck(steampipePath, modPath, actionInputs, [jsonExportFile, mdExportFile])
+      await RunSteampipeCheck(steampipePath, modPath, actionInputs, ["json", "md"])
     }
     catch (e) {
       throw e
     }
     finally {
-      // await copyFile(mdExportFile, actionInputs.summaryFile)
-      // await unlink(jsonExportFile)
-      // await unlink(mdExportFile)
+      const mdFiles = await getExportedSummaryMarkdownFiles(actionInputs)
+      const jsonFiles = await getExportedJSONFiles(actionInputs)
+      await combineFiles(mdFiles, "summary.md")
+
+      await copyFile("summary.md", actionInputs.summaryFile)
+
+      removeFiles(mdFiles)
+      removeFiles(jsonFiles)
     }
 
   } catch (error) {
     setFailed(error.message);
   }
+}
+
+async function removeFiles(files: Array<string>) {
+  for (let f of files) {
+    await unlink(f)
+  }
+}
+
+async function combineFiles(files: Array<string>, writeTo: string) {
+  await writeFile(writeTo, "")
+  for (let file of files) {
+    const content = await readFile(file)
+    await appendFile(writeTo, content)
+  }
+}
+
+async function getExportedSummaryMarkdownFiles(input: ActionInput) {
+  return await getExportedFileWithExtn(input, "md")
+}
+async function getExportedJSONFiles(input: ActionInput) {
+  return await getExportedFileWithExtn(input, "json")
+}
+
+async function getExportedFileWithExtn(input: ActionInput, extn: string) {
+  let files = new Array<string>()
+
+  const dirContents = await readdir(".")
+  for (let d of dirContents) {
+    const s = await stat(d)
+    if (!s.isFile()) {
+      continue
+    }
+
+    if (extname(d).length < 2) {
+      continue
+    }
+
+    for (let r of input.run) {
+      if (d.startsWith(r) && extname(d) == `.${extn}`) {
+        files.push(d)
+      }
+    }
+  }
+
+  return files
 }
 
 run()
