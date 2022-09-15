@@ -46,8 +46,8 @@ async function CommentOnLine(actionInputs: ActionInput, result: Result) {
       commit_id: github.context.sha,
       // path: splitted[0].replace(process.cwd(), '') //examples/terraform/aws/ec2/ec2_ebs_default_encryption_enabled.tf
       path: splitted[0].split("/")[splitted[0].split("/").length - 1],
-      side: "RIGHT",
-      line: +(splitted[1])
+      line: +(splitted[1]),
+      side: "RIGHT"
     })
     // const new_comment = await octokit.request('POST /repos/{owner}/{repo}/pulls/{pull_number}/comments', {
     //   ...github.context.repo,
