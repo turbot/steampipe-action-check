@@ -38,7 +38,7 @@ async function CommentOnLine(actionInputs: ActionInput, result: Result) {
       auth: actionInputs.githubToken
     });
     var splitted = result.dimensions[0].value.split(":", 2);
-    const new_comment = await github.getOctokit(actionInputs.githubToken).pulls.createReviewComment({
+    const new_comment = await github.getOctokit(actionInputs.githubToken).rest.pulls.createReviewComment({
       ...github.context.repo,
       pull_number: github.context.payload.pull_request.number,
       body: result.reason,
@@ -115,7 +115,7 @@ async function AnnotationOnLine(actionInputs: ActionInput, result: Result) {
 
 async function GetPRFileInfos(actionInputs: ActionInput, result: Result) {
   try {
-    const files = await github.getOctokit(actionInputs.githubToken).pulls.listFiles({
+    const files = await github.getOctokit(actionInputs.githubToken).rest.pulls.listFiles({
       ...github.context.repo,
       pull_number: github.context.payload.pull_request.number,
       per_page: 3000
