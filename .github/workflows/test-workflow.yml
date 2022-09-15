@@ -1,9 +1,13 @@
-name: Test workflow
+name: Run Steampipe
 on:
-  push:
-    branches:
-      - first-setup
+  # push:
+  #   branches:
+  #     - first-setup
+  #     - first-setup-rk
+  #     - main
+  pull_request:
   workflow_dispatch:
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -22,3 +26,5 @@ jobs:
           plugins: terraform
           mod: 'https://github.com/turbot/steampipe-mod-terraform-aws-compliance.git'
           export: json
+          control: control.ec2_ebs_default_encryption_enabled
+          output: json

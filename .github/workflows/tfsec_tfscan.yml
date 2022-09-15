@@ -1,0 +1,28 @@
+name: tfsec-pr-commenter
+on:
+  pull_request:
+
+jobs:
+  build:
+    tfsec:
+      name: tfsec PR commenter
+      runs-on: ubuntu-latest
+
+      steps:
+        - name: Clone repo
+          uses: actions/checkout@master
+
+<<<<<<< HEAD
+        - name: tfsec
+          uses: aquasecurity/tfsec-pr-commenter-action@v1.2.0
+          with:
+            github_token: ${{ secret.GH_TOKEN }}
+=======
+    steps:
+      - name: Clone repo
+        uses: actions/checkout@master
+      - name: tfsec
+        uses: aquasecurity/tfsec-pr-commenter-action@v1.2.0
+        with:
+          github_token: ${{ secrets.GH_TOKEN }}
+>>>>>>> b2293c3af380866c4d44bfbd746a41aa228674b0
