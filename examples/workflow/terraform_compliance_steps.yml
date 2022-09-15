@@ -40,4 +40,3 @@ jobs:
           export: json
           run: control.compute_instance_shielded_vm_enabled
           output: text
-        continue-on-error: true
