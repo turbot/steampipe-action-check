@@ -21,16 +21,16 @@ export interface Result {
 export interface Control {
     summary?: Status;
     results?: Result[];
-    control_id?: string;
+    controlId?: string;
     description?: string;
     severity?: string;
     tags?: string;
     title?: string;
-    run_status?: number;
-    run_error?: string;
+    runStatus?: number;
+    runError?: string;
 }
 export interface Group {
-    group_id?: string;
+    groupId?: string;
     title?: string;
     description?: string;
     tags?: string;

@@ -15677,10 +15677,10 @@ async function AddPRComments(actionInputs, myExportFile) {
     //   setFailed('No pull request found.');
     //   return;
     // }
-    const content = await (0, promises_1.readFile)(actionInputs.output, 'utf-8');
+    const content = await (0, promises_1.readFile)(myExportFile, 'utf-8');
     console.log('--------------->>>>>>>>>', content);
     const group = JSON.parse(content);
-    console.log('--------------->>>>>>>>>', group[0].summary);
+    console.log('--------------->>>>>>>>>', group);
 }
 exports.AddPRComments = AddPRComments;
 async function CommentOnLine(actionInputs) {
