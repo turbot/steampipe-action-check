@@ -6532,6 +6532,7 @@ exports["default"] = _default;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.GetInputs = void 0;
 const core_1 = __nccwpck_require__(2186);
+const process_1 = __nccwpck_require__(7282);
 function GetInputs() {
     let inputs = {
         version: (0, core_1.getInput)("version", { required: false, trimWhitespace: true }) || "latest",
@@ -6542,6 +6543,7 @@ function GetInputs() {
         where: (0, core_1.getInput)("where", { required: false, trimWhitespace: false }) || "",
         output: (0, core_1.getInput)("output", { required: false, trimWhitespace: true }) || "",
         export: ((0, core_1.getInput)("export", { required: false, trimWhitespace: true }) || "").split(",").map(e => e.trim()).filter(e => e.length > 0),
+        summaryFile: process_1.env['GITHUB_STEP_SUMMARY']
     };
     return inputs;
 }
@@ -6687,8 +6689,10 @@ async function RunSteampipeCheck(cliCmd = "steampipe", workspaceChdir, actionInp
     if (actionInputs.export.length > 0) {
         args.push(`--export=${actionInputs.export}`);
     }
-    // add an export for myself, which we will remove later on
-    args.push(`--export=${myExportFile}`);
+    for (let f of myExportFile) {
+        // add an export for myself, which we will remove later on
+        args.push(`--export=${f}`);
+    }
     if (actionInputs.where.length > 0) {
         args.push(`--where=${actionInputs.where}`);
     }
@@ -6963,9 +6967,12 @@ async function run() {
             }
         }
         // create an export file so that we can use it for commenting and annotating pull requests 
-        const myExportFile = `check-output-for-action-${new Date().getTime()}.json`;
-        await (0, steampipe_1.RunSteampipeCheck)(steampipePath, modPath, actionInputs, myExportFile);
-        await (0, promises_1.unlink)(myExportFile);
+        const jsonExportFile = `check-output-for-action-${new Date().getTime()}.json`;
+        const mdExportFile = `check-output-for-action-${new Date().getTime()}.md`;
+        await (0, steampipe_1.RunSteampipeCheck)(steampipePath, modPath, actionInputs, [jsonExportFile, mdExportFile]);
+        await (0, promises_1.copyFile)(mdExportFile, actionInputs.summaryFile);
+        await (0, promises_1.unlink)(jsonExportFile);
+        await (0, promises_1.unlink)(mdExportFile);
     }
     catch (error) {
         (0, core_1.setFailed)(error.message);
