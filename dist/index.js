@@ -15688,8 +15688,7 @@ exports.AddPRComments = AddPRComments;
 function ParseOnRun(group, actionInputs) {
     group.controls[0].results.forEach(function (result) {
         if (result.status = 'alarm') {
-            console.log('result==============>>>>>>>>>', result);
-            // CommentOnLine(actionInputs, result)
+            CommentOnLine(actionInputs, result);
         }
     });
 }
@@ -15699,14 +15698,16 @@ async function CommentOnLine(actionInputs, result) {
             auth: actionInputs.githubToken
         });
         var splitted = result.dimensions[0].value.split(":", 2);
-        const new_comment = await octokit.pulls.createReviewComment({
+        var input = {
             ...github_1.default.context.repo,
             pull_number: github_1.default.context.payload.pull_request.number,
             body: result.reason,
             line: +(splitted[1]),
             commit_id: github_1.default.context.sha,
-            path: "string"
-        });
+            path: splitted[0].replace('/home/runner/work/steampipe-action', '')
+        };
+        const new_comment = await octokit.pulls.createReviewComment(input);
+        console.log('result==============>>>>>>>>>', input, new_comment);
     }
     catch (error) {
         (0, core_1.setFailed)(error.message);
