@@ -1,4 +1,4 @@
-import { getInput } from "@actions/core";
+import { getInput, getMultilineInput } from "@actions/core";
 
 export interface ActionInput {
   version: string;
@@ -6,13 +6,11 @@ export interface ActionInput {
   modRepository: string;
   connectionData: string;
 
-  control: string;
-  benchmark: string;
+  run: Array<string>;
+  where: string | null;
 
   output: string;
   export: Array<string>;
-
-  where: string | null;
 }
 
 export function GetInputs() {
@@ -22,17 +20,11 @@ export function GetInputs() {
     modRepository: getInput("mod", { required: false, trimWhitespace: true }) || "",
     connectionData: getInput("connection_config", { required: true, trimWhitespace: false }),
 
-    control: getInput("control", { required: false, trimWhitespace: true }) || "",
-    benchmark: getInput("benchmark", { required: false, trimWhitespace: true }) || "",
+    run: getInput("run", { required: false, trimWhitespace: true }).split(",").map(r => r.trim()).filter(r => (r.length > 0)) || [],
+    where: getInput("where", { required: false, trimWhitespace: false }) || "",
 
     output: getInput("output", { required: false, trimWhitespace: true }) || "",
     export: (getInput("export", { required: false, trimWhitespace: true }) || "").split(",").map(e => e.trim()).filter(e => e.length > 0),
-
-    where: getInput("where", { required: false, trimWhitespace: false }) || ""
-  }
-
-  if (inputs.benchmark.length > 0 && inputs.control.length > 0) {
-    throw new Error("cannot use `control` and `benchmark` in the same `check` run")
   }
 
   return inputs;
