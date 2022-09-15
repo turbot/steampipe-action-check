@@ -1,6 +1,5 @@
 import { debug, endGroup, info, startGroup } from "@actions/core";
 import { exec } from "@actions/exec";
-import { which } from "@actions/io";
 import { cacheDir, downloadTool, extractTar, extractZip, find } from "@actions/tool-cache";
 import { readdir, unlink, writeFile } from "fs/promises";
 import { join } from "path";
@@ -149,10 +148,10 @@ export async function RunSteampipeCheck(cliCmd: string = "steampipe", workspaceC
   args.push(`--workspace-chdir=${workspaceChdir}`)
 
   const execEnv = env
-  env.STEAMPIPE_CHECK_DISPLAY_WIDTH = "200"
+  execEnv.STEAMPIPE_CHECK_DISPLAY_WIDTH = "120"
 
   await exec(cliCmd, args, {
-    env: env,
+    env: execEnv,
   })
 
   endGroup()
