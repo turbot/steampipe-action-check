@@ -1,5 +1,5 @@
 import { ActionInput, GroupJson } from "./input";
-import { readFileSync } from 'fs';
+import { readFile } from "fs/promises";
 import { Octokit } from '@octokit/rest';
 import { setFailed } from "@actions/core";
 import github from "@actions/github";
@@ -14,8 +14,9 @@ export async function AddPRComments(actionInputs: ActionInput, myExportFile: str
   // }
 
 
-  console.log('--------------->>>>>>>>>', readFileSync(myExportFile, 'utf-8'));
-  const group: Array<GroupJson> = JSON.parse(readFileSync(myExportFile, 'utf-8'))
+  const content = await readFile(myExportFile)
+  console.log('--------------->>>>>>>>>', content);
+  const group: Array<GroupJson> = JSON.parse(content, 'utf-8');
 }
 
 
