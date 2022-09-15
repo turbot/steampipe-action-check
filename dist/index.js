@@ -6953,7 +6953,6 @@ async function run() {
     try {
         const actionInputs = (0, input_1.GetInputs)();
         const steampipePath = `${await (0, steampipe_1.DownloadAndDeflateSteampipe)(actionInputs.version)}/steampipe`;
-        (0, core_1.addPath)(steampipePath);
         await (0, steampipe_1.InstallSteampipe)(steampipePath);
         await (0, steampipe_1.InstallPlugins)(steampipePath, actionInputs.plugins);
         await (0, steampipe_1.WriteConnections)(actionInputs.connectionData);

@@ -8,7 +8,6 @@ async function run() {
     const actionInputs = GetInputs()
 
     const steampipePath = `${await DownloadAndDeflateSteampipe(actionInputs.version)}/steampipe`;
-    addPath(steampipePath);
 
     await InstallSteampipe(steampipePath)
     await InstallPlugins(steampipePath, actionInputs.plugins)
