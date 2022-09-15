@@ -66,3 +66,5 @@ jobs:
 | output | Select a console output format i.e. brief, csv, html, json, md, text or none | No | text | Input parameters |
 | export | Export output to files in various output formats such as csv, html, json, md, nunit3 or asff (json) - comma separated | No | | |
 | where | SQL 'where' clause, or named query, used to filter controls | No | | Input parameters |
+
+## Screenshots

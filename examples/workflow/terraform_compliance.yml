@@ -14,12 +14,11 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v3
 
-      - name: Use local my-action
+      - name: Steampipe terraform scan action
         continue-on-error: true
         uses: ./
         with:
           version: 'latest'
-          export: "./check_output.md"
           connection_config: |
             connection "terraform" {
               plugin = "terraform"
