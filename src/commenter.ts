@@ -45,7 +45,8 @@ async function CommentOnLine(actionInputs: ActionInput, result: Result) {
       body: result.reason,
       line: +(splitted[1]),
       commit_id: github.context.payload.pull_request['head']['sha'],
-      path: process.cwd() + splitted[0].replace('/home/runner/work/steampipe-action/steampipe-action', '')
+      // path: splitted[0].replace(process.cwd(), '')
+      path: splitted[0].split("/")[splitted[0].split("/").length - 1]
       // start_line: +(splitted[1]),
       // start_side: "RIGHT",
       // side: "RIGHT"
