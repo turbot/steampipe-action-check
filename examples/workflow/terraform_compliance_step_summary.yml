@@ -1,19 +1,19 @@
-name: Run Steampipe Terraform Compliance
+name: Run Steampipe
 on:
-  # push:
-  #   branches:
-  #     - main
+  push:
+    branches:
+      - main
   pull_request:
-  workflow_dispatch:
 
 jobs:
-  check:
+  build:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
         uses: actions/checkout@v3
       - name: Use local my-action
         uses: ./
+        continue-on-error: true
         with:
           version: latest
           connection_config: |
@@ -23,6 +23,8 @@ jobs:
             }
           plugins: terraform
           mod: 'https://github.com/turbot/steampipe-mod-terraform-aws-compliance.git'
-          export: json
-          run: control.ec2_ebs_default_encryption_enabled ## You can provide multiple controls or benchmarks separated by comma
-          output: test 
+          export: "./check_output.md"
+      - name: Check terraform compliance health
+        id: terraform-compliance-health
+        run: |
+          cat ./check_output.md >> $GITHUB_STEP_SUMMARY

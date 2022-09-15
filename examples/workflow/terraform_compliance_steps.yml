@@ -1,0 +1,43 @@
+name: Run Steampipe Terraform Compliance
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v3
+      - name: Run Steampipe Terraform AWS Compliance
+        uses: ./
+        with:
+          version: latest
+          connection_config: |
+            connection "terraform" {
+              plugin = "terraform"
+              paths = ["examples/terraform/aws/**/*.tf"] # Provide the path to terraform files
+            }
+          plugins: terraform
+          mod: 'https://github.com/turbot/steampipe-mod-terraform-aws-compliance.git'
+          export: json
+          benchmark: benchmark.ec2
+          output: json
+        continue-on-error: true
+      - name: Run Steampipe Terraform GCP Compliance
+        uses: ./
+        with:
+          version: latest
+          connection_config: |
+            connection "terraform" {
+              plugin = "terraform"
+              paths = ["examples/terraform/gcp/**/*.tf"] # Provide the path to terraform files
+            }
+          plugins: terraform
+          mod: 'https://github.com/turbot/steampipe-mod-terraform-gcp-compliance.git'
+          export: json
+          benchmark: control.compute_instance_shielded_vm_enabled
+          output: text
+        continue-on-error: true
