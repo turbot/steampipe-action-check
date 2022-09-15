@@ -16183,7 +16183,7 @@ async function run() {
             await (0, steampipe_1.RunSteampipeCheck)(steampipePath, modPath, actionInputs, ["json", "md"]);
         }
         catch (e) {
-            throw e;
+            // throw e
         }
         finally {
             const mdFiles = await getExportedSummaryMarkdownFiles(actionInputs);
