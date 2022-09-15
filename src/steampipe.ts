@@ -148,7 +148,7 @@ export async function RunSteampipeCheck(cliCmd: string = "steampipe", workspaceC
   args.push(`--workspace-chdir=${workspaceChdir}`)
 
   const execEnv = env
-  execEnv.STEAMPIPE_CHECK_DISPLAY_WIDTH = "200"
+  execEnv.STEAMPIPE_CHECK_DISPLAY_WIDTH = "120"
 
   await exec(cliCmd, args, {
     env: execEnv,
