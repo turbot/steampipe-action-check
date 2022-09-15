@@ -1,5 +1,6 @@
 import { debug, endGroup, info, startGroup } from "@actions/core";
 import { exec } from "@actions/exec";
+import { which } from "@actions/io";
 import { cacheDir, downloadTool, extractTar, extractZip, find } from "@actions/tool-cache";
 import { readdir, unlink, writeFile } from "fs/promises";
 import { join } from "path";
@@ -56,9 +57,7 @@ export async function DownloadAndDeflateSteampipe(version: string = "latest") {
  */
 export async function InstallSteampipe(cliCmd = "steampipe") {
   startGroup("Installing Steampipe")
-  await exec(cliCmd, ["query", "select 1"], {
-    silent: true
-  })
+  await exec(cliCmd, ["query", "select 1"])
   endGroup()
   return
 }
@@ -74,9 +73,7 @@ export async function InstallPlugins(cliCmd = "steampipe", plugins: Array<string
   startGroup("Installing plugins")
   if (plugins.length > 0) {
     info(`Installing ${plugins}`)
-    await exec(cliCmd, ["plugin", "install", ...plugins], {
-      silent: true
-    })
+    await exec(cliCmd, ["plugin", "install", ...plugins])
     info(`Installation complete`)
   }
   endGroup()
@@ -97,8 +94,8 @@ export async function InstallMod(modRepository: string) {
   }
   const cloneTo = `workspace_dir_${new Date().getTime()}`
   info(`Installing mod from ${modRepository}`)
-  await exec("git", ["clone", modRepository, cloneTo], {
-    silent: true
+  await exec(await which("git", true), ["clone", modRepository, cloneTo], {
+
   })
   endGroup()
   return cloneTo

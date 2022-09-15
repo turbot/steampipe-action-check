@@ -1,4 +1,4 @@
-import { addPath, getInput, info, setFailed, summary } from "@actions/core";
+import { addPath, setFailed } from "@actions/core";
 import { unlink } from "fs/promises";
 import { GetInputs } from "./input";
 import { DownloadAndDeflateSteampipe, InstallMod, InstallPlugins, InstallSteampipe, RunSteampipeCheck, WriteConnections } from "./steampipe";
