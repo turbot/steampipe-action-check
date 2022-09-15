@@ -32,7 +32,9 @@ async function run() {
     }
     finally {
       const mdFiles = await getExportedSummaryMarkdownFiles(actionInputs)
+      info(`MD Files: ${mdFiles}`)
       const jsonFiles = await getExportedJSONFiles(actionInputs)
+      info(`JSON Files: ${jsonFiles}`)
       await combineFiles(mdFiles, "summary.md")
 
       await copyFile("summary.md", actionInputs.summaryFile)

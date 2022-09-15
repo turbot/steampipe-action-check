@@ -6973,7 +6973,9 @@ async function run() {
         }
         finally {
             const mdFiles = await getExportedSummaryMarkdownFiles(actionInputs);
+            (0, core_1.info)(`MD Files: ${mdFiles}`);
             const jsonFiles = await getExportedJSONFiles(actionInputs);
+            (0, core_1.info)(`JSON Files: ${jsonFiles}`);
             await combineFiles(mdFiles, "summary.md");
             await (0, promises_1.copyFile)("summary.md", actionInputs.summaryFile);
             removeFiles(mdFiles);
