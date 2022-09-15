@@ -1,5 +1,5 @@
 import { addPath, setFailed } from "@actions/core";
-import { appendFile, constants, copyFile, readdir, readFile, unlink } from "fs/promises";
+import { appendFile, constants, copyFile, readdir, readFile, unlink, writeFile } from "fs/promises";
 import { extname } from "path";
 import { exit } from "process";
 import { ActionInput, GetInputs } from "./input";
@@ -37,6 +37,7 @@ async function run() {
       await combineFiles(mdFiles, "summary.md")
 
       await copyFile("summary.md", actionInputs.summaryFile)
+
       removeFiles(mdFiles)
       removeFiles(jsonFiles)
     }
@@ -53,6 +54,9 @@ async function removeFiles(files: Array<string>) {
 }
 
 async function combineFiles(files: Array<string>, writeTo: string) {
+  await writeFile("", writeTo, {
+    mode: constants.O_RDWR
+  })
   for (let file of files) {
     const content = await readFile(file)
     await appendFile(writeTo, content, {
