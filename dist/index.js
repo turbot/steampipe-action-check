@@ -16457,8 +16457,8 @@ async function CommentOnLine(actionInputs, result) {
             path: splitted[0].split("/")[splitted[0].split("/").length - 1],
             start_line: +(splitted[1]),
             start_side: "RIGHT",
-            line: +(splitted[1]),
-            side: "RIGHT"
+            line: 1 + (+splitted[1]),
+            side: "LEFT"
         });
         // const new_comment = await octokit.request('POST /repos/{owner}/{repo}/pulls/{pull_number}/comments', {
         //   ...github.context.repo,
