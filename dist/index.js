@@ -6990,9 +6990,7 @@ async function removeFiles(files) {
     }
 }
 async function combineFiles(files, writeTo) {
-    await (0, promises_1.writeFile)("", writeTo, {
-        flag: promises_1.constants.O_RDWR,
-    });
+    await (0, promises_1.writeFile)("", writeTo);
     for (let file of files) {
         const content = await (0, promises_1.readFile)(file);
         await (0, promises_1.appendFile)(writeTo, content, {

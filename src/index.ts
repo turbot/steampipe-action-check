@@ -53,9 +53,7 @@ async function removeFiles(files: Array<string>) {
 }
 
 async function combineFiles(files: Array<string>, writeTo: string) {
-  await writeFile("", writeTo, {
-    flag: constants.O_RDWR,
-  })
+  await writeFile("", writeTo)
   for (let file of files) {
     const content = await readFile(file)
     await appendFile(writeTo, content, {
