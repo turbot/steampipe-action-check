@@ -53,7 +53,7 @@ async function removeFiles(files: Array<string>) {
 }
 
 async function combineFiles(files: Array<string>, writeTo: string) {
-  info("writing seed file for combining")
+  info(`writing seed file for combining ${files}`)
   await writeFile(writeTo, "")
   for (let file of files) {
     info(`reading ${file}`)
