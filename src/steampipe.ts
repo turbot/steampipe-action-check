@@ -1,16 +1,13 @@
 import { debug, endGroup, info, startGroup } from "@actions/core";
+import { exec } from "@actions/exec";
 import { which } from "@actions/io";
 import { cacheDir, downloadTool, extractTar, extractZip, find } from "@actions/tool-cache";
-import { execFile } from "child_process";
 import { readdir, unlink, writeFile } from "fs/promises";
 import { join } from "path";
 import { arch, env, platform } from "process";
 import { URL } from "url";
-import { promisify } from "util";
 import { ActionInput } from "./input";
 import { Targets } from "./targets";
-
-const exec = promisify(execFile)
 
 /**
  * 
