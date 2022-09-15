@@ -18,4 +18,5 @@ jobs:
         uses: aquasecurity/tfsec-pr-commenter-action@main
         with:
           working_directory: "test_dir"
+          tfsec_args: --soft-fail
           github_token: ${{ secrets.GH_TOKEN }}
