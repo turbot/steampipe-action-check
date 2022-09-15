@@ -148,10 +148,11 @@ export async function RunSteampipeCheck(cliCmd: string = "steampipe", workspaceC
 
   args.push(`--workspace-chdir=${workspaceChdir}`)
 
+  const execEnv = env
+  env.STEAMPIPE_CHECK_DISPLAY_WIDTH = "200"
+
   await exec(cliCmd, args, {
-    env: {
-      STEAMPIPE_CHECK_DISPLAY_WIDTH: "200",
-    },
+    env: env,
   })
 
   endGroup()

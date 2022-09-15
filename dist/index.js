@@ -6693,10 +6693,10 @@ async function RunSteampipeCheck(cliCmd = "steampipe", workspaceChdir, actionInp
         args.push(`--where=${actionInputs.where}`);
     }
     args.push(`--workspace-chdir=${workspaceChdir}`);
+    const execEnv = process_1.env;
+    process_1.env.STEAMPIPE_CHECK_DISPLAY_WIDTH = "200";
     await (0, exec_1.exec)(cliCmd, args, {
-        env: {
-            STEAMPIPE_CHECK_DISPLAY_WIDTH: "200",
-        },
+        env: process_1.env,
     });
     (0, core_1.endGroup)();
 }
