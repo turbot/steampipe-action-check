@@ -15678,6 +15678,7 @@ async function AddPRComments(actionInputs, myExportFile) {
     //   return;
     // }
     const content = await (0, promises_1.readFile)(myExportFile, 'utf-8');
+    console.log('--------------->>>>>>>>>', content);
     const group = JSON.parse(content);
     console.log('--------------->>>>>>>>>', group[0].summary);
 }
