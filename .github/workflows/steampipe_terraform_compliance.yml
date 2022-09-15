@@ -13,13 +13,13 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v3
-      - uses: nbaztec/add-pr-review-comment@v1
-        with:
-          comments: |
-            [{"path":"index.ts","line":10,"text":"something was deleted","side":"RIGHT"},{"path":"index.ts","line":8,"text":"something was added","side":"LEFT"}]
-          repo-token: ${{ github.token }}
-          repo-token-user-login: 'github-actions[bot]' # The user.login for temporary GitHub tokens
-          allow-repeats: false # This is the default
+      # - uses: nbaztec/add-pr-review-comment@v1
+      #   with:
+      #     comments: |
+      #       [{"path":"index.ts","line":10,"text":"something was deleted","side":"RIGHT"},{"path":"index.ts","line":8,"text":"something was added","side":"LEFT"}]
+      #     repo-token: ${{ github.token }}
+      #     repo-token-user-login: 'github-actions[bot]' # The user.login for temporary GitHub tokens
+      #     allow-repeats: false # This is the default
       - name: Steampipe terraform scan action
         continue-on-error: false
         uses: ./

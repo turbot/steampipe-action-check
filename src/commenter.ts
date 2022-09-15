@@ -38,7 +38,7 @@ async function CommentOnLine(actionInputs: ActionInput, result: Result) {
       auth: actionInputs.githubToken
     });
     var splitted = result.dimensions[0].value.split(":", 2);
-    const new_comment = await octokit.pulls.createReviewComment({
+    const new_comment = await github.getOctokit(actionInputs.githubToken).pulls.createReviewComment({
       ...github.context.repo,
       owner: 'turbot',
       pull_number: github.context.payload.pull_request.number,
