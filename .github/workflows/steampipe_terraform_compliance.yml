@@ -29,8 +29,3 @@ jobs:
           mod: 'https://github.com/turbot/steampipe-mod-terraform-aws-compliance.git'
           run: control.ec2_instance_not_use_default_vpc,control.ec2_ebs_default_encryption_enabled
           output: text
-
-      - name: Check terraform compliance health
-        id: terraform-compliance-health
-        run: |
-          cat ./check_output.md >> $GITHUB_STEP_SUMMARY

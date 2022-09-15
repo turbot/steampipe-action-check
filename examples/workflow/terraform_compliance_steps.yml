@@ -38,6 +38,6 @@ jobs:
           plugins: terraform
           mod: 'https://github.com/turbot/steampipe-mod-terraform-gcp-compliance.git'
           export: json
-          benchmark: control.compute_instance_shielded_vm_enabled
+          run: control.compute_instance_shielded_vm_enabled
           output: text
         continue-on-error: true
