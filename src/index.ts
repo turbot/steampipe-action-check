@@ -86,6 +86,7 @@ async function getExportedFileWithExtn(input: ActionInput, extn: string) {
     }
     for (let r of input.run) {
       info(`** Checking ${d} with ${r}`)
+      info(`=== EXTN: ${extname(d)}`)
       info(` >>> Getting ${d.startsWith(r)} and ${extname(d) == extn}`)
       if (d.startsWith(r) && extname(d) == extn) {
         files.push(r)

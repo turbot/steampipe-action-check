@@ -7020,6 +7020,7 @@ async function getExportedFileWithExtn(input, extn) {
         }
         for (let r of input.run) {
             (0, core_1.info)(`** Checking ${d} with ${r}`);
+            (0, core_1.info)(`=== EXTN: ${(0, path_1.extname)(d)}`);
             (0, core_1.info)(` >>> Getting ${d.startsWith(r)} and ${(0, path_1.extname)(d) == extn}`);
             if (d.startsWith(r) && (0, path_1.extname)(d) == extn) {
                 files.push(r);
