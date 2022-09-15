@@ -61,7 +61,7 @@ async function combineFiles(files: Array<string>, writeTo: string) {
     info(`reading ${file}`)
     const content = await readFile(file)
     await appendFile(writeTo, content, {
-      flag: constants.O_CREAT | constants.O_APPEND
+      flag: constants.O_CREAT
     })
     info(`appended contents of ${file} to ${writeTo}`)
   }
@@ -82,6 +82,10 @@ async function getExportedFileWithExtn(input: ActionInput, extn: string) {
   for (let d of dirContents) {
     const s = await stat(d)
     if (!s.isFile()) {
+      continue
+    }
+
+    if (extname(d).length < 2) {
       continue
     }
 

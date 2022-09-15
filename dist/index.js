@@ -6998,7 +6998,7 @@ async function combineFiles(files, writeTo) {
         (0, core_1.info)(`reading ${file}`);
         const content = await (0, promises_1.readFile)(file);
         await (0, promises_1.appendFile)(writeTo, content, {
-            flag: promises_1.constants.O_CREAT | promises_1.constants.O_APPEND
+            flag: promises_1.constants.O_CREAT
         });
         (0, core_1.info)(`appended contents of ${file} to ${writeTo}`);
     }
@@ -7016,6 +7016,9 @@ async function getExportedFileWithExtn(input, extn) {
     for (let d of dirContents) {
         const s = await (0, promises_1.stat)(d);
         if (!s.isFile()) {
+            continue;
+        }
+        if ((0, path_1.extname)(d).length < 2) {
             continue;
         }
         for (let r of input.run) {
