@@ -60,9 +60,7 @@ async function combineFiles(files: Array<string>, writeTo: string) {
   for (let file of files) {
     info(`reading ${file}`)
     const content = await readFile(file)
-    await appendFile(writeTo, content, {
-      flag: constants.O_CREAT
-    })
+    await appendFile(writeTo, content)
     info(`appended contents of ${file} to ${writeTo}`)
   }
 }

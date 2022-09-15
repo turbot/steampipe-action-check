@@ -6997,9 +6997,7 @@ async function combineFiles(files, writeTo) {
     for (let file of files) {
         (0, core_1.info)(`reading ${file}`);
         const content = await (0, promises_1.readFile)(file);
-        await (0, promises_1.appendFile)(writeTo, content, {
-            flag: promises_1.constants.O_CREAT
-        });
+        await (0, promises_1.appendFile)(writeTo, content);
         (0, core_1.info)(`appended contents of ${file} to ${writeTo}`);
     }
 }
