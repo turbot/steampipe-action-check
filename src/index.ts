@@ -34,6 +34,7 @@ async function run() {
     finally {
       const mdFiles = await getExportedSummaryMarkdownFiles(actionInputs)
       const jsonFiles = await getExportedJSONFiles(actionInputs)
+      console.log('+++++++++++++++>>>', jsonFiles)
       await AddPRComments(actionInputs, jsonFiles[0])
       await combineFiles(mdFiles, "summary.md")
 

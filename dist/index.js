@@ -15666,7 +15666,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.AddPRComments = void 0;
-const fs_1 = __nccwpck_require__(7147);
+const promises_1 = __nccwpck_require__(3292);
 const rest_1 = __nccwpck_require__(5375);
 const core_1 = __nccwpck_require__(2186);
 const github_1 = __importDefault(__nccwpck_require__(5438));
@@ -15677,8 +15677,9 @@ async function AddPRComments(actionInputs, myExportFile) {
     //   setFailed('No pull request found.');
     //   return;
     // }
-    console.log('--------------->>>>>>>>>', (0, fs_1.readFileSync)(myExportFile, 'utf-8'));
-    const group = JSON.parse((0, fs_1.readFileSync)(myExportFile, 'utf-8'));
+    const content = await (0, promises_1.readFile)(myExportFile, 'utf-8');
+    console.log('--------------->>>>>>>>>', content);
+    const group = JSON.parse(content);
 }
 exports.AddPRComments = AddPRComments;
 async function CommentOnLine(actionInputs) {
@@ -16188,6 +16189,7 @@ async function run() {
         finally {
             const mdFiles = await getExportedSummaryMarkdownFiles(actionInputs);
             const jsonFiles = await getExportedJSONFiles(actionInputs);
+            console.log('+++++++++++++++>>>', jsonFiles);
             await (0, commenter_1.AddPRComments)(actionInputs, jsonFiles[0]);
             await combineFiles(mdFiles, "summary.md");
             await (0, promises_1.copyFile)("summary.md", actionInputs.summaryFile);
