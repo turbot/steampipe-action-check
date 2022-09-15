@@ -75,3 +75,6 @@ Workflow with successful execution
 
 Workflow with failed execution
 ![](images/failed_execution.png)
+
+Workflow with summarized execution
+![](images/workflow_summarized.png)
