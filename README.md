@@ -59,7 +59,7 @@ jobs:
 | plugins | A list of plugins to install and configure. This can be set of comma-separated values | Yes |  | Input parameter |
 | mod | Git URL of a mod that will be installed. This will be passed on to `git clone` | Yes | | Input parameters |
 | connection_config | Connection config that steampipe will use | Yes |  | Input parameters |
-| run | A list of benchmarks and controls to run (comma-separated). If left blank, `all` controls and benchmarks are run | No | check all | Input parameters |
+| run | A list of benchmarks and controls to run (comma-separated). If value specified, it runs  `check all` | No | check all | Input parameters |
 | output | Select a console output format i.e. brief, csv, html, json, md, text or none | No | text | Input parameters |
 | export | Export output to files in various output formats such as csv, html, json, md, nunit3 or asff (json) - comma separated | No | | |
 | where | SQL 'where' clause, or named query, used to filter controls | No | | Input parameters |
