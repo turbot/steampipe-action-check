@@ -37,12 +37,11 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v3
 
-      - name: Use local my-action
+      - name: Steampipe terraform scan action
         continue-on-error: true
         uses: ./
         with:
           version: 'latest'
-          export: "./check_output.md"
           connection_config: |
             connection "terraform" {
               plugin = "terraform"
@@ -50,11 +49,6 @@ jobs:
             }
           plugins: terraform
           mod: 'https://github.com/turbot/steampipe-mod-terraform-aws-compliance.git'
-
-      - name: Check terraform compliance health
-        id: terraform-compliance-health
-        run: |
-          cat ./check_output.md >> $GITHUB_STEP_SUMMARY
 ```
 
 ## GitHub action Parameters
