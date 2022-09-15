@@ -15727,11 +15727,11 @@ async function CommentOnLine(actionInputs, result) {
             commit_id: github.context.payload.pull_request['head']['sha'],
             path: splitted[0].replace('/home/runner/work/steampipe-action', '')
         };
+        console.log('result==============>>>>>>>>>', input);
         const new_comment = await octokit.pulls.createReviewComment(input);
-        console.log('result==============>>>>>>>>>', input, new_comment);
     }
     catch (error) {
-        (0, core_1.setFailed)(error.message);
+        (0, core_1.setFailed)(error);
     }
 }
 

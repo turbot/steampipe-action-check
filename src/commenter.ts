@@ -47,10 +47,10 @@ async function CommentOnLine(actionInputs: ActionInput, result: Result) {
       commit_id: github.context.payload.pull_request['head']['sha'],
       path: splitted[0].replace('/home/runner/work/steampipe-action', '')
     }
+    console.log('result==============>>>>>>>>>', input)
     const new_comment = await octokit.pulls.createReviewComment(input)
-    console.log('result==============>>>>>>>>>', input, new_comment)
   } catch (error) {
-    setFailed(error.message);
+    setFailed(error);
   }
 
 }
