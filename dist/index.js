@@ -6966,10 +6966,18 @@ async function run() {
         // create an export file so that we can use it for commenting and annotating pull requests 
         const jsonExportFile = `check-output-for-action-${new Date().getTime()}.json`;
         const mdExportFile = `check-output-for-action-${new Date().getTime()}.md`;
-        await (0, steampipe_1.RunSteampipeCheck)(steampipePath, modPath, actionInputs, [jsonExportFile, mdExportFile]);
-        await (0, promises_1.copyFile)(mdExportFile, actionInputs.summaryFile);
-        await (0, promises_1.unlink)(jsonExportFile);
-        await (0, promises_1.unlink)(mdExportFile);
+        try {
+            // since `steampipe check` may exit with a non-zero exit code
+            await (0, steampipe_1.RunSteampipeCheck)(steampipePath, modPath, actionInputs, [jsonExportFile, mdExportFile]);
+        }
+        catch (e) {
+            throw e;
+        }
+        finally {
+            await (0, promises_1.copyFile)(mdExportFile, actionInputs.summaryFile);
+            await (0, promises_1.unlink)(jsonExportFile);
+            await (0, promises_1.unlink)(mdExportFile);
+        }
     }
     catch (error) {
         (0, core_1.setFailed)(error.message);
