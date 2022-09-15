@@ -41,7 +41,6 @@ jobs:
         uses: ./
         with:
           version: 'latest'
-          export: "./check_output.md"
           connection_config: |
             connection "terraform" {
               plugin = "terraform"
