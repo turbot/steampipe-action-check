@@ -37,6 +37,14 @@ inputs:
     description: SQL 'where' clause, or named query, used to filter controls
     required: false
     default: ""
+  event_name:
+    description: Name of the event that triggered the workflow
+    required: false
+    default: ${{ github.event_name }}
+  github_token:
+    description: The GITHUB_TOKEN of the user
+    required: false
+    default: ${{ github.token }}
 
 runs:
   using: node16

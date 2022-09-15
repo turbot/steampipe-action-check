@@ -2,6 +2,7 @@ import { addPath, setFailed } from "@actions/core";
 import { unlink } from "fs/promises";
 import { GetInputs } from "./input";
 import { DownloadAndDeflateSteampipe, InstallMod, InstallPlugins, InstallSteampipe, RunSteampipeCheck, WriteConnections } from "./steampipe";
+import { AddPRComments } from './commenter';
 
 async function run() {
   try {
@@ -26,7 +27,7 @@ async function run() {
     const myExportFile = `check-output-for-action-${new Date().getTime()}.json`
     await RunSteampipeCheck(steampipePath, modPath, actionInputs, myExportFile)
     await unlink(myExportFile)
-
+    await AddPRComments(actionInputs, myExportFile)
   } catch (error) {
     setFailed(error.message);
   }
