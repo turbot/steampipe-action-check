@@ -11,7 +11,7 @@ data "aws_ami" "ubuntu" {
     values = ["hvm"]
   }
 
-  owners = ["099720109477"] # Canonical
+  owners = ["123456789123"] # Canonical
 }
 
 resource "aws_instance" "web" {
@@ -80,7 +80,7 @@ resource "aws_instance" "foo" {
 }
 
 resource "aws_instance" "foo2" {
-  ami           = "ami-005e54dee72cc1d00" # us-west-2
+  ami           = "ami-005e54dee72cc1d00"
   instance_type = "t2.micro"
 
   network_interface {

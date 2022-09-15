@@ -7,7 +7,7 @@ data "aws_ami" "ubuntu" {
     values = ["ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64-server-*"]
   }
 
-  owners = ["099720109477"] # Canonical
+  owners = ["123456789123"] # Canonical
 }
 
 resource "aws_instance" "tf_rajweb2" {

@@ -6,11 +6,7 @@ data "aws_ami" "ubuntu" {
     values = ["ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64-server-*"]
   }
 
-  // filter {
-  //   name   = "virtualization-type"
-  //   values = ["hvm"]
-  // }
-  owners = ["099720144477"] # Canonical
+  owners = ["123456789123"] # Canonical
 }
 
 resource "aws_instance" "rajweb2" {

@@ -1,22 +1,3 @@
-// select
-//   -- Required Columns
-//   arn as resource,
-//   case
-//     when vpc_id is null then 'alarm'
-//     else 'ok'
-//   end as status,
-//   case
-//     when vpc_id is null then title || ' not in VPC.'
-//     else title || ' in VPC.'
-//   end as reason,
-//   -- Additional Dimensions
-//   region,
-//   account_id
-// from
-//   aws_ec2_instance;
-
-// This is base min query with VPC association
-
 data "aws_ami" "ubuntu" {
   most_recent = true
   filter {
@@ -24,7 +5,7 @@ data "aws_ami" "ubuntu" {
     values = ["ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64-server-*"]
   }
 
-  owners = ["099720109477"] # Canonical
+  owners = ["123456789123"] # Canonical
 }
 
 // CREATE VPC

@@ -1,11 +1,12 @@
----
-name: Steampipe
-description: >
-  Set up a specific version of Steampipe
-author: Turbot.com
+name: 'Steampipe GitHub Action'
+author: 'Turbot.com'
+description: 'Set up a specific version of Steampipe'
+
 branding:
-  color: red
-  icon: code
+  color: 'red'
+  # TBD
+  icon: 'code'
+
 inputs:
   version:
     description: Version of Steampipe that will be installed.
@@ -27,7 +28,7 @@ inputs:
     description: Git URL of a mod that will be installed. Will be passed on to `git clone`.
     required: true
   output:
-    description: "Select a console output format: brief, csv, html, json, md, text or none"
+    description: Select a console output format i.e. brief, csv, html, json, md, text or none
     required: false
     default: md
   export:
@@ -38,6 +39,7 @@ inputs:
     description: SQL 'where' clause, or named query, used to filter controls
     required: false
     default: ""
+
 runs:
   using: node16
   main: dist/index.js
