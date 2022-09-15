@@ -1,6 +1,9 @@
 name: Run Steampipe Action
 on:
   pull_request:
+  push:
+    branches:
+      - cleanup
 
 jobs:
   build:
@@ -22,4 +25,4 @@ jobs:
           run: control.ec2_ebs_default_encryption_enabled
       - name: Save to sumary
         run: |
-            cat export.json > $GITHUB_STEP_SUMMARY
+          cat export.json > $GITHUB_STEP_SUMMARY
