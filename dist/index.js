@@ -15725,7 +15725,7 @@ async function CommentOnLine(actionInputs, result) {
             body: result.reason,
             commit_id: fileSHAMap[splitted[0].replace(process.cwd() + "/", '')],
             path: splitted[0].replace(process.cwd() + "/", ''),
-            position: +splitted[1]
+            line: +splitted[1]
         });
         // const new_comment = await octokit.request('POST /repos/{owner}/{repo}/pulls/{pull_number}/comments', {
         //   ...github.context.repo,
