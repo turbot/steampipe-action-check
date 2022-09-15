@@ -16,7 +16,7 @@ export async function AddPRComments(actionInputs: ActionInput, myExportFile: str
 
 
   const content = await readFile(myExportFile, 'utf-8')
-  // console.log('github.context--------------->>>>>>>>>', github.context);
+  console.log('github.context--------------->>>>>>>>>', github.context);
   const group: Group = JSON.parse(content);
   // console.log('--------------->>>>>>>>>', group);
   ParseOnRun(group, actionInputs)
