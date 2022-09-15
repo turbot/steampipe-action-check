@@ -6559,7 +6559,6 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.RunSteampipeCheck = exports.WriteConnections = exports.InstallMod = exports.InstallPlugins = exports.InstallSteampipe = exports.DownloadAndDeflateSteampipe = void 0;
 const core_1 = __nccwpck_require__(2186);
 const exec_1 = __nccwpck_require__(1514);
-const io_1 = __nccwpck_require__(7436);
 const tool_cache_1 = __nccwpck_require__(7784);
 const promises_1 = __nccwpck_require__(3292);
 const path_1 = __nccwpck_require__(1017);
@@ -6649,7 +6648,7 @@ async function InstallMod(modRepository) {
     }
     const cloneTo = `workspace_dir_${new Date().getTime()}`;
     (0, core_1.info)(`Installing mod from ${modRepository}`);
-    await (0, exec_1.exec)(await (0, io_1.which)("git", true), ["clone", modRepository, cloneTo]);
+    await (0, exec_1.exec)("git", ["clone", modRepository, cloneTo]);
     (0, core_1.endGroup)();
     return cloneTo;
 }
