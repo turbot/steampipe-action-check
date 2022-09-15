@@ -6687,12 +6687,12 @@ async function RunSteampipeCheck(cliCmd = "steampipe", workspaceChdir, actionInp
         args.push(`--output=${actionInputs.output}`);
     }
     if (actionInputs.export.length > 0) {
-        args.push(`--export=md`);
-        args.push(`--export=json`);
+        args.push(`--export=${actionInputs.export}`);
     }
     for (let f of myExportFile) {
-        // add an export for myself, which we will remove later on
-        args.push(`--export=${f}`);
+        // add an export for self, which we will remove later on
+        args.push(`--export=md`);
+        args.push(`--export=json`);
     }
     if (actionInputs.where.length > 0) {
         args.push(`--where=${actionInputs.where}`);
