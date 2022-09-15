@@ -16,7 +16,7 @@ inputs:
     description: A list of plugins to install and configure (comma-separated)
     required: true ## no point running steampipe without any plugins.
   connection_config:
-    description: Connection config that steampipe will be initialized with.
+    description: Connection config that steampipe will use.
     required: true ## no point if the plugins are not configured
   run:
     description: A list of benchmarks and controls to run (comma-separated). If left blank, `all` controls and benchmarks are run.
@@ -30,7 +30,7 @@ inputs:
     required: false
     default: text
   export:
-    description: "Export output to files in various output formats: csv, html, json, md, nunit3 or asff (json) - comma separated"
+    description: "Export output to files in various output formats such as csv, html, json, md, nunit3 or asff (json) - comma separated"
     required: false
     default: ""
   where:
