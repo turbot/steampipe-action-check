@@ -6992,7 +6992,9 @@ async function removeFiles(files) {
 async function combineFiles(files, writeTo) {
     for (let file of files) {
         const content = await (0, promises_1.readFile)(file);
-        await (0, promises_1.appendFile)(writeTo, content);
+        await (0, promises_1.appendFile)(writeTo, content, {
+            mode: promises_1.constants.O_CREAT | promises_1.constants.O_APPEND
+        });
     }
 }
 async function getExportedSummaryMarkdownFiles(input) {

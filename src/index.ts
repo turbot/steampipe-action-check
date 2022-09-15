@@ -1,5 +1,5 @@
 import { addPath, setFailed } from "@actions/core";
-import { appendFile, copyFile, readdir, readFile, unlink } from "fs/promises";
+import { appendFile, constants, copyFile, readdir, readFile, unlink } from "fs/promises";
 import { extname } from "path";
 import { exit } from "process";
 import { ActionInput, GetInputs } from "./input";
@@ -55,7 +55,9 @@ async function removeFiles(files: Array<string>) {
 async function combineFiles(files: Array<string>, writeTo: string) {
   for (let file of files) {
     const content = await readFile(file)
-    await appendFile(writeTo, content)
+    await appendFile(writeTo, content, {
+      mode: constants.O_CREAT | constants.O_APPEND
+    })
   }
 }
 
