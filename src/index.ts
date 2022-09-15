@@ -1,5 +1,5 @@
 import { addPath, setFailed } from "@actions/core";
-import { unlink } from "fs/promises";
+import { copyFile, unlink } from "fs/promises";
 import { GetInputs } from "./input";
 import { DownloadAndDeflateSteampipe, InstallMod, InstallPlugins, InstallSteampipe, RunSteampipeCheck, WriteConnections } from "./steampipe";
 
@@ -23,10 +23,15 @@ async function run() {
     }
 
     // create an export file so that we can use it for commenting and annotating pull requests 
-    const myExportFile = `check-output-for-action-${new Date().getTime()}.json`
-    await RunSteampipeCheck(steampipePath, modPath, actionInputs, myExportFile)
-    await unlink(myExportFile)
+    const jsonExportFile = `check-output-for-action-${new Date().getTime()}.json`
+    const mdExportFile = `check-output-for-action-${new Date().getTime()}.md`
 
+    await RunSteampipeCheck(steampipePath, modPath, actionInputs, [jsonExportFile, mdExportFile])
+
+    await copyFile(mdExportFile, actionInputs.summaryFile)
+
+    await unlink(jsonExportFile)
+    await unlink(mdExportFile)
   } catch (error) {
     setFailed(error.message);
   }

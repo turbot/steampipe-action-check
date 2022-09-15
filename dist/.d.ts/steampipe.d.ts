@@ -45,4 +45,4 @@ export declare function WriteConnections(connectionData: string): Promise<void>;
  * @param workspaceChdir string - The path to the workspace directory where a mod (if any) is installed.
  * @param actionInputs string - The inputs that we got when this action was started.
  */
-export declare function RunSteampipeCheck(cliCmd: string, workspaceChdir: string, actionInputs: ActionInput, myExportFile: string): Promise<void>;
+export declare function RunSteampipeCheck(cliCmd: string, workspaceChdir: string, actionInputs: ActionInput, myExportFile: [string, string]): Promise<void>;
