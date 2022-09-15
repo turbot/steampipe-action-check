@@ -1,48 +1,51 @@
 import { debug, endGroup, info, startGroup } from "@actions/core";
+import { exec } from "@actions/exec";
 import { cacheDir, downloadTool, extractTar, extractZip, find } from "@actions/tool-cache";
-import { exec as actionsExec } from "@actions/exec"
-import { execFile } from "child_process";
 import { readdir, unlink, writeFile } from "fs/promises";
 import { join } from "path";
 import { arch, env, platform } from "process";
-import { promisify } from "util";
+import { URL } from "url";
 import { ActionInput } from "./input";
 import { Targets } from "./targets";
 
-const execP = promisify(execFile)
-
-export function GetSteampipeDownloadLink(version: string): string {
-  if (version === "latest") {
-    return `https://github.com/turbot/steampipe/releases/latest/download/steampipe_${Targets[platform][arch]}`
-  } else {
-    return `https://github.com/turbot/steampipe/releases/download/${version}/steampipe_${Targets[platform][arch]}`
-  }
-}
-
 /**
  * 
- * DownloadSteampipe downloads and extracts the given steampipe version from the official steampipe releases in turbot/steampipe repository
+ * Downloads and extracts the given steampipe version from the official steampipe releases in turbot/steampipe repository
  * 
- * DownloadSteampipe attempts to cache the downloaded binary by platform and architecture.
+ * Attempts to cache the downloaded binary by platform and architecture.
  * 
- * Note: when using the `latest` release, it is NEVER cached.
+ * Note: when using the `latest` release, it is NEVER cached. This is because, `latest` is a pointer to an actual version which keeps changing as new releases are pushed out.
  * 
  * TODO: attempt to extract the actual version of `latest` and use it.
  * 
  * @param version The version of steampipe to download. Default: `latest`
  */
-export async function DownloadSteampipe(version: string = "latest") {
+export async function DownloadAndDeflateSteampipe(version: string = "latest") {
+  startGroup("Download Steampipe")
   if (version !== "latest") {
+    info(`Checking if ${version} is cached`)
+    // try to find out if the cache has an entry for this.
     const toolPath = find("steampipe", version, arch);
     if (toolPath) {
-      info(`Found in cache @ ${toolPath}`);
+      info(`Found ${version} in cache @ ${toolPath}`);
       return toolPath;
     }
+    info(`Could not find ${version} in cache. Need to download.`)
   }
 
-  const downloadLink = GetSteampipeDownloadLink(version)
-  const downloadedArchive = await downloadTool(downloadLink)
+
+  const downloadLink = getSteampipeDownloadLink(version)
+  info(`Downloading ${version}...`)
+  const downloadedArchive = await downloadTool(downloadLink.toString())
+  info(`Download complete`)
+  info(`Extracting...`)
   const extractedTo = await extractArchive(downloadedArchive)
+  if (version == "latest") {
+    info(`Skipping cache for 'latest' release.`)
+    // no caching of `latest` binary
+    return extractedTo
+  }
+  info(`Caching ${version}`)
   return await cacheDir(extractedTo, "steampipe", version, arch)
 }
 
@@ -52,7 +55,11 @@ export async function DownloadSteampipe(version: string = "latest") {
  * @param cliCmd The path to the steampipe binary
  */
 export async function InstallSteampipe(cliCmd = "steampipe") {
-  await execP(cliCmd, ["query", "select 1"])
+  startGroup("Installing Steampipe")
+  await exec(cliCmd, ["query", "select 1"], {
+    silent: true
+  })
+  endGroup()
   return
 }
 
@@ -64,36 +71,37 @@ export async function InstallSteampipe(cliCmd = "steampipe") {
  * @returns 
  */
 export async function InstallPlugins(cliCmd = "steampipe", plugins: Array<string> = []) {
-  await execP(cliCmd, ["plugin", "install", ...plugins])
+  startGroup("Installing plugins")
+  if (plugins.length > 0) {
+    info(`Installing ${plugins}`)
+    await exec(cliCmd, ["plugin", "install", ...plugins], {
+      silent: true
+    })
+    info(`Installation complete`)
+  }
+  endGroup()
   return
 }
 
 /**
+ * Installs a mod from the given Git Clone URL.
+ * Forwards the GitURL as-is to `git clone`
  * 
  * @param modRepository The HTTP/SSH url of the mod repository. This will be passed in as-is to `git clone`
- * @returns void
  */
 export async function InstallMod(modRepository: string) {
+  startGroup("Installing Mod")
   if (modRepository.trim().length === 0) {
+    endGroup()
     return Promise.resolve("")
   }
-  const cloneTo = `mod-dir-${new Date().getTime()}`
-  const execP = promisify(execFile)
-  info(`Installing mod ${modRepository}`)
-  await execP("git", ["clone", modRepository, cloneTo])
-  return cloneTo
-}
-
-export async function cleanConnectionConfigDir(configDir: string) {
-  startGroup("cleanConnectionConfigDir")
-  debug(`cleaning config directory: ${configDir}`)
-  const files = await readdir(configDir)
-  debug(`found files: ${configDir}`)
-  for (const file of files) {
-    debug(`removing file: ${configDir}`)
-    await unlink(join(configDir, file))
-  }
+  const cloneTo = `workspace_dir_${new Date().getTime()}`
+  info(`Installing mod from ${modRepository}`)
+  await exec("git", ["clone", modRepository, cloneTo], {
+    silent: true
+  })
   endGroup()
+  return cloneTo
 }
 
 /**
@@ -102,17 +110,27 @@ export async function cleanConnectionConfigDir(configDir: string) {
  * @returns void
  */
 export async function WriteConnections(connectionData: string) {
-  startGroup("WriteConnections")
+  startGroup("Writing Connections")
   const d = new Date()
   const configDir = `${env["HOME"]}/.steampipe/config`
+  debug("Cleaning up old config directory")
   cleanConnectionConfigDir(configDir)
 
   const configFileName = `${d.getTime()}.spc`
+  info("Writing connection data")
   await writeFile(`${configDir}/${configFileName}`, connectionData)
+  info("Finished writing connection data")
   endGroup()
 }
 
-export async function RunSteampipeCheck(cliCmd: string = "steampipe", workspaceChdir: string, actionInputs: ActionInput) {
+/**
+ * 
+ * @param cliCmd string - The path to the installed steampipe CLI.
+ * @param workspaceChdir string - The path to the workspace directory where a mod (if any) is installed. 
+ * @param actionInputs string - The inputs that we got when this action was started.
+ */
+export async function RunSteampipeCheck(cliCmd: string = "steampipe", workspaceChdir: string, actionInputs: ActionInput, myExportFile: string) {
+  startGroup(`Running Check`)
   let args = new Array<string>()
 
   args.push(
@@ -126,20 +144,47 @@ export async function RunSteampipeCheck(cliCmd: string = "steampipe", workspaceC
   if (actionInputs.export.length > 0) {
     args.push(`--export=${actionInputs.export}`)
   }
+  // add an export for myself, which we will remove later on
+  args.push(`--export=${myExportFile}`)
+
   if (actionInputs.where.length > 0) {
     args.push(`--where=${actionInputs.where}`)
   }
 
   args.push(`--workspace-chdir=${workspaceChdir}`)
 
-  await actionsExec(cliCmd, args)
+  await exec(cliCmd, args, {
+    env: {
+      STEAMPIPE_CHECK_DISPLAY_WIDTH: "200",
+    },
+  })
+
+  endGroup()
+}
+
+async function cleanConnectionConfigDir(configDir: string) {
+  const files = await readdir(configDir)
+  for (const file of files) {
+    await unlink(join(configDir, file))
+  }
 }
 
 function getCheckArg(input: ActionInput): string {
-  if (input.benchmark.length === 0 && input.control.length === 0) {
+  if (input.run.length === 0) {
     return "all"
   }
-  return input.benchmark.length > 0 ? input.benchmark : input.control
+  return input.run
+    .map(r => r.trim())
+    .filter(r => (r.length > 0))
+    .join(" ")
+}
+
+function getSteampipeDownloadLink(version: string): URL {
+  if (version === "latest") {
+    return new URL(`https://github.com/turbot/steampipe/releases/latest/download/steampipe_${Targets[platform][arch]}`)
+  } else {
+    return new URL(`https://github.com/turbot/steampipe/releases/download/${version}/steampipe_${Targets[platform][arch]}`)
+  }
 }
 
 async function extractArchive(archivePath: string) {
