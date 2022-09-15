@@ -6991,12 +6991,12 @@ async function removeFiles(files) {
 }
 async function combineFiles(files, writeTo) {
     await (0, promises_1.writeFile)("", writeTo, {
-        mode: promises_1.constants.O_RDWR
+        flag: promises_1.constants.O_RDWR,
     });
     for (let file of files) {
         const content = await (0, promises_1.readFile)(file);
         await (0, promises_1.appendFile)(writeTo, content, {
-            mode: promises_1.constants.O_CREAT | promises_1.constants.O_APPEND
+            flag: promises_1.constants.O_CREAT | promises_1.constants.O_APPEND
         });
     }
 }

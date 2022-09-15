@@ -1,7 +1,6 @@
 import { addPath, setFailed } from "@actions/core";
 import { appendFile, constants, copyFile, readdir, readFile, unlink, writeFile } from "fs/promises";
 import { extname } from "path";
-import { exit } from "process";
 import { ActionInput, GetInputs } from "./input";
 import { DownloadAndDeflateSteampipe, InstallMod, InstallPlugins, InstallSteampipe, RunSteampipeCheck, WriteConnections } from "./steampipe";
 
@@ -55,12 +54,12 @@ async function removeFiles(files: Array<string>) {
 
 async function combineFiles(files: Array<string>, writeTo: string) {
   await writeFile("", writeTo, {
-    mode: constants.O_RDWR
+    flag: constants.O_RDWR,
   })
   for (let file of files) {
     const content = await readFile(file)
     await appendFile(writeTo, content, {
-      mode: constants.O_CREAT | constants.O_APPEND
+      flag: constants.O_CREAT | constants.O_APPEND
     })
   }
 }
