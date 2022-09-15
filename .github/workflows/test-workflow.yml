@@ -11,6 +11,7 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v3
       - name: Use local my-action
+        continue-on-error: true
         uses: ./
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
@@ -25,6 +26,7 @@ jobs:
           plugins: "github"
           # mod: "https://github.com/turbot/steampipe-utils.git"
           mod: "."
+          
       - name: Check repository health
         id: check-repository-health
         env:
