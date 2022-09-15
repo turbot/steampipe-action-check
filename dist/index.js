@@ -15668,11 +15668,11 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.AddPRComments = void 0;
 const fs_1 = __nccwpck_require__(7147);
 const rest_1 = __nccwpck_require__(5375);
-// const github = require("@actions/github");
 const core_1 = __nccwpck_require__(2186);
 const github_1 = __importDefault(__nccwpck_require__(5438));
 async function AddPRComments(actionInputs, myExportFile) {
-    const context = github_1.default.context;
+    console.log('=================>>>>>>>>>');
+    // const context = github.context;
     // if (context.payload.pull_request == null) {
     //   setFailed('No pull request found.');
     //   return;

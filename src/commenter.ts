@@ -1,13 +1,13 @@
 import { ActionInput, GroupJson } from "./input";
 import { readFileSync } from 'fs';
 import { Octokit } from '@octokit/rest';
-// const github = require("@actions/github");
 import { setFailed } from "@actions/core";
 import github from "@actions/github";
 
 
 export async function AddPRComments(actionInputs: ActionInput, myExportFile: string) {
-  const context = github.context;
+  console.log('=================>>>>>>>>>')
+  // const context = github.context;
   // if (context.payload.pull_request == null) {
   //   setFailed('No pull request found.');
   //   return;
