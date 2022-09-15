@@ -15,7 +15,7 @@ jobs:
         uses: actions/checkout@v3
       - uses: nbaztec/add-pr-review-comment@v1
         with:
-          message: |
+          comments: |
             [{"path":"index.ts","line":10,"text":"something was deleted","side":"RIGHT"},{"path":"index.ts","line":8,"text":"something was added","side":"LEFT"}]
           repo-token: ${{ github.token }}
           repo-token-user-login: 'github-actions[bot]' # The user.login for temporary GitHub tokens
