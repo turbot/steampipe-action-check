@@ -16448,12 +16448,15 @@ async function CommentOnLine(actionInputs, result) {
         var splitted = result.dimensions[0].value.split(":", 2);
         const new_comment = await octokit.pulls.createReviewComment({
             ...github.context.repo,
+            owner: 'turbot',
             pull_number: github.context.payload.pull_request.number,
             body: result.reason,
             // commit_id: github.context.payload.pull_request['head']['sha'],
             commit_id: github.context.sha,
             // path: splitted[0].replace(process.cwd(), '') //examples/terraform/aws/ec2/ec2_ebs_default_encryption_enabled.tf
             path: splitted[0].split("/")[splitted[0].split("/").length - 1],
+            start_line: +(splitted[1]),
+            start_side: "RIGHT",
             line: +(splitted[1]),
             side: "RIGHT"
         });
