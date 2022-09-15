@@ -15,8 +15,8 @@ export async function AddPRComments(actionInputs: ActionInput, myExportFile: str
 
 
   const content = await readFile(myExportFile, 'utf-8')
-  console.log('--------------->>>>>>>>>', content);
   const group: Array<GroupJson> = JSON.parse(content);
+  console.log('--------------->>>>>>>>>', group[0].summary);
 }
 
 
