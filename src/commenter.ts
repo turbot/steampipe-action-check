@@ -33,6 +33,7 @@ function ParseOnRun(group: Group, actionInputs: ActionInput) {
 
 async function CommentOnLine(actionInputs: ActionInput, result: Result) {
   const fileSHAMap = await GetPRFileInfos(actionInputs, result)
+  console.log("fileSHAMap======================>>>>>>>>>.", fileSHAMap)
   try {
     const octokit = new Octokit({
       auth: actionInputs.githubToken
