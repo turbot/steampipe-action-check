@@ -1,4 +1,5 @@
 import { addPath, endGroup, setFailed, startGroup } from "@actions/core";
+import { info } from "console";
 import { appendFile, copyFile, readdir, readFile, stat, unlink, writeFile } from "fs/promises";
 import { extname } from "path";
 import { Annotation, PushAnnotations, GetAnnotations, ParseResultFile } from "./annotate";
@@ -12,20 +13,14 @@ async function run() {
     const steampipePath = `${await DownloadAndDeflateSteampipe(actionInputs.version)}/steampipe`;
     addPath(steampipePath);
 
+    const modPath = await InstallMod(actionInputs.modRepository)
+
     await InstallSteampipe(steampipePath)
     await InstallPlugins(steampipePath, actionInputs.plugins)
     await WriteConnections(actionInputs.connectionData)
-    let modPath = ""
-    if (actionInputs.modRepository.length > 0) {
-      modPath = await InstallMod(actionInputs.modRepository)
-      if (modPath.length == 0) {
-        setFailed("bad repository for mod")
-        return
-      }
-    }
 
     try {
-      // since `steampipe check` may exit with a non-zero exit code
+      // since `steampipe check` may exit with a non-zero exit code - this is normal
       await RunSteampipeCheck(steampipePath, modPath, actionInputs, ["json", "md"])
     }
     catch (e) {
@@ -42,23 +37,30 @@ async function run() {
 }
 
 async function exportAnnotations(input: ActionInput) {
-  startGroup(`Add Annotations`)
+  startGroup("Processing output")
+  info("Fetching output")
   const jsonFiles = await getExportedJSONFiles(input)
   const annotations: Array<Annotation> = []
   for (let j of jsonFiles) {
     const result = await ParseResultFile(j)
     annotations.push(...GetAnnotations(result))
   }
+  info(`Pushing Annotations`)
   await PushAnnotations(annotations, input)
   removeFiles(jsonFiles)
   endGroup()
 }
 
 async function exportStepSummary(input: ActionInput) {
+  startGroup("Sending Summary")
+  info("Fetching output")
   const mdFiles = await getExportedSummaryMarkdownFiles(input)
+  info("Combining outputs")
   await combineFiles(mdFiles, "summary.md")
+  info("Pushing to Platform")
   await copyFile("summary.md", input.summaryFile)
   removeFiles(mdFiles)
+  endGroup()
 }
 
 async function removeFiles(files: Array<string>) {
@@ -85,20 +87,19 @@ async function getExportedJSONFiles(input: ActionInput) {
 async function getExportedFileWithExtn(input: ActionInput, extn: string) {
   let files = new Array<string>()
 
-  const dirContents = await readdir(".")
+  const dirContents = await readdir(".", { withFileTypes: true })
   for (let d of dirContents) {
-    const s = await stat(d)
-    if (!s.isFile()) {
+    if (!d.isFile()) {
       continue
     }
 
-    if (extname(d).length < 2) {
+    if (extname(d.name).length < 2) {
       continue
     }
 
     for (let r of input.GetRun()) {
-      if (d.startsWith(r) && extname(d) == `.${extn}`) {
-        files.push(d)
+      if (d.name.startsWith(r) && extname(d.name) == `.${extn}`) {
+        files.push(d.name)
       }
     }
   }

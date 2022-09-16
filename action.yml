@@ -17,7 +17,8 @@ inputs:
     required: true ## no point running steampipe without any plugins.
   connection_config:
     description: Connection config that steampipe will use.
-    required: true ## no point if the plugins are not configured
+    required: false
+    default: ""
   run:
     description: A list of benchmarks and controls to run (comma-separated). If left blank, `all` controls and benchmarks are run.
     required: false

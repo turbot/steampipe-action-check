@@ -85,12 +85,11 @@ export async function InstallPlugins(cliCmd = "steampipe", plugins: Array<string
  * 
  * @param modRepository The HTTP/SSH url of the mod repository. This will be passed in as-is to `git clone`
  */
-export async function InstallMod(modRepository: string) {
-  startGroup("Installing Mod")
+export async function InstallMod(modRepository: string = "") {
   if (modRepository.trim().length === 0) {
-    endGroup()
     return Promise.resolve("")
   }
+  startGroup("Installing Mod")
   const cloneTo = `workspace_dir_${new Date().getTime()}`
   info(`Installing mod from ${modRepository}`)
   await exec("git", ["clone", modRepository, cloneTo])
@@ -104,6 +103,9 @@ export async function InstallMod(modRepository: string) {
  * @returns void
  */
 export async function WriteConnections(connectionData: string) {
+  if (connectionData.trim().length == 0) {
+    return Promise.resolve("")
+  }
   startGroup("Writing Connections")
   const d = new Date()
   const configDir = `${env["HOME"]}/.steampipe/config`
