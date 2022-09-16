@@ -13345,6 +13345,7 @@ function wrappy (fn, cb) {
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.parseResultFile = exports.pushAnnotations = exports.getAnnotations = void 0;
+const core_1 = __nccwpck_require__(2186);
 const github_1 = __nccwpck_require__(5438);
 const promises_1 = __nccwpck_require__(3292);
 /**
@@ -13354,6 +13355,9 @@ const promises_1 = __nccwpck_require__(3292);
  * @returns
  */
 function getAnnotations(result) {
+    if (result === null) {
+        return null;
+    }
     return getAnnotationsForGroup(result);
 }
 exports.getAnnotations = getAnnotations;
@@ -13363,28 +13367,37 @@ exports.getAnnotations = getAnnotations;
  * @param annotations Array<Annotation> Pushed a set of annotations to github
  */
 async function pushAnnotations(input, annotations) {
-    const octokit = (0, github_1.getOctokit)(input.ghToken);
-    if (annotations.length > 0) {
-        return;
+    try {
+        const octokit = (0, github_1.getOctokit)(input.ghToken);
+        if (annotations === null || annotations.length === 0) {
+            return;
+        }
+        if (github_1.context.payload.pull_request && annotations.length > 0) {
+            await octokit.rest.checks.create({
+                ...github_1.context.repo,
+                pull_number: github_1.context.payload.pull_request.number,
+                name: 'tfscan',
+                head_sha: github_1.context.payload.pull_request['head']['sha'],
+                status: 'completed',
+                conclusion: 'action_required',
+                output: {
+                    title: 'tfscan',
+                    summary: 'Terraform Validation Failed',
+                    annotations: annotations
+                }
+            });
+        }
     }
-    if (github_1.context.payload.pull_request && annotations.length > 0) {
-        await octokit.rest.checks.create({
-            ...github_1.context.repo,
-            pull_number: github_1.context.payload.pull_request.number,
-            name: 'Terraform Validator',
-            head_sha: github_1.context.payload.pull_request['head']['sha'],
-            status: 'completed',
-            conclusion: 'action_required',
-            output: {
-                title: 'Steampipe Terraform Scanner',
-                summary: 'Terraform Validation Failed',
-                annotations: annotations
-            }
-        });
+    catch (error) {
+        (0, core_1.setFailed)(error);
     }
 }
 exports.pushAnnotations = pushAnnotations;
 async function parseResultFile(filePath) {
+    if (github_1.context.payload.pull_request == null) {
+        (0, core_1.setFailed)('No pull request found.');
+        return null;
+    }
     const fileContent = await (0, promises_1.readFile)(filePath);
     return JSON.parse(fileContent.toString());
 }
@@ -13414,12 +13427,12 @@ function getAnnotationsForControl(controlRun) {
                 const [fileName, lineNumber, ...rest] = result.dimensions[0].value.split(":", 2);
                 annotations.push({
                     path: fileName.replace(process.cwd() + "/", ''),
-                    start_line: +(lineNumber),
-                    end_line: +(lineNumber),
-                    annotation_level: result.status == "alarm" ? '' : '',
+                    start_line: parseInt(lineNumber),
+                    end_line: parseInt(lineNumber),
+                    annotation_level: 'failure',
                     message: result.reason,
-                    start_column: 1,
-                    end_column: 1,
+                    start_column: 0,
+                    end_column: 0,
                 });
             }
         });
@@ -13471,6 +13484,11 @@ class ActionInput {
             this.run = ["all"];
         }
         return this.run;
+    }
+    async validate() {
+        if (this.modRepository.trim().length == 0) {
+            throw new Error("a mod repository is required");
+        }
     }
 }
 exports.ActionInput = ActionInput;
@@ -13611,13 +13629,6 @@ exports.writeConnections = writeConnections;
  */
 async function runSteampipeCheck(cliCmd = "steampipe", workspaceChdir, actionInputs, xtraExports) {
     (0, core_1.startGroup)(`Running Check`);
-    // shutdown any running services of steampipe (if any)
-    try {
-        (0, exec_1.exec)(cliCmd, ["service", "stop", "--force"]);
-    }
-    catch (e) {
-        // nothing to say here
-    }
     let args = new Array();
     args.push("check", ...actionInputs.getRun());
     if (actionInputs.output.length > 0) {
@@ -13635,10 +13646,6 @@ async function runSteampipeCheck(cliCmd = "steampipe", workspaceChdir, actionInp
     }
     if (workspaceChdir.trim().length > 0) {
         args.push(`--workspace-chdir=${workspaceChdir}`);
-    }
-    const chdir = await (0, promises_1.readdir)(workspaceChdir, { withFileTypes: true });
-    for (let c of chdir) {
-        (0, core_1.info)(`${c.name} ->> ${c.isDirectory()}`);
     }
     const execEnv = process_1.env;
     execEnv.STEAMPIPE_CHECK_DISPLAY_WIDTH = "120";
@@ -13930,6 +13937,7 @@ const steampipe_1 = __nccwpck_require__(9885);
 async function run() {
     try {
         const inputs = new input_1.ActionInput();
+        await inputs.validate();
         // install the mod right away
         // if this fails for some reason, we cannot continue
         const modPath = await (0, steampipe_1.installMod)(inputs.modRepository);
@@ -13944,7 +13952,7 @@ async function run() {
             await (0, steampipe_1.runSteampipeCheck)(steampipePath, modPath, inputs, ["json", "md"]);
         }
         catch (e) {
-            throw e;
+            //throw e
         }
         finally {
             await exportStepSummary(inputs);
