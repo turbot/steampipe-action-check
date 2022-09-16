@@ -15722,7 +15722,7 @@ async function PushAnnotations(annotations, actionInputs) {
             output: {
                 title: 'Terraform Validator',
                 summary: 'Terraform Validator Failure',
-                annotations: annotations
+                annotations: JSON.stringify(annotations)
             }
         });
         const check = await octokit.rest.checks.create({
@@ -15735,7 +15735,7 @@ async function PushAnnotations(annotations, actionInputs) {
             output: {
                 title: 'Terraform Validator',
                 summary: 'Terraform Validator Failure',
-                annotations
+                annotations: JSON.stringify(annotations)
             }
         });
     }
