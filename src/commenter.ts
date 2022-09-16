@@ -101,7 +101,6 @@ async function AnnotationOnLine(actionInputs: ActionInput, result: Result) {
         ]
       }
     });
-    console.log('check-------------------------', check)
   } catch (error) {
     setFailed(error);
   }
