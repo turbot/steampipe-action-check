@@ -2,7 +2,7 @@ import { addPath, endGroup, setFailed, startGroup } from "@actions/core";
 import { info } from "console";
 import { appendFile, copyFile, readdir, readFile, stat, unlink, writeFile } from "fs/promises";
 import { extname } from "path";
-import { GetAnnotations, ParseResultFile } from "./annotate";
+import { Annotation, PushAnnotations, GetAnnotations, ParseResultFile } from "./annotate";
 import { ActionInput } from "./input";
 import { DownloadAndDeflateSteampipe, InstallMod, InstallPlugins, InstallSteampipe, RunSteampipeCheck, WriteConnections } from "./steampipe";
 
@@ -40,14 +40,13 @@ async function exportAnnotations(input: ActionInput) {
   startGroup("Processing output")
   info("Fetching output")
   const jsonFiles = await getExportedJSONFiles(input)
-  const annotations: Array<any> = []
-
+  const annotations: Array<Annotation> = []
   for (let j of jsonFiles) {
     const result = await ParseResultFile(j)
-    annotations.push(...GetAnnotations(result, input))
+    annotations.push(...GetAnnotations(result))
   }
-  // info(`Pushing Annotations`)
-  // await PushAnnotations(annotations, input)
+  info(`Pushing Annotations`)
+  await PushAnnotations(annotations, input)
   removeFiles(jsonFiles)
   endGroup()
 }
