@@ -33,7 +33,7 @@ function ParseOnRun(group: Group, actionInputs: ActionInput) {
   })
 }
 
-async function CommentOnLine(actionInputs: ActionInput, result: Result) {
+/* async function CommentOnLine(actionInputs: ActionInput, result: Result) {
   const fileSHAMap = await GetPRFileInfos(actionInputs, result)
   try {
     const octokit = new Octokit({
@@ -69,7 +69,7 @@ async function CommentOnLine(actionInputs: ActionInput, result: Result) {
     setFailed(error);
   }
 
-}
+} */
 
 
 async function AnnotationOnLine(actionInputs: ActionInput, result: Result) {
@@ -107,7 +107,7 @@ async function AnnotationOnLine(actionInputs: ActionInput, result: Result) {
 
 }
 
-async function GetPRFileInfos(actionInputs: ActionInput, result: Result): Promise<FileInfo[]> {
+/* async function GetPRFileInfos(actionInputs: ActionInput, result: Result): Promise<FileInfo[]> {
   try {
     const files = await github.getOctokit(actionInputs.githubToken).rest.pulls.listFiles({
       ...github.context.repo,
@@ -157,4 +157,4 @@ function parseHunkPositions(patch: string, filename: string): { hunkStart: numbe
     var hunkEnd = +patchGroup[endPos]
   }
   return { hunkStart, hunkEnd }
-}
+} */
