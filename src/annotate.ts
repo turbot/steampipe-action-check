@@ -99,8 +99,9 @@ export async function PushAnnotations(annotations: Array<any>, actionInputs: Act
     const octokit = new Octokit({
       auth: actionInputs.githubToken
     });
-    annotations.forEach((annotation) => {
-      console.log('annotation----------------->>>>>>>>>>>>>>>', {
+    for (var i = 0; i < annotations.length; i++) {
+      const annotation = annotations[i]
+      /* console.log('annotation----------------->>>>>>>>>>>>>>>', {
         ...github.context.repo,
         pull_number: github.context.payload.pull_request.number,
         name: 'Terraform Validator',
@@ -120,8 +121,8 @@ export async function PushAnnotations(annotations: Array<any>, actionInputs: Act
             end_column: annotation.end_column
           }]
         }
-      })
-      const check = octokit.rest.checks.create({
+      }) */
+      const check = await octokit.rest.checks.create({
         ...github.context.repo,
         pull_number: github.context.payload.pull_request.number,
         name: 'Terraform Validator',
@@ -143,7 +144,7 @@ export async function PushAnnotations(annotations: Array<any>, actionInputs: Act
         }
       });
       console.log('check=================', check)
-    })
+    }
   } catch (error) {
     setFailed(error);
   }

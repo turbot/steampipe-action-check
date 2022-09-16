@@ -15721,29 +15721,30 @@ async function PushAnnotations(annotations, actionInputs) {
         const octokit = new rest_1.Octokit({
             auth: actionInputs.githubToken
         });
-        annotations.forEach((annotation) => {
-            console.log('annotation----------------->>>>>>>>>>>>>>>', {
-                ...github.context.repo,
-                pull_number: github.context.payload.pull_request.number,
-                name: 'Terraform Validator',
-                head_sha: github.context.payload.pull_request['head']['sha'],
-                status: 'completed',
-                conclusion: 'action_required',
-                output: {
-                    title: 'Terraform Validator',
-                    summary: 'Terraform Validator Failure',
-                    annotations: [{
-                            path: annotation.path,
-                            start_line: annotation.start_line,
-                            end_line: annotation.end_line,
-                            annotation_level: annotation.annotation_level,
-                            message: annotation.message,
-                            start_column: annotation.start_column,
-                            end_column: annotation.end_column
-                        }]
-                }
-            });
-            const check = octokit.rest.checks.create({
+        for (var i = 0; i < annotations.length; i++) {
+            const annotation = annotations[i];
+            /* console.log('annotation----------------->>>>>>>>>>>>>>>', {
+              ...github.context.repo,
+              pull_number: github.context.payload.pull_request.number,
+              name: 'Terraform Validator',
+              head_sha: github.context.payload.pull_request['head']['sha'],
+              status: 'completed',
+              conclusion: 'action_required',
+              output: {
+                title: 'Terraform Validator',
+                summary: 'Terraform Validator Failure',
+                annotations: [{
+                  path: annotation.path,
+                  start_line: annotation.start_line,
+                  end_line: annotation.end_line,
+                  annotation_level: annotation.annotation_level,
+                  message: annotation.message,
+                  start_column: annotation.start_column,
+                  end_column: annotation.end_column
+                }]
+              }
+            }) */
+            const check = await octokit.rest.checks.create({
                 ...github.context.repo,
                 pull_number: github.context.payload.pull_request.number,
                 name: 'Terraform Validator',
@@ -15765,7 +15766,7 @@ async function PushAnnotations(annotations, actionInputs) {
                 }
             });
             console.log('check=================', check);
-        });
+        }
     }
     catch (error) {
         (0, core_1.setFailed)(error);
