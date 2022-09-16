@@ -13952,7 +13952,7 @@ async function run() {
             await (0, steampipe_1.runSteampipeCheck)(steampipePath, modPath, inputs, ["json", "md"]);
         }
         catch (e) {
-            throw e;
+            //throw e
         }
         finally {
             await exportStepSummary(inputs);
