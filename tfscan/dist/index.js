@@ -13611,6 +13611,13 @@ exports.writeConnections = writeConnections;
  */
 async function runSteampipeCheck(cliCmd = "steampipe", workspaceChdir, actionInputs, xtraExports) {
     (0, core_1.startGroup)(`Running Check`);
+    // shutdown any running services of steampipe (if any)
+    try {
+        (0, exec_1.exec)(cliCmd, ["service", "stop", "--force"]);
+    }
+    catch (e) {
+        // nothing to say here
+    }
     let args = new Array();
     args.push("check", ...actionInputs.getRun());
     if (actionInputs.output.length > 0) {
