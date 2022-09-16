@@ -15,13 +15,7 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v3
       - name: Run Steampipe Terraform Compliance - ${{ matrix.folder }}
-        uses: ./
+        uses: ./tfscan
         with:
           version: latest
-          connection_config: |
-            connection "terraform" {
-              plugin = "terraform"
-              paths = ["examples/terraform/${{ matrix.folder }}/**/*.tf"] # Provide the path to terraform files
-            }
-          plugins: terraform
           mod: 'https://github.com/turbot/steampipe-mod-terraform-${{ matrix.folder }}-compliance.git'
