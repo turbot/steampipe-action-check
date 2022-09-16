@@ -18,7 +18,6 @@ jobs:
         continue-on-error: true
         uses: ./tfscan
         with:
-          version: latest
           mod: https://github.com/turbot/steampipe-mod-terraform-aws-compliance.git
 
       - name: Steampipe terraform scan action - with mod and specific controls
