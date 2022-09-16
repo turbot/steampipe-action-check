@@ -208,6 +208,11 @@ async function AnnotationOnLine(octokit: Octokit, results: Array<ControlResult>,
     for (let i = 0; i < results.length; i++) {
       const result = results[i]
       const splitted = result.dimensions[0].value.split(":", 2);
+      const path = splitted[0].replace(process.cwd() + "/", '');
+      const lineNo = parseInt(splitted[1])
+
+      console.log("AnnotationOnLine.2========== >>>>>>>>>>>", i, splitted, path, lineNo)
+
       const data = {
         owner: github.context.repo.owner,
         repo: github.context.repo.repo,
@@ -221,18 +226,18 @@ async function AnnotationOnLine(octokit: Octokit, results: Array<ControlResult>,
           summary: result.reason,
           annotations: [
             {
-              path: splitted[0].replace(process.cwd() + "/", ''),
-              start_line: +(splitted[1]),
-              end_line: +(splitted[1]),
+              path: path,
+              start_line: lineNo,
+              end_line: lineNo,
               annotation_level: 'failure',
               message: result.reason,
-              start_column: +(splitted[1]),
-              end_column: +(splitted[1])
+              start_column: lineNo,
+              end_column: lineNo
             }
           ]
         }
       }
-      console.log("AnnotationOnLine.2========== >>>>>>>>>>>", i, data)
+      console.log("AnnotationOnLine.3========== >>>>>>>>>>>", i, data)
       const check = await octokit.rest.checks.create(data);
       console.log(check)
     }

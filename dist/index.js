@@ -15824,9 +15824,13 @@ async function AnnotationOnLine(octokit, results, actionInputs) {
             return;
         for (let i = 0; i < results.length; i++) {
             const result = results[i];
-            var splitted = result.dimensions[0].value.split(":", 2);
-            const check = await octokit.rest.checks.create({
-                ...github.context.repo,
+            const splitted = result.dimensions[0].value.split(":", 2);
+            const path = splitted[0].replace(process.cwd() + "/", '');
+            const lineNo = parseInt(splitted[1]);
+            console.log("AnnotationOnLine.2========== >>>>>>>>>>>", i, splitted, path, lineNo);
+            const data = {
+                owner: github.context.repo.owner,
+                repo: github.context.repo.repo,
                 pull_number: github.context.payload.pull_request.number,
                 name: 'Terraform Validator',
                 head_sha: github.context.payload.pull_request['head']['sha'],
@@ -15837,17 +15841,19 @@ async function AnnotationOnLine(octokit, results, actionInputs) {
                     summary: result.reason,
                     annotations: [
                         {
-                            path: splitted[0].replace(process.cwd() + "/", ''),
-                            start_line: +(splitted[1]),
-                            end_line: +(splitted[1]),
+                            path: path,
+                            start_line: lineNo,
+                            end_line: lineNo,
                             annotation_level: 'failure',
                             message: result.reason,
-                            start_column: +(splitted[1]),
-                            end_column: +(splitted[1])
+                            start_column: lineNo,
+                            end_column: lineNo
                         }
                     ]
                 }
-            });
+            };
+            console.log("AnnotationOnLine.3========== >>>>>>>>>>>", i, data);
+            const check = await octokit.rest.checks.create(data);
             console.log(check);
         }
     }
