@@ -1,7 +1,7 @@
 import { addPath, setFailed } from "@actions/core";
 import { appendFile, copyFile, readdir, readFile, stat, unlink, writeFile } from "fs/promises";
 import { extname } from "path";
-import { Annotation, PushAnnotations, GetAnnotations, ParseResultFile } from "./commenter";
+import { Annotation, PushAnnotations, GetAnnotations, ParseResultFile } from "./annotate";
 import { ActionInput } from "./input";
 import { DownloadAndDeflateSteampipe, InstallMod, InstallPlugins, InstallSteampipe, RunSteampipeCheck, WriteConnections } from "./steampipe";
 
@@ -35,7 +35,7 @@ async function run() {
       await exportStepSummary(actionInputs)
       await exportAnnotations(actionInputs)
     }
-    
+
   } catch (error) {
     setFailed(error.message);
   }
