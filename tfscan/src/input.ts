@@ -1,13 +1,12 @@
-import { getInput, getMultilineInput } from "@actions/core";
+import { getInput } from "@actions/core";
 import { env } from "process";
 
 export class ActionInput {
-  version: string;
-  plugins: Array<string>;
-  modRepository: string;
-  connectionData: string;
-
   private run: Array<string>;
+
+  version: string;
+  modRepository: string;
+
   where: string | null;
 
   output: string;
@@ -17,13 +16,7 @@ export class ActionInput {
 
   constructor() {
     this.version = getInput("version", { required: false, trimWhitespace: true }) || 'latest';
-    this.plugins = getInput("plugins", { required: true, trimWhitespace: false })
-      .split(",")
-      .map(p => p.trim())
-      .filter(p => p.length > 0);
-
     this.modRepository = getInput("mod", { required: false, trimWhitespace: true });
-    this.connectionData = getInput("connection_config", { required: false, trimWhitespace: false });
 
     this.run = getInput("run", { required: false, trimWhitespace: true })
       .split(" ")
