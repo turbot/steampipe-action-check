@@ -15705,11 +15705,11 @@ const core_1 = __nccwpck_require__(2186);
  * @param group GroupResult The group result returned by `steampipe check`
  * @returns
  */
-function GetAnnotations(result) {
+function GetAnnotations(result, input) {
     if (result === null) {
         return null;
     }
-    return getAnnotationsForGroup(result);
+    return getAnnotationsForGroup(result, input);
 }
 exports.GetAnnotations = GetAnnotations;
 /**
@@ -15783,36 +15783,73 @@ async function ParseResultFile(filePath) {
     return JSON.parse(fileContent.toString());
 }
 exports.ParseResultFile = ParseResultFile;
-function getAnnotationsForGroup(group) {
+function getAnnotationsForGroup(group, input) {
     const annotations = [];
     for (let g of group.groups) {
-        annotations.push(...getAnnotationsForGroup(g));
+        annotations.push(...getAnnotationsForGroup(g, input));
     }
     for (let c of group.controls) {
-        annotations.push(...getAnnotationsForControl(c));
+        AnnotationOnLine(c.results, input);
     }
     return annotations;
 }
-function getAnnotationsForControl(controlRun) {
-    const annotations12 = [];
-    controlRun.results;
-    if (controlRun.results != null) {
-        controlRun.results.forEach((result) => {
-            if (result.status === 'alarm') {
-                var splitted = result.dimensions[0].value.split(":", 2);
-                annotations12.push({
-                    path: splitted[0].replace(process.cwd() + "/", ''),
-                    start_line: +(splitted[1]),
-                    end_line: +(splitted[1]),
-                    annotation_level: 'failure',
-                    message: result.reason,
-                    start_column: +(splitted[1]),
-                    end_column: +(splitted[1])
-                });
-            }
+/* function getAnnotationsForControl(controlRun: ControlRun): Array<any> {
+  const annotations12: Array<any> = []
+  controlRun.results
+  if (controlRun.results != null) {
+    controlRun.results.forEach((result) => {
+      if (result.status === 'alarm') {
+        var splitted = result.dimensions[0].value.split(":", 2);
+        annotations12.push({
+          path: splitted[0].replace(process.cwd() + "/", ''),
+          start_line: +(splitted[1]),
+          end_line: +(splitted[1]),
+          annotation_level: 'failure',
+          message: result.reason,
+          start_column: +(splitted[1]),
+          end_column: +(splitted[1])
         });
+      }
+    })
+  }
+  return annotations12;
+} */
+async function AnnotationOnLine(results, actionInputs) {
+    try {
+        for (let i = 0; i < results.length; i++) {
+            const result = results[i];
+            const octokit = new rest_1.Octokit({
+                auth: actionInputs.githubToken
+            });
+            var splitted = result.dimensions[0].value.split(":", 2);
+            const check = await octokit.rest.checks.create({
+                ...github.context.repo,
+                pull_number: github.context.payload.pull_request.number,
+                name: 'Terraform Validator',
+                head_sha: github.context.payload.pull_request['head']['sha'],
+                status: 'completed',
+                conclusion: 'failure',
+                output: {
+                    title: result.resource,
+                    summary: result.reason,
+                    annotations: [
+                        {
+                            path: splitted[0].replace(process.cwd() + "/", ''),
+                            start_line: +(splitted[1]),
+                            end_line: +(splitted[1]),
+                            annotation_level: 'failure',
+                            message: result.reason,
+                            start_column: +(splitted[1]),
+                            end_column: +(splitted[1])
+                        }
+                    ]
+                }
+            });
+        }
     }
-    return annotations12;
+    catch (error) {
+        (0, core_1.setFailed)(error);
+    }
 }
 
 
@@ -16334,7 +16371,7 @@ async function exportAnnotations(input) {
     const annotations = [];
     for (let j of jsonFiles) {
         const result = await (0, annotate_1.ParseResultFile)(j);
-        annotations.push(...(0, annotate_1.GetAnnotations)(result));
+        annotations.push(...(0, annotate_1.GetAnnotations)(result, input));
     }
     (0, console_1.info)(`Pushing Annotations`);
     await (0, annotate_1.PushAnnotations)(annotations, input);

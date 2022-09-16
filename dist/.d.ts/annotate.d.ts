@@ -59,7 +59,7 @@ export declare type RootResult = GroupResult;
  * @param group GroupResult The group result returned by `steampipe check`
  * @returns
  */
-export declare function GetAnnotations(result: RootResult): Array<any>;
+export declare function GetAnnotations(result: RootResult, input: ActionInput): Array<any>;
 /**
  *
  * @param annotations Array<Annotation> Pushed a set of annotations to github

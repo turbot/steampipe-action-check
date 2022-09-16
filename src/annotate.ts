@@ -83,11 +83,11 @@ export type RootResult = GroupResult
  * @param group GroupResult The group result returned by `steampipe check`
  * @returns 
  */
-export function GetAnnotations(result: RootResult): Array<any> {
+export function GetAnnotations(result: RootResult, input: ActionInput): Array<any> {
   if (result === null) {
     return null
   }
-  return getAnnotationsForGroup(result)
+  return getAnnotationsForGroup(result, input)
 }
 
 /**
@@ -161,18 +161,18 @@ export async function ParseResultFile(filePath: string): Promise<RootResult> {
   return (JSON.parse(fileContent.toString()) as RootResult)
 }
 
-function getAnnotationsForGroup(group: GroupResult): Array<any> {
+function getAnnotationsForGroup(group: GroupResult, input: ActionInput): Array<any> {
   const annotations: Array<any> = []
   for (let g of group.groups) {
-    annotations.push(...getAnnotationsForGroup(g))
+    annotations.push(...getAnnotationsForGroup(g, input))
   }
   for (let c of group.controls) {
-    annotations.push(...getAnnotationsForControl(c))
+    AnnotationOnLine(c.results, input)
   }
   return annotations
 }
 
-function getAnnotationsForControl(controlRun: ControlRun): Array<any> {
+/* function getAnnotationsForControl(controlRun: ControlRun): Array<any> {
   const annotations12: Array<any> = []
   controlRun.results
   if (controlRun.results != null) {
@@ -192,4 +192,43 @@ function getAnnotationsForControl(controlRun: ControlRun): Array<any> {
     })
   }
   return annotations12;
+} */
+
+
+async function AnnotationOnLine(results: Array<ControlResult>, actionInputs: ActionInput) {
+  try {
+    for (let i = 0; i < results.length; i++) {
+      const result = results[i]
+      const octokit = new Octokit({
+        auth: actionInputs.githubToken
+      });
+      var splitted = result.dimensions[0].value.split(":", 2);
+      const check = await octokit.rest.checks.create({
+        ...github.context.repo,
+        pull_number: github.context.payload.pull_request.number,
+        name: 'Terraform Validator',
+        head_sha: github.context.payload.pull_request['head']['sha'],
+        status: 'completed',
+        conclusion: 'failure',
+        output: {
+          title: result.resource,
+          summary: result.reason,
+          annotations: [
+            {
+              path: splitted[0].replace(process.cwd() + "/", ''),
+              start_line: +(splitted[1]),
+              end_line: +(splitted[1]),
+              annotation_level: 'failure',
+              message: result.reason,
+              start_column: +(splitted[1]),
+              end_column: +(splitted[1])
+            }
+          ]
+        }
+      });
+    }
+  } catch (error) {
+    setFailed(error);
+  }
+
 }

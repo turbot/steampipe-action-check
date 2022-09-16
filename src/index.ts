@@ -43,7 +43,7 @@ async function exportAnnotations(input: ActionInput) {
   const annotations: Array<any> = []
   for (let j of jsonFiles) {
     const result = await ParseResultFile(j)
-    annotations.push(...GetAnnotations(result))
+    annotations.push(...GetAnnotations(result, input))
   }
   info(`Pushing Annotations`)
   await PushAnnotations(annotations, input)
