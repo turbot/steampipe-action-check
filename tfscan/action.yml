@@ -19,6 +19,9 @@ inputs:
     description: Directory to run the scan on, from the repo root. Default is . (root of the repository)
     required: false
     default: "."
+  mod:
+    description: Git clone URL of a mod that will be installed
+    required: true
   output:
     description: Select a console output format i.e. brief, csv, html, json, md, text or none
     required: false

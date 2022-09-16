@@ -6709,8 +6709,14 @@ exports.installTerraform = installTerraform;
  * @param modRepository The HTTP/SSH url of the mod repository. This will be passed in as-is to `git clone`
  */
 async function installMod(modRepository = "") {
+    if (modRepository.trim().length === 0) {
+        return Promise.resolve("");
+    }
+    (0, core_1.startGroup)("Installing Mod");
     const cloneTo = `workspace_dir_${new Date().getTime()}`;
-    await (0, exec_1.exec)("git", ["clone", "https://github.com/turbot/steampipe-mod-terraform-aws-compliance.git", cloneTo], { silent: true });
+    (0, core_1.info)(`Installing mod from ${modRepository}`);
+    await (0, exec_1.exec)("git", ["clone", modRepository, cloneTo], { silent: true });
+    (0, core_1.endGroup)();
     return cloneTo;
 }
 exports.installMod = installMod;
@@ -6760,7 +6766,9 @@ async function runSteampipeCheck(cliCmd = "steampipe", workspaceChdir, actionInp
     if (actionInputs.where.length > 0) {
         args.push(`--where=${actionInputs.where}`);
     }
-    args.push(`--workspace-chdir=${workspaceChdir}`);
+    if (workspaceChdir.trim().length > 0) {
+        args.push(`--workspace-chdir=${workspaceChdir}`);
+    }
     const execEnv = process_1.env;
     execEnv.STEAMPIPE_CHECK_DISPLAY_WIDTH = "120";
     await (0, exec_1.exec)(cliCmd, args, {
@@ -7019,12 +7027,15 @@ const steampipe_1 = __nccwpck_require__(9885);
 async function run() {
     try {
         const inputs = new input_1.ActionInput();
+        // install the mod right away
+        // if this fails for some reason, we cannot continue
+        const modPath = await (0, steampipe_1.installMod)(inputs.modRepository);
         const steampipePath = `${await (0, steampipe_1.downloadAndDeflateSteampipe)(inputs.version)}/steampipe`;
-        (0, core_1.addPath)(steampipePath);
-        const modPath = await (0, steampipe_1.installMod)();
         await (0, steampipe_1.installSteampipe)(steampipePath);
         await (0, steampipe_1.installTerraform)(steampipePath);
         await (0, steampipe_1.writeConnections)(inputs);
+        // add the path to the Steampipe CLI so that it can be used by subsequent steps if required
+        (0, core_1.addPath)(steampipePath);
         try {
             // since `steampipe check` may exit with a non-zero exit code - this is normal
             await (0, steampipe_1.runSteampipeCheck)(steampipePath, modPath, inputs, ["json", "md"]);
