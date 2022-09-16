@@ -22,6 +22,7 @@ jobs:
         continue-on-error: true
         uses: ./tfscan
         with:
+          version: v0.16.1
           directory: ./
           mod: https://github.com/turbot/steampipe-mod-terraform-aws-compliance.git
 
@@ -29,5 +30,6 @@ jobs:
         continue-on-error: true
         uses: ./tfscan
         with:
+          version: v0.16.1
           mod: https://github.com/turbot/steampipe-mod-terraform-aws-compliance.git
           run: control.ec2_instance_not_use_default_vpc control.ec2_ebs_default_encryption_enabled control.s3_bucket_default_encryption_enabled
