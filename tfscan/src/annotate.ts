@@ -33,12 +33,14 @@ function getAnnotationsForGroup(group: GroupResult): Array<Annotation> {
   const annotations: Array<Annotation> = []
   if (group.groups) {
     for (let g of group.groups) {
-      annotations.push(...getAnnotationsForGroup(g))
+      const ann = getAnnotationsForGroup(g)
+      annotations.push(...ann)
     }
   }
   if (group.controls) {
     for (let c of group.controls) {
-      annotations.push(...getAnnotationsForControl(c))
+      const ann = getAnnotationsForControl(c)
+      annotations.push(...ann)
     }
     return annotations
   }
