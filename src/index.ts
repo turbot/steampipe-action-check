@@ -1,10 +1,9 @@
-import { addPath, setFailed } from "@actions/core";
+import { addPath, endGroup, setFailed, startGroup } from "@actions/core";
 import { appendFile, copyFile, readdir, readFile, stat, unlink, writeFile } from "fs/promises";
 import { extname } from "path";
 import { Annotation, PushAnnotations, GetAnnotations, ParseResultFile } from "./annotate";
 import { ActionInput } from "./input";
 import { DownloadAndDeflateSteampipe, InstallMod, InstallPlugins, InstallSteampipe, RunSteampipeCheck, WriteConnections } from "./steampipe";
-import { AddPRComments } from './commenter';
 
 async function run() {
   try {
@@ -33,17 +32,6 @@ async function run() {
       // throw e
     }
     finally {
-      // const mdFiles = await getExportedSummaryMarkdownFiles(actionInputs)
-      // const jsonFiles = await getExportedJSONFiles(actionInputs)
-      // jsonFiles.forEach((jsonFile) => {
-      //   AddPRComments(actionInputs, jsonFile)
-      // })
-      // await combineFiles(mdFiles, "summary.md")
-
-      // await copyFile("summary.md", actionInputs.summaryFile)
-
-      // removeFiles(mdFiles)
-      // removeFiles(jsonFiles)
       await exportStepSummary(actionInputs)
       await exportAnnotations(actionInputs)
     }
@@ -54,14 +42,16 @@ async function run() {
 }
 
 async function exportAnnotations(input: ActionInput) {
+  startGroup(`Add Annotations`)
   const jsonFiles = await getExportedJSONFiles(input)
   const annotations: Array<Annotation> = []
   for (let j of jsonFiles) {
     const result = await ParseResultFile(j)
     annotations.push(...GetAnnotations(result))
   }
-  await PushAnnotations(annotations)
+  await PushAnnotations(annotations, input)
   removeFiles(jsonFiles)
+  endGroup()
 }
 
 async function exportStepSummary(input: ActionInput) {

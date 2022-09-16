@@ -1,43 +1,13 @@
-import { ActionInput, GroupJson } from "./input";
-import { FileInfo, Group, Result } from "./output";
+import { ActionInput } from "./input";
 import { readFile } from "fs/promises";
 import { Octokit } from '@octokit/rest';
 import { setFailed, startGroup, endGroup } from "@actions/core";
 import * as github from '@actions/github';
+import { ControlResult, GroupResult } from "./annotate";
 
 const patchRegex = new RegExp(`^@@.*\d [\+\-](\d+),?(\d+)?.+?@@`)
 const commitRefRegex = new RegExp(".+ref=(.+)")
 
-export async function AddPRComments(actionInputs: ActionInput, myExportFile: string) {
-  startGroup(`Add Comments`)
-  // const context = github.context;
-  // if (context.payload.pull_request == null) {
-  //   setFailed('No pull request found.');
-  //   return;
-  // }
-
-
-  const content = await readFile(myExportFile, 'utf-8')
-  console.log('github.context--------------->>>>>>>>>', github.context.payload.pull_request['head']['sha']);
-  const group: Group = JSON.parse(content);
-  // console.log('--------------->>>>>>>>>', group);
-  ParseOnRun(group, actionInputs)
-  endGroup()
-}
-
-function ParseOnRun(group: Group, actionInputs: ActionInput) {
-  if (group.controls != null) {
-    group.controls.forEach((control) => {
-      if (control.results != null) {
-        control.results.forEach((result) => {
-          if (result.status = 'alarm') {
-            AnnotationOnLine(actionInputs, result)
-          }
-        })
-      }
-    })
-  }
-}
 
 /* async function CommentOnLine(actionInputs: ActionInput, result: Result) {
   const fileSHAMap = await GetPRFileInfos(actionInputs, result)
@@ -69,41 +39,6 @@ function ParseOnRun(group: Group, actionInputs: ActionInput) {
 
 } */
 
-
-async function AnnotationOnLine(actionInputs: ActionInput, result: Result) {
-  try {
-    const octokit = new Octokit({
-      auth: actionInputs.githubToken
-    });
-    var splitted = result.dimensions[0].value.split(":", 2);
-    const check = await octokit.rest.checks.create({
-      ...github.context.repo,
-      pull_number: github.context.payload.pull_request.number,
-      name: 'Terraform Validator',
-      head_sha: github.context.payload.pull_request['head']['sha'],
-      status: 'completed',
-      conclusion: 'failure',
-      output: {
-        title: result.resource,
-        summary: result.reason,
-        annotations: [
-          {
-            path: splitted[0].replace(process.cwd() + "/", ''),
-            start_line: +(splitted[1]),
-            end_line: +(splitted[1]),
-            annotation_level: 'failure',
-            message: result.reason,
-            start_column: +(splitted[1]),
-            end_column: +(splitted[1])
-          }
-        ]
-      }
-    });
-  } catch (error) {
-    setFailed(error);
-  }
-
-}
 
 /* async function GetPRFileInfos(actionInputs: ActionInput, result: Result): Promise<FileInfo[]> {
   try {
