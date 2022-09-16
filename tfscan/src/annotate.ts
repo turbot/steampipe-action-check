@@ -58,7 +58,6 @@ function getAnnotationsForGroup(group: GroupResult): Array<Annotation> {
       const ann = getAnnotationsForControl(c)
       annotations.push(...ann)
     }
-    return annotations
   }
   return annotations
 }
