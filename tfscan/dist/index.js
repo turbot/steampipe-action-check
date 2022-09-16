@@ -13574,7 +13574,7 @@ async function installMod(modRepository = "") {
         return Promise.resolve("");
     }
     (0, core_1.startGroup)("Installing Mod");
-    const cloneTo = `workspace_dir_${github_1.context.runId}`;
+    const cloneTo = `workspace_dir_${github_1.context.runId}_${new Date().getTime()}`;
     (0, core_1.info)(`Installing mod from ${modRepository}`);
     await (0, exec_1.exec)(await (0, io_1.which)("git", true), ["clone", modRepository, cloneTo], { silent: false });
     (0, core_1.endGroup)();
