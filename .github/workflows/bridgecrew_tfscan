@@ -1,0 +1,33 @@
+name: checkov_scan
+on:
+  repository_dispatch:
+  workflow_dispatch:
+  # push:
+  #   branches:
+  #     - first-setup
+  #     - first-setup-rk
+  #     - main
+  pull_request:
+
+jobs:
+  run-iac-scan-bridgecrew:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v2
+
+      - name: Run Bridgecrew
+        id: Bridgecrew
+        uses: bridgecrewio/bridgecrew-action@master
+        with:
+          api-key: ${{ secrets.BC_API_KEY }}
+          directory: "test_dir/"
+          check: CKV_AWS_88,CKV_AWS_46,CKV_AWS_126,CKV_AWS_135 # optional: run only a specific check_id. can be comma separated list
+          # skip_check: CKV_AWS_1 # optional: skip a specific check_id. can be comma separated list
+          soft_fail: false
+          framework: terraform # optional: run only on a specific infrastructure {cloudformation,terraform,kubernetes,all}
+          output_format: cli
+          quiet: false
+          external_checks_dirs: ./checkov
+          download_external_modules: true # optional: download external terraform modules from public git repositories and terraform registry
+          log_level: DEBUG # optional: set log level. Default WARNING
