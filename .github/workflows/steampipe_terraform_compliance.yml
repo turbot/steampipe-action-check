@@ -23,7 +23,6 @@ jobs:
         uses: ./tfscan
         with:
           version: v0.16.1
-          directory: ./
           mod: https://github.com/turbot/steampipe-mod-terraform-aws-compliance.git
 
       - name: Steampipe terraform scan action - with mod and specific controls
