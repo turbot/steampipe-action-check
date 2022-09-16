@@ -84,8 +84,14 @@ export async function installTerraform(cliCmd = "steampipe") {
  * @param modRepository The HTTP/SSH url of the mod repository. This will be passed in as-is to `git clone`
  */
 export async function installMod(modRepository: string = "") {
+  if (modRepository.trim().length === 0) {
+    return Promise.resolve("")
+  }
+  startGroup("Installing Mod")
   const cloneTo = `workspace_dir_${new Date().getTime()}`
-  await exec("git", ["clone", "https://github.com/turbot/steampipe-mod-terraform-aws-compliance.git", cloneTo], { silent: true })
+  info(`Installing mod from ${modRepository}`)
+  await exec("git", ["clone", modRepository, cloneTo], { silent: true })
+  endGroup()
   return cloneTo
 }
 
@@ -144,7 +150,9 @@ export async function runSteampipeCheck(cliCmd: string = "steampipe", workspaceC
     args.push(`--where=${actionInputs.where}`)
   }
 
-  args.push(`--workspace-chdir=${workspaceChdir}`)
+  if (workspaceChdir.trim().length > 0) {
+    args.push(`--workspace-chdir=${workspaceChdir}`)
+  }
 
   const execEnv = env
   execEnv.STEAMPIPE_CHECK_DISPLAY_WIDTH = "120"
