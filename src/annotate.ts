@@ -1,5 +1,6 @@
 import { ActionInput } from "./input";
 import { readFile } from "fs/promises";
+import { Octokit } from '@octokit/rest';
 import * as github from '@actions/github';
 import { setFailed } from "@actions/core";
 
@@ -95,7 +96,9 @@ export function GetAnnotations(result: RootResult): Array<Annotation> {
  */
 export async function PushAnnotations(annotations: Array<Annotation>, actionInputs: ActionInput) {
   try {
-    const octokit = github.getOctokit(actionInputs.githubToken);
+    const octokit = new Octokit({
+      auth: actionInputs.githubToken
+    });
     const check = await octokit.rest.checks.create({
       ...github.context.repo,
       pull_number: github.context.payload.pull_request.number,
