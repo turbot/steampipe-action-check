@@ -13402,7 +13402,6 @@ function getAnnotationsForGroup(group) {
             const ann = getAnnotationsForControl(c);
             annotations.push(...ann);
         }
-        return annotations;
     }
     return annotations;
 }
