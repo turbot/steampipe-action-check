@@ -1,0 +1,44 @@
+name: "Steampipe GitHub Action"
+author: "Turbot.com"
+description: "Run Steampipe against Terraform infrastructure code, as a pre-packaged GitHub Action"
+
+branding:
+  color: "red"
+  icon: "shield"
+
+inputs:
+  mod:
+    description: "Git URL of specific terraform compliance mod that will be installed. This will be passed on to `git clone`"
+    required: true
+  version:
+    description: "The version number of Steampipe that will be installed"
+    required: false
+    default: "latest"
+  run:
+    description: "A list of benchmarks and controls to run (comma-separated). If no value is specified, it runs `check all`"
+    required: false
+    default: ""
+  directory:
+    description: "Directory with infrastructure code to scan explicitly, if not specified, it considers root of the repository as default"
+    required: false
+    default: "."
+  output:
+    description: "The console output format. Possible values are brief, csv, html, json, md, text or none"
+    required: false
+    default: "text"
+  export:
+    description: "Export output to a file. Supported export formats are asff, csv, html, json and md"
+    required: false
+    default: ""
+  where:
+    description: "Filter the list of controls to run, using a `sql` where clause against the `steampipe_control` reflection table"
+    required: false
+    default: ""
+  github-token:
+    description: "The token is used for fetching patch of a pull request to show only new issues"
+    default: ${{ github.token }}
+    required: false
+
+runs:
+  using: node16
+  main: dist/index.js

@@ -1,0 +1,21 @@
+name: Run Steampipe Checks
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  steampipe-terraform-checks:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v3
+
+      - name: Steampipe terraform scan action
+        uses: ./
+        continue-on-error: false
+        with:
+          mod: 'https://github.com/turbot/steampipe-mod-terraform-aws-compliance.git'

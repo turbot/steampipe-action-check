@@ -1,0 +1,29 @@
+name: Run Steampipe Terraform Compliance
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v3
+
+      - name: Run Steampipe Terraform AWS Compliance
+        uses: ./
+        with:
+          version: latest
+          plugins: terraform
+          mod: 'https://github.com/turbot/steampipe-mod-terraform-aws-compliance.git'
+          benchmark: benchmark.ec2
+          output: json
+        continue-on-error: true
+
+      - name: Run Steampipe Terraform GCP Compliance
+        uses: ./tfscan
+        with:
+          version: latest
+          mod: 'https://github.com/turbot/steampipe-mod-terraform-gcp-compliance.git'

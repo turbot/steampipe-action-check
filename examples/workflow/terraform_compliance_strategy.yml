@@ -1,0 +1,21 @@
+name: Run Steampipe Terraform Compliance
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        folder: [aws, azure, gcp]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v3
+      - name: Run Steampipe Terraform Compliance - ${{ matrix.folder }}
+        uses: ./tfscan
+        with:
+          version: latest
+          mod: 'https://github.com/turbot/steampipe-mod-terraform-${{ matrix.folder }}-compliance.git'

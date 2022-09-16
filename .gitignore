@@ -1,1 +1,12 @@
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Swap files
+*.swp
+
+# Folders
 node_modules
