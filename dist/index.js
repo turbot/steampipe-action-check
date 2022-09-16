@@ -15712,6 +15712,19 @@ async function PushAnnotations(annotations, actionInputs) {
         const octokit = new rest_1.Octokit({
             auth: actionInputs.githubToken
         });
+        console.log('--------------------------->>>>>>>>>>>>>>>>>>>>>', {
+            ...github.context.repo,
+            pull_number: github.context.payload.pull_request.number,
+            name: 'Terraform Validator',
+            head_sha: github.context.payload.pull_request['head']['sha'],
+            status: 'completed',
+            conclusion: 'action_required',
+            output: {
+                title: 'Terraform Validator',
+                summary: 'Terraform Validator Failure',
+                annotations
+            }
+        });
         const check = await octokit.rest.checks.create({
             ...github.context.repo,
             pull_number: github.context.payload.pull_request.number,
