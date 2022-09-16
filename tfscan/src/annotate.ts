@@ -1,6 +1,7 @@
 import { setFailed } from "@actions/core";
 import { context, getOctokit } from "@actions/github";
 import { readFile } from "fs/promises";
+import { cwd } from "process";
 import { ActionInput } from "./input";
 
 /**
@@ -39,7 +40,7 @@ export async function pushAnnotations(input: ActionInput, annotations: Array<Ann
         status: 'completed',
         conclusion: 'action_required',
         output: {
-          title: 'tfscan',
+          title: 'Steampipe tfscan',
           summary: 'Terraform Validation Failed',
           annotations: annotations
         }
@@ -77,24 +78,38 @@ function getAnnotationsForGroup(group: GroupResult): Array<Annotation> {
 }
 
 function getAnnotationsForControl(controlRun: ControlRun): Array<Annotation> {
+  const lineRegex = new RegExp(`.*:[\d]*`)
   const annotations: Array<Annotation> = []
-  controlRun.results
-  if (controlRun.results != null) {
-    controlRun.results.forEach((result) => {
-      if (result.status === 'alarm') {
-        const [fileName, lineNumber, ...rest] = result.dimensions[0].value.split(":", 2);
-        annotations.push({
-          path: fileName.replace(process.cwd() + "/", ''),
-          start_line: parseInt(lineNumber),
-          end_line: parseInt(lineNumber),
-          annotation_level: 'failure',
-          message: result.reason,
-          start_column: 0,
-          end_column: 0,
-        });
+
+  for (let result of controlRun.results || []) {
+    if (result.status != 'alarm' && result.status != 'error') {
+      continue
+    }
+
+    for (let dim of result.dimensions || []) {
+      if ((dim.value || "").trim().length == 0) {
+        continue
       }
-    })
+
+      if (!lineRegex.test(dim.value || "")) {
+        // this is not a file_path:line_number value
+        continue
+      }
+
+      const [fileName, lineNumber, ...rest] = dim.value.split(":", 2);
+
+      annotations.push({
+        path: fileName.replace(process.cwd() + "/", ''),
+        start_line: parseInt(lineNumber),
+        end_line: parseInt(lineNumber),
+        annotation_level: 'failure',
+        message: result.reason,
+        start_column: 0,
+        end_column: 0,
+      });
+    }
   }
+
   return annotations;
 }
 
