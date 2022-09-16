@@ -13,7 +13,7 @@ async function run() {
     const steampipePath = `${await downloadAndDeflateSteampipe(inputs.version)}/steampipe`;
     addPath(steampipePath);
 
-    const modPath = await installMod(inputs.modRepository)
+    const modPath = await installMod()
 
     await installSteampipe(steampipePath)
     await installTerraform(steampipePath)
