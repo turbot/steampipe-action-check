@@ -13635,6 +13635,7 @@ async function runSteampipeCheck(cliCmd = "steampipe", workspaceChdir, actionInp
     }
     const execEnv = process_1.env;
     execEnv.STEAMPIPE_CHECK_DISPLAY_WIDTH = "120";
+    execEnv.STEAMPIPE_LOG = "TRACE";
     await (0, exec_1.exec)(cliCmd, args, {
         env: execEnv,
     });
