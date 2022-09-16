@@ -99,6 +99,8 @@ export async function PushAnnotations(annotations: Array<any>, actionInputs: Act
     const octokit = new Octokit({
       auth: actionInputs.githubToken
     });
+    if (annotations === null)
+      return;
     for (var i = 0; i < annotations.length; i++) {
       const annotation = annotations[i]
       console.log('annotation----------------->>>>>>>>>>>>>>>', {
@@ -197,6 +199,8 @@ function getAnnotationsForGroup(group: GroupResult, input: ActionInput): Array<a
 
 async function AnnotationOnLine(results: Array<ControlResult>, actionInputs: ActionInput) {
   try {
+    if (results === null)
+      return;
     for (let i = 0; i < results.length; i++) {
       const result = results[i]
       const octokit = new Octokit({

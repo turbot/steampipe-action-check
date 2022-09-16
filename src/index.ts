@@ -45,8 +45,8 @@ async function exportAnnotations(input: ActionInput) {
     const result = await ParseResultFile(j)
     annotations.push(...GetAnnotations(result, input))
   }
-  info(`Pushing Annotations`)
-  await PushAnnotations(annotations, input)
+  // info(`Pushing Annotations`)
+  // await PushAnnotations(annotations, input)
   removeFiles(jsonFiles)
   endGroup()
 }

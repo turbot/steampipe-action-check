@@ -15721,6 +15721,8 @@ async function PushAnnotations(annotations, actionInputs) {
         const octokit = new rest_1.Octokit({
             auth: actionInputs.githubToken
         });
+        if (annotations === null)
+            return;
         for (var i = 0; i < annotations.length; i++) {
             const annotation = annotations[i];
             console.log('annotation----------------->>>>>>>>>>>>>>>', {
@@ -15816,6 +15818,8 @@ function getAnnotationsForGroup(group, input) {
 } */
 async function AnnotationOnLine(results, actionInputs) {
     try {
+        if (results === null)
+            return;
         for (let i = 0; i < results.length; i++) {
             const result = results[i];
             const octokit = new rest_1.Octokit({
@@ -16373,8 +16377,8 @@ async function exportAnnotations(input) {
         const result = await (0, annotate_1.ParseResultFile)(j);
         annotations.push(...(0, annotate_1.GetAnnotations)(result, input));
     }
-    (0, console_1.info)(`Pushing Annotations`);
-    await (0, annotate_1.PushAnnotations)(annotations, input);
+    // info(`Pushing Annotations`)
+    // await PushAnnotations(annotations, input)
     removeFiles(jsonFiles);
     (0, core_1.endGroup)();
 }
