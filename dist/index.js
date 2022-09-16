@@ -15819,6 +15819,7 @@ function getAnnotationsForGroup(octokit, group, input) {
 } */
 async function AnnotationOnLine(octokit, results, actionInputs) {
     try {
+        console.log(" AnnotationOnLine.1========== >>>>>>>>>>>", results);
         if (results === null)
             return;
         for (let i = 0; i < results.length; i++) {
