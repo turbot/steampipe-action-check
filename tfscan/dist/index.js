@@ -13629,6 +13629,10 @@ async function runSteampipeCheck(cliCmd = "steampipe", workspaceChdir, actionInp
     if (workspaceChdir.trim().length > 0) {
         args.push(`--workspace-chdir=${workspaceChdir}`);
     }
+    const chdir = await (0, promises_1.readdir)(workspaceChdir, { withFileTypes: true });
+    for (let c of chdir) {
+        (0, core_1.info)(`${c.name} ->> ${c.isDirectory()}`);
+    }
     const execEnv = process_1.env;
     execEnv.STEAMPIPE_CHECK_DISPLAY_WIDTH = "120";
     await (0, exec_1.exec)(cliCmd, args, {
