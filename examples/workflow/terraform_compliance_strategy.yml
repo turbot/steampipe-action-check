@@ -25,4 +25,3 @@ jobs:
             }
           plugins: terraform
           mod: 'https://github.com/turbot/steampipe-mod-terraform-${{ matrix.folder }}-compliance.git'
-          output: md ## Default is text if not provided

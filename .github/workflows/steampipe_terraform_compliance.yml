@@ -18,7 +18,7 @@ jobs:
         continue-on-error: true
         uses: ./tfscan
 
-      - name: Steampipe terraform scan action - with mod
+      - name: Steampipe terraform scan action - with mod & default check all
         continue-on-error: true
         uses: ./tfscan
         with:
