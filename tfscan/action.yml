@@ -34,6 +34,10 @@ inputs:
     description: SQL 'where' clause, or named query, used to filter controls
     required: false
     default: ""
+  github-token:
+    description: "the token is used for fetching patch of a pull request to show only new issues"
+    default: ${{ github.token }}
+    required: false
 
 runs:
   using: node16
