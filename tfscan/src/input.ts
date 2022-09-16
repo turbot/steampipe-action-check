@@ -49,7 +49,7 @@ export class ActionInput {
     return this.run
   }
 
-  public validate() { 
+  public async validate() { 
     if (this.modRepository.trim().length == 0){
       throw new Error("a mod repository is required")
     }
