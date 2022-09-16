@@ -129,6 +129,15 @@ connection "tf_connection_${context.runId}" {
  */
 export async function runSteampipeCheck(cliCmd: string = "steampipe", workspaceChdir: string, actionInputs: ActionInput, xtraExports: Array<string>) {
   startGroup(`Running Check`)
+
+  // shutdown any running services of steampipe (if any)
+  try {
+    exec(cliCmd, ["service", "stop", "--force"])
+  }
+  catch(e){
+    // nothing to say here
+  }
+  
   let args = new Array<string>()
 
   args.push(
@@ -154,6 +163,11 @@ export async function runSteampipeCheck(cliCmd: string = "steampipe", workspaceC
 
   if (workspaceChdir.trim().length > 0) {
     args.push(`--workspace-chdir=${workspaceChdir}`)
+  }
+
+  const chdir = await readdir(workspaceChdir, { withFileTypes: true })
+  for (let c of chdir) {
+    info(`${c.name} ->> ${c.isDirectory()}`)
   }
 
   const execEnv = env

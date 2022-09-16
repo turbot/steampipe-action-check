@@ -1,4 +1,4 @@
-require('./sourcemap-register.js');/******/ (() => { // webpackBootstrap
+/******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
 /***/ 7351:
@@ -13485,6 +13485,11 @@ class ActionInput {
         }
         return this.run;
     }
+    validate() {
+        if (this.modRepository.trim().length == 0) {
+            throw new Error("a mod repository is required");
+        }
+    }
 }
 exports.ActionInput = ActionInput;
 
@@ -13624,6 +13629,13 @@ exports.writeConnections = writeConnections;
  */
 async function runSteampipeCheck(cliCmd = "steampipe", workspaceChdir, actionInputs, xtraExports) {
     (0, core_1.startGroup)(`Running Check`);
+    // shutdown any running services of steampipe (if any)
+    try {
+        (0, exec_1.exec)(cliCmd, ["service", "stop", "--force"]);
+    }
+    catch (e) {
+        // nothing to say here
+    }
     let args = new Array();
     args.push("check", ...actionInputs.getRun());
     if (actionInputs.output.length > 0) {
@@ -13641,6 +13653,10 @@ async function runSteampipeCheck(cliCmd = "steampipe", workspaceChdir, actionInp
     }
     if (workspaceChdir.trim().length > 0) {
         args.push(`--workspace-chdir=${workspaceChdir}`);
+    }
+    const chdir = await (0, promises_1.readdir)(workspaceChdir, { withFileTypes: true });
+    for (let c of chdir) {
+        (0, core_1.info)(`${c.name} ->> ${c.isDirectory()}`);
     }
     const execEnv = process_1.env;
     execEnv.STEAMPIPE_CHECK_DISPLAY_WIDTH = "120";
@@ -13932,6 +13948,7 @@ const steampipe_1 = __nccwpck_require__(9885);
 async function run() {
     try {
         const inputs = new input_1.ActionInput();
+        inputs.validate();
         // install the mod right away
         // if this fails for some reason, we cannot continue
         const modPath = await (0, steampipe_1.installMod)(inputs.modRepository);
@@ -14025,4 +14042,3 @@ run();
 module.exports = __webpack_exports__;
 /******/ })()
 ;
-//# sourceMappingURL=index.js.map

@@ -10,4 +10,5 @@ export declare class ActionInput {
     ghToken: string;
     constructor();
     getRun(): Array<string>;
+    validate(): void;
 }
