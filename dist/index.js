@@ -15744,7 +15744,7 @@ async function PushAnnotations(annotations, actionInputs) {
                         }]
                 }
             });
-            const check = await octokit.checks.create({
+            await octokit.checks.create({
                 ...github.context.repo,
                 pull_number: github.context.payload.pull_request.number,
                 name: 'Terraform Validator',
@@ -15765,7 +15765,7 @@ async function PushAnnotations(annotations, actionInputs) {
                         }]
                 }
             });
-            console.log('check=================', check);
+            // console.log('check=================', check)
         }
     }
     catch (error) {
@@ -15794,13 +15794,13 @@ function getAnnotationsForGroup(group) {
     return annotations;
 }
 function getAnnotationsForControl(controlRun) {
-    const annotations = [];
+    const annotations12 = [];
     controlRun.results;
     if (controlRun.results != null) {
         controlRun.results.forEach((result) => {
             if (result.status === 'alarm') {
                 var splitted = result.dimensions[0].value.split(":", 2);
-                annotations.push({
+                annotations12.push({
                     path: splitted[0].replace(process.cwd() + "/", ''),
                     start_line: +(splitted[1]),
                     end_line: +(splitted[1]),
@@ -15812,7 +15812,7 @@ function getAnnotationsForControl(controlRun) {
             }
         });
     }
-    return annotations;
+    return annotations12;
 }
 
 
