@@ -12,17 +12,18 @@ export function GetAnnotations(result: RootResult): Array<Annotation> {
 }
 
 /**
+ * Pushes the annotations to Github.
  * 
  * @param annotations Array<Annotation> Pushed a set of annotations to github
  */
 export async function PushAnnotations(annotations: Array<Annotation>) {
-  const octokit = getOctokit(context['token']);
+  const octokit = getOctokit(env.GITHUB_TOKEN);
   if (annotations.length > 0) {
     return Promise.resolve()
   }
 
   if (context.payload.pull_request) {
-    const check = octokit.rest.checks.create({
+    octokit.rest.checks.create({
       ...context.repo,
       pull_number: context.payload.pull_request.number,
       name: 'Terraform Validator',
@@ -67,7 +68,6 @@ function getAnnotationsForControl(controlRun: ControlRun): Array<Annotation> {
   if (controlRun.results != null) {
     controlRun.results.forEach((result) => {
       if (result.status === 'alarm') {
-        // AnnotationOnLine(actionInputs, result)
         var splitted = result.dimensions[0].value.split(":", 2);
         annotations.push({
           path: splitted[0].replace(process.cwd() + "/", ''),
