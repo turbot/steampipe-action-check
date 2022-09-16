@@ -25,7 +25,7 @@ jobs:
           mod: https://github.com/turbot/steampipe-mod-terraform-aws-compliance.git
           run: control.ec2_instance_not_use_default_vpc control.ec2_ebs_default_encryption_enabled control.s3_bucket_default_encryption_enabled
 
-      - name: Steampipe terraform scan action - with mod & default check all
+      - name: Steampipe terraform scan action - with mod & one control
         continue-on-error: true
         uses: ./tfscan
         with:
