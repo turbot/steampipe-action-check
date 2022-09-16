@@ -16,18 +16,18 @@ inputs:
     required: false
     default: ""
   directory:
-    description: Directory to run the scan on, from the repo root. Default is . (root of the repository)
+    description: Directory to run the scan on, from the repo root. Default is `.` (root of the repository).
     required: false
     default: "."
   mod:
-    description: Git clone URL of a mod that will be installed
+    description: Git clone URL of a steampipe mod that will be installed.
     required: true
   output:
-    description: Select a console output format i.e. brief, csv, html, json, md, text or none
+    description: Select a console output format i.e. brief, csv, html, json, md, text or none.
     required: false
     default: text
   export:
-    description: "Export output to files in various output formats such as csv, html, json, md, nunit3 or asff (json) - comma separated"
+    description: "Export output to files in various output formats such as csv, html, json, md, nunit3 or asff (json) - comma separated."
     required: false
     default: ""
   where:
