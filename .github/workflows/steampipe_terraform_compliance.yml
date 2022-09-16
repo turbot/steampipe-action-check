@@ -14,8 +14,19 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v3
 
-      - name: Steampipe terraform scan action
-        continue-on-error: false
-        uses: ./
+      - name: Steampipe terraform scan action - no input
+        continue-on-error: true
+        uses: ./tfscan
+
+      - name: Steampipe terraform scan action - with mod
+        continue-on-error: true
+        uses: ./tfscan
         with:
-          mod: 'https://github.com/turbot/steampipe-mod-terraform-aws-compliance.git'
+          mod: https://github.com/turbot/steampipe-mod-terraform-aws-compliance.git
+
+      - name: Steampipe terraform scan action - with mod and run
+        continue-on-error: true
+        uses: ./tfscan
+        with:
+          mod: https://github.com/turbot/steampipe-mod-terraform-aws-compliance.git
+          run: control.ec2_instance_not_use_default_vpc control.ec2_ebs_default_encryption_enabled control.s3_bucket_default_encryption_enabled
