@@ -13364,7 +13364,7 @@ exports.GetAnnotations = GetAnnotations;
  * @param annotations Array<Annotation> Pushed a set of annotations to github
  */
 async function PushAnnotations(annotations) {
-    const octokit = (0, github_1.getOctokit)(process_1.env.GITHUB_TOKEN);
+    const octokit = (0, github_1.getOctokit)(process_1.env['GITHUB_TOKEN']);
     if (annotations.length > 0) {
         return Promise.resolve();
     }
