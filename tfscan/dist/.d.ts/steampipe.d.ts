@@ -11,13 +11,13 @@ import { ActionInput } from "./input";
  *
  * @param version The version of steampipe to download. Default: `latest`
  */
-export declare function DownloadAndDeflateSteampipe(version?: string): Promise<string>;
+export declare function downloadAndDeflateSteampipe(version?: string): Promise<string>;
 /**
  * InstallSteampipe installs steampipe by setting up the embedded postgres database
  *
  * @param cliCmd The path to the steampipe binary
  */
-export declare function InstallSteampipe(cliCmd?: string): Promise<void>;
+export declare function installSteampipe(cliCmd?: string): Promise<void>;
 /**
  * Installs the list of steampipe plugins
  *
@@ -25,24 +25,24 @@ export declare function InstallSteampipe(cliCmd?: string): Promise<void>;
  * @param plugins `Array<string>` - an array of steampipe plugins to install. Passed to `steampipe plugin install` as-is
  * @returns
  */
-export declare function InstallPlugins(cliCmd?: string, plugins?: Array<string>): Promise<void>;
+export declare function installTerraform(cliCmd?: string): Promise<void>;
 /**
  * Installs a mod from the given Git Clone URL.
  * Forwards the GitURL as-is to `git clone`
  *
  * @param modRepository The HTTP/SSH url of the mod repository. This will be passed in as-is to `git clone`
  */
-export declare function InstallMod(modRepository: string): Promise<string>;
+export declare function installMod(modRepository?: string): Promise<string>;
 /**
  *
  * @param connectionData The connection configuration HCL. All connection configs are to be appended into a single HCL string.
  * @returns void
  */
-export declare function WriteConnections(connectionData: string): Promise<void>;
+export declare function writeConnections(input: ActionInput): Promise<void>;
 /**
  *
  * @param cliCmd string - The path to the installed steampipe CLI.
  * @param workspaceChdir string - The path to the workspace directory where a mod (if any) is installed.
  * @param actionInputs string - The inputs that we got when this action was started.
  */
-export declare function RunSteampipeCheck(cliCmd: string, workspaceChdir: string, actionInputs: ActionInput, xtraExports: Array<string>): Promise<void>;
+export declare function runSteampipeCheck(cliCmd: string, workspaceChdir: string, actionInputs: ActionInput, xtraExports: Array<string>): Promise<void>;

@@ -1,13 +1,12 @@
 export declare class ActionInput {
-    version: string;
-    plugins: Array<string>;
-    modRepository: string;
-    connectionData: string;
     private run;
+    version: string;
+    modRepository: string;
+    scanDirectory: string;
     where: string | null;
     output: string;
     export: Array<string>;
     summaryFile: string;
     constructor();
-    GetRun(): Array<string>;
+    getRun(): Array<string>;
 }
