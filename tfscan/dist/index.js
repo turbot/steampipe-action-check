@@ -13347,6 +13347,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ParseResultFile = exports.PushAnnotations = exports.GetAnnotations = void 0;
 const promises_1 = __nccwpck_require__(3292);
 const github_1 = __nccwpck_require__(5438);
+const process_1 = __nccwpck_require__(7282);
 /**
  * Returns an array of annotations for a RootResult
  *
@@ -13358,16 +13359,17 @@ function GetAnnotations(result) {
 }
 exports.GetAnnotations = GetAnnotations;
 /**
+ * Pushes the annotations to Github.
  *
  * @param annotations Array<Annotation> Pushed a set of annotations to github
  */
 async function PushAnnotations(annotations) {
-    const octokit = (0, github_1.getOctokit)(github_1.context['token']);
+    const octokit = (0, github_1.getOctokit)(process_1.env.GITHUB_TOKEN);
     if (annotations.length > 0) {
         return Promise.resolve();
     }
     if (github_1.context.payload.pull_request) {
-        const check = octokit.rest.checks.create({
+        octokit.rest.checks.create({
             ...github_1.context.repo,
             pull_number: github_1.context.payload.pull_request.number,
             name: 'Terraform Validator',
@@ -13411,7 +13413,6 @@ function getAnnotationsForControl(controlRun) {
     if (controlRun.results != null) {
         controlRun.results.forEach((result) => {
             if (result.status === 'alarm') {
-                // AnnotationOnLine(actionInputs, result)
                 var splitted = result.dimensions[0].value.split(":", 2);
                 annotations.push({
                     path: splitted[0].replace(process.cwd() + "/", ''),

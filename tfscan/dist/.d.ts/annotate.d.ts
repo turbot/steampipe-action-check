@@ -6,6 +6,7 @@
  */
 export declare function GetAnnotations(result: RootResult): Array<Annotation>;
 /**
+ * Pushes the annotations to Github.
  *
  * @param annotations Array<Annotation> Pushed a set of annotations to github
  */
