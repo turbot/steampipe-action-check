@@ -13345,6 +13345,7 @@ function wrappy (fn, cb) {
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.parseResultFile = exports.pushAnnotations = exports.getAnnotations = void 0;
+const core_1 = __nccwpck_require__(2186);
 const github_1 = __nccwpck_require__(5438);
 const promises_1 = __nccwpck_require__(3292);
 /**
@@ -13354,6 +13355,9 @@ const promises_1 = __nccwpck_require__(3292);
  * @returns
  */
 function getAnnotations(result) {
+    if (result === null) {
+        return null;
+    }
     return getAnnotationsForGroup(result);
 }
 exports.getAnnotations = getAnnotations;
@@ -13363,28 +13367,37 @@ exports.getAnnotations = getAnnotations;
  * @param annotations Array<Annotation> Pushed a set of annotations to github
  */
 async function pushAnnotations(input, annotations) {
-    const octokit = (0, github_1.getOctokit)(input.ghToken);
-    if (annotations.length > 0) {
-        return;
+    try {
+        const octokit = (0, github_1.getOctokit)(input.ghToken);
+        if (annotations === null || annotations.length === 0) {
+            return;
+        }
+        if (github_1.context.payload.pull_request && annotations.length > 0) {
+            await octokit.rest.checks.create({
+                ...github_1.context.repo,
+                pull_number: github_1.context.payload.pull_request.number,
+                name: 'tfscan',
+                head_sha: github_1.context.payload.pull_request['head']['sha'],
+                status: 'completed',
+                conclusion: 'action_required',
+                output: {
+                    title: 'tfscan',
+                    summary: 'Terraform Validation Failed',
+                    annotations: annotations
+                }
+            });
+        }
     }
-    if (github_1.context.payload.pull_request && annotations.length > 0) {
-        await octokit.rest.checks.create({
-            ...github_1.context.repo,
-            pull_number: github_1.context.payload.pull_request.number,
-            name: 'Terraform Validator',
-            head_sha: github_1.context.payload.pull_request['head']['sha'],
-            status: 'completed',
-            conclusion: 'action_required',
-            output: {
-                title: 'Steampipe Terraform Scanner',
-                summary: 'Terraform Validation Failed',
-                annotations: annotations
-            }
-        });
+    catch (error) {
+        (0, core_1.setFailed)(error);
     }
 }
 exports.pushAnnotations = pushAnnotations;
 async function parseResultFile(filePath) {
+    if (github_1.context.payload.pull_request == null) {
+        (0, core_1.setFailed)('No pull request found.');
+        return null;
+    }
     const fileContent = await (0, promises_1.readFile)(filePath);
     return JSON.parse(fileContent.toString());
 }
@@ -13414,9 +13427,9 @@ function getAnnotationsForControl(controlRun) {
                 const [fileName, lineNumber, ...rest] = result.dimensions[0].value.split(":", 2);
                 annotations.push({
                     path: fileName.replace(process.cwd() + "/", ''),
-                    start_line: +(lineNumber),
-                    end_line: +(lineNumber),
-                    annotation_level: result.status == "alarm" ? '' : '',
+                    start_line: parseInt(lineNumber),
+                    end_line: parseInt(lineNumber),
+                    annotation_level: result.status,
                     message: result.reason,
                     start_column: 1,
                     end_column: 1,

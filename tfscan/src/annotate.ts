@@ -1,3 +1,4 @@
+import { setFailed } from "@actions/core";
 import { context, getOctokit } from "@actions/github";
 import { readFile } from "fs/promises";
 import { ActionInput } from "./input";
@@ -9,6 +10,9 @@ import { ActionInput } from "./input";
  * @returns 
  */
 export function getAnnotations(result: RootResult): Array<Annotation> {
+  if (result === null) {
+    return null
+  }
   return getAnnotationsForGroup(result)
 }
 
@@ -18,29 +22,39 @@ export function getAnnotations(result: RootResult): Array<Annotation> {
  * @param annotations Array<Annotation> Pushed a set of annotations to github
  */
 export async function pushAnnotations(input: ActionInput, annotations: Array<Annotation>) {
-  const octokit = getOctokit(input.ghToken);
-  if (annotations.length > 0) {
-    return
-  }
 
-  if (context.payload.pull_request && annotations.length > 0) {
-    await octokit.rest.checks.create({
-      ...context.repo,
-      pull_number: context.payload.pull_request.number,
-      name: 'Terraform Validator',
-      head_sha: context.payload.pull_request['head']['sha'],
-      status: 'completed',
-      conclusion: 'action_required',
-      output: {
-        title: 'Steampipe Terraform Scanner',
-        summary: 'Terraform Validation Failed',
-        annotations: annotations
-      }
-    });
+  try {
+
+    const octokit = getOctokit(input.ghToken);
+    if (annotations === null || annotations.length === 0) {
+      return
+    }
+
+    if (context.payload.pull_request && annotations.length > 0) {
+      await octokit.rest.checks.create({
+        ...context.repo,
+        pull_number: context.payload.pull_request.number,
+        name: 'tfscan',
+        head_sha: context.payload.pull_request['head']['sha'],
+        status: 'completed',
+        conclusion: 'action_required',
+        output: {
+          title: 'tfscan',
+          summary: 'Terraform Validation Failed',
+          annotations: annotations
+        }
+      });
+    }
+  } catch (error) {
+    setFailed(error);
   }
 }
 
 export async function parseResultFile(filePath: string): Promise<RootResult> {
+  if (context.payload.pull_request == null) {
+    setFailed('No pull request found.');
+    return null;
+  }
   const fileContent = await readFile(filePath)
   return (JSON.parse(fileContent.toString()) as RootResult)
 }
@@ -71,9 +85,9 @@ function getAnnotationsForControl(controlRun: ControlRun): Array<Annotation> {
         const [fileName, lineNumber, ...rest] = result.dimensions[0].value.split(":", 2);
         annotations.push({
           path: fileName.replace(process.cwd() + "/", ''),
-          start_line: +(lineNumber),
-          end_line: +(lineNumber),
-          annotation_level: result.status == "alarm" ? '' : '',
+          start_line: parseInt(lineNumber),
+          end_line: parseInt(lineNumber),
+          annotation_level: result.status,
           message: result.reason,
           start_column: 1,
           end_column: 1,
