@@ -49,7 +49,7 @@ async function exportAnnotations(input: ActionInput) {
     annotations.push(...GetAnnotations(result))
   }
   info(`Pushing Annotations`)
-  await PushAnnotations(annotations)
+  await PushAnnotations(input, annotations)
   removeFiles(jsonFiles)
   endGroup()
 }

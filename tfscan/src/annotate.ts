@@ -1,6 +1,7 @@
 import { readFile } from "fs/promises";
 import { context, getOctokit } from "@actions/github";
 import { env } from "process";
+import { ActionInput } from "./input";
 /**
  * Returns an array of annotations for a RootResult
  * 
@@ -16,7 +17,7 @@ export function GetAnnotations(result: RootResult): Array<Annotation> {
  * 
  * @param annotations Array<Annotation> Pushed a set of annotations to github
  */
-export async function PushAnnotations(annotations: Array<Annotation>) {
+export async function PushAnnotations(input: ActionInput, annotations: Array<Annotation>) {
   const octokit = getOctokit(env['GITHUB_TOKEN']);
   if (annotations.length > 0) {
     return Promise.resolve()

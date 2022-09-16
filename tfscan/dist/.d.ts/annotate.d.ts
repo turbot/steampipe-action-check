@@ -1,3 +1,4 @@
+import { ActionInput } from "./input";
 /**
  * Returns an array of annotations for a RootResult
  *
@@ -10,7 +11,7 @@ export declare function GetAnnotations(result: RootResult): Array<Annotation>;
  *
  * @param annotations Array<Annotation> Pushed a set of annotations to github
  */
-export declare function PushAnnotations(annotations: Array<Annotation>): Promise<void>;
+export declare function PushAnnotations(input: ActionInput, annotations: Array<Annotation>): Promise<void>;
 export declare function ParseResultFile(filePath: string): Promise<RootResult>;
 export interface Status {
     alarm?: number;
