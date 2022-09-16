@@ -129,7 +129,7 @@ export async function RunSteampipeCheck(cliCmd: string = "steampipe", workspaceC
 
   args.push(
     "check",
-    ...getCheckArg(actionInputs),
+    ...actionInputs.GetRun(),
   )
 
   if (actionInputs.output.length > 0) {
@@ -165,13 +165,6 @@ async function cleanConnectionConfigDir(configDir: string) {
   for (const file of files) {
     await unlink(join(configDir, file))
   }
-}
-
-function getCheckArg(input: ActionInput): Array<string> {
-  if (input.run.length === 0) {
-    return ["all"]
-  }
-  return input.run
 }
 
 function getSteampipeDownloadLink(version: string): URL {
