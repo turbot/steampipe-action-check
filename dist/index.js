@@ -15685,7 +15685,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.ParseResultFile = exports.PushAnnotations = exports.GetAnnotations = void 0;
+exports.ParseResultFile = exports.GetAnnotations = void 0;
 const promises_1 = __nccwpck_require__(3292);
 const rest_1 = __nccwpck_require__(5375);
 const github = __importStar(__nccwpck_require__(5438));
@@ -15709,89 +15709,90 @@ function GetAnnotations(result, input) {
     if (result === null) {
         return null;
     }
-    return getAnnotationsForGroup(result, input);
+    let octokit = new rest_1.Octokit({
+        auth: input.githubToken
+    });
+    return getAnnotationsForGroup(octokit, result, input);
 }
 exports.GetAnnotations = GetAnnotations;
-/**
- *
- * @param annotations Array<Annotation> Pushed a set of annotations to github
- */
-async function PushAnnotations(annotations, actionInputs) {
-    try {
-        const octokit = new rest_1.Octokit({
-            auth: actionInputs.githubToken
-        });
-        if (annotations === null)
-            return;
-        for (var i = 0; i < annotations.length; i++) {
-            const annotation = annotations[i];
-            console.log('annotation----------------->>>>>>>>>>>>>>>', {
-                ...github.context.repo,
-                pull_number: github.context.payload.pull_request.number,
-                name: 'Terraform Validator',
-                head_sha: github.context.payload.pull_request['head']['sha'],
-                status: 'completed',
-                conclusion: 'action_required',
-                output: {
-                    title: 'Terraform Validator',
-                    summary: 'Terraform Validator Failure',
-                    annotations: [{
-                            path: annotation.path,
-                            start_line: annotation.start_line,
-                            end_line: annotation.end_line,
-                            annotation_level: annotation.annotation_level,
-                            message: annotation.message,
-                            start_column: annotation.start_column,
-                            end_column: annotation.end_column
-                        }]
-                }
-            });
-            await octokit.checks.create({
-                ...github.context.repo,
-                pull_number: github.context.payload.pull_request.number,
-                name: 'Terraform Validator',
-                head_sha: github.context.payload.pull_request['head']['sha'],
-                status: 'completed',
-                conclusion: 'action_required',
-                output: {
-                    title: 'Terraform Validator',
-                    summary: 'Terraform Validator Failure',
-                    annotations: [{
-                            path: annotation.path,
-                            start_line: annotation.start_line,
-                            end_line: annotation.end_line,
-                            annotation_level: annotation.annotation_level,
-                            message: annotation.message,
-                            start_column: annotation.start_column,
-                            end_column: annotation.end_column
-                        }]
-                }
-            });
-            // console.log('check=================', check)
-        }
-    }
-    catch (error) {
-        (0, core_1.setFailed)(error);
-    }
-}
-exports.PushAnnotations = PushAnnotations;
+// /**
+//  * 
+//  * @param annotations Array<Annotation> Pushed a set of annotations to github
+//  */
+// export async function PushAnnotations(annotations: Array<any>, actionInputs: ActionInput) {
+//   try {
+//     const octokit = new Octokit({
+//       auth: actionInputs.githubToken
+//     });
+//     if (annotations === null)
+//       return;
+//     for (var i = 0; i < annotations.length; i++) {
+//       const annotation = annotations[i]
+//       console.log('annotation----------------->>>>>>>>>>>>>>>', {
+//         ...github.context.repo,
+//         pull_number: github.context.payload.pull_request.number,
+//         name: 'Terraform Validator',
+//         head_sha: github.context.payload.pull_request['head']['sha'],
+//         status: 'completed',
+//         conclusion: 'action_required',
+//         output: {
+//           title: 'Terraform Validator',
+//           summary: 'Terraform Validator Failure',
+//           annotations: [{
+//             path: annotation.path,
+//             start_line: annotation.start_line,
+//             end_line: annotation.end_line,
+//             annotation_level: annotation.annotation_level,
+//             message: annotation.message,
+//             start_column: annotation.start_column,
+//             end_column: annotation.end_column
+//           }]
+//         }
+//       })
+//       await octokit.checks.create({
+//         ...github.context.repo,
+//         pull_number: github.context.payload.pull_request.number,
+//         name: 'Terraform Validator',
+//         head_sha: github.context.payload.pull_request['head']['sha'],
+//         status: 'completed',
+//         conclusion: 'action_required',
+//         output: {
+//           title: 'Terraform Validator',
+//           summary: 'Terraform Validator Failure',
+//           annotations: [{
+//             path: annotation.path,
+//             start_line: annotation.start_line,
+//             end_line: annotation.end_line,
+//             annotation_level: annotation.annotation_level,
+//             message: annotation.message,
+//             start_column: annotation.start_column,
+//             end_column: annotation.end_column
+//           }]
+//         }
+//       });
+//       // console.log('check=================', check)
+//     }
+//   } catch (error) {
+//     setFailed(error);
+//   }
+// }
 async function ParseResultFile(filePath) {
     const context = github.context;
     if (context.payload.pull_request == null) {
         (0, core_1.setFailed)('No pull request found.');
         return;
     }
-    const fileContent = await (0, promises_1.readFile)(filePath);
-    return JSON.parse(fileContent.toString());
+    const fileContent = await (0, promises_1.readFile)(filePath, 'utf-8');
+    return JSON.parse(fileContent);
 }
 exports.ParseResultFile = ParseResultFile;
-function getAnnotationsForGroup(group, input) {
+function getAnnotationsForGroup(octokit, group, input) {
     const annotations = [];
     for (let g of group.groups) {
-        annotations.push(...getAnnotationsForGroup(g, input));
+        annotations.push(...getAnnotationsForGroup(octokit, g, input));
     }
     for (let c of group.controls) {
-        AnnotationOnLine(c.results, input);
+        AnnotationOnLine(octokit, c.results, input);
     }
     return annotations;
 }
@@ -15816,15 +15817,12 @@ function getAnnotationsForGroup(group, input) {
   }
   return annotations12;
 } */
-async function AnnotationOnLine(results, actionInputs) {
+async function AnnotationOnLine(octokit, results, actionInputs) {
     try {
         if (results === null)
             return;
         for (let i = 0; i < results.length; i++) {
             const result = results[i];
-            const octokit = new rest_1.Octokit({
-                auth: actionInputs.githubToken
-            });
             var splitted = result.dimensions[0].value.split(":", 2);
             const check = await octokit.rest.checks.create({
                 ...github.context.repo,

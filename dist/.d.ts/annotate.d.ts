@@ -60,9 +60,4 @@ export declare type RootResult = GroupResult;
  * @returns
  */
 export declare function GetAnnotations(result: RootResult, input: ActionInput): Array<any>;
-/**
- *
- * @param annotations Array<Annotation> Pushed a set of annotations to github
- */
-export declare function PushAnnotations(annotations: Array<any>, actionInputs: ActionInput): Promise<void>;
 export declare function ParseResultFile(filePath: string): Promise<RootResult>;

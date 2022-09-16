@@ -87,70 +87,73 @@ export function GetAnnotations(result: RootResult, input: ActionInput): Array<an
   if (result === null) {
     return null
   }
-  return getAnnotationsForGroup(result, input)
+  let octokit = new Octokit({
+    auth: input.githubToken
+  });
+  return getAnnotationsForGroup(octokit, result, input)
 }
 
-/**
- * 
- * @param annotations Array<Annotation> Pushed a set of annotations to github
- */
-export async function PushAnnotations(annotations: Array<any>, actionInputs: ActionInput) {
-  try {
-    const octokit = new Octokit({
-      auth: actionInputs.githubToken
-    });
-    if (annotations === null)
-      return;
-    for (var i = 0; i < annotations.length; i++) {
-      const annotation = annotations[i]
-      console.log('annotation----------------->>>>>>>>>>>>>>>', {
-        ...github.context.repo,
-        pull_number: github.context.payload.pull_request.number,
-        name: 'Terraform Validator',
-        head_sha: github.context.payload.pull_request['head']['sha'],
-        status: 'completed',
-        conclusion: 'action_required',
-        output: {
-          title: 'Terraform Validator',
-          summary: 'Terraform Validator Failure',
-          annotations: [{
-            path: annotation.path,
-            start_line: annotation.start_line,
-            end_line: annotation.end_line,
-            annotation_level: annotation.annotation_level,
-            message: annotation.message,
-            start_column: annotation.start_column,
-            end_column: annotation.end_column
-          }]
-        }
-      })
-      await octokit.checks.create({
-        ...github.context.repo,
-        pull_number: github.context.payload.pull_request.number,
-        name: 'Terraform Validator',
-        head_sha: github.context.payload.pull_request['head']['sha'],
-        status: 'completed',
-        conclusion: 'action_required',
-        output: {
-          title: 'Terraform Validator',
-          summary: 'Terraform Validator Failure',
-          annotations: [{
-            path: annotation.path,
-            start_line: annotation.start_line,
-            end_line: annotation.end_line,
-            annotation_level: annotation.annotation_level,
-            message: annotation.message,
-            start_column: annotation.start_column,
-            end_column: annotation.end_column
-          }]
-        }
-      });
-      // console.log('check=================', check)
-    }
-  } catch (error) {
-    setFailed(error);
-  }
-}
+// /**
+//  * 
+//  * @param annotations Array<Annotation> Pushed a set of annotations to github
+//  */
+// export async function PushAnnotations(annotations: Array<any>, actionInputs: ActionInput) {
+//   try {
+//     const octokit = new Octokit({
+//       auth: actionInputs.githubToken
+//     });
+//     if (annotations === null)
+//       return;
+//     for (var i = 0; i < annotations.length; i++) {
+//       const annotation = annotations[i]
+//       console.log('annotation----------------->>>>>>>>>>>>>>>', {
+//         ...github.context.repo,
+//         pull_number: github.context.payload.pull_request.number,
+//         name: 'Terraform Validator',
+//         head_sha: github.context.payload.pull_request['head']['sha'],
+//         status: 'completed',
+//         conclusion: 'action_required',
+//         output: {
+//           title: 'Terraform Validator',
+//           summary: 'Terraform Validator Failure',
+//           annotations: [{
+//             path: annotation.path,
+//             start_line: annotation.start_line,
+//             end_line: annotation.end_line,
+//             annotation_level: annotation.annotation_level,
+//             message: annotation.message,
+//             start_column: annotation.start_column,
+//             end_column: annotation.end_column
+//           }]
+//         }
+//       })
+//       await octokit.checks.create({
+//         ...github.context.repo,
+//         pull_number: github.context.payload.pull_request.number,
+//         name: 'Terraform Validator',
+//         head_sha: github.context.payload.pull_request['head']['sha'],
+//         status: 'completed',
+//         conclusion: 'action_required',
+//         output: {
+//           title: 'Terraform Validator',
+//           summary: 'Terraform Validator Failure',
+//           annotations: [{
+//             path: annotation.path,
+//             start_line: annotation.start_line,
+//             end_line: annotation.end_line,
+//             annotation_level: annotation.annotation_level,
+//             message: annotation.message,
+//             start_column: annotation.start_column,
+//             end_column: annotation.end_column
+//           }]
+//         }
+//       });
+//       // console.log('check=================', check)
+//     }
+//   } catch (error) {
+//     setFailed(error);
+//   }
+// }
 
 export async function ParseResultFile(filePath: string): Promise<RootResult> {
   const context = github.context;
@@ -159,17 +162,17 @@ export async function ParseResultFile(filePath: string): Promise<RootResult> {
     return;
   }
 
-  const fileContent = await readFile(filePath)
-  return (JSON.parse(fileContent.toString()) as RootResult)
+  const fileContent = await readFile(filePath, 'utf-8')
+  return JSON.parse(fileContent)
 }
 
-function getAnnotationsForGroup(group: GroupResult, input: ActionInput): Array<any> {
+function getAnnotationsForGroup(octokit: Octokit, group: GroupResult, input: ActionInput): Array<any> {
   const annotations: Array<any> = []
   for (let g of group.groups) {
-    annotations.push(...getAnnotationsForGroup(g, input))
+    annotations.push(...getAnnotationsForGroup(octokit, g, input))
   }
   for (let c of group.controls) {
-    AnnotationOnLine(c.results, input)
+    AnnotationOnLine(octokit, c.results, input)
   }
   return annotations
 }
@@ -197,15 +200,13 @@ function getAnnotationsForGroup(group: GroupResult, input: ActionInput): Array<a
 } */
 
 
-async function AnnotationOnLine(results: Array<ControlResult>, actionInputs: ActionInput) {
+async function AnnotationOnLine(octokit: Octokit, results: Array<ControlResult>, actionInputs: ActionInput) {
   try {
     if (results === null)
       return;
+
     for (let i = 0; i < results.length; i++) {
       const result = results[i]
-      const octokit = new Octokit({
-        auth: actionInputs.githubToken
-      });
       var splitted = result.dimensions[0].value.split(":", 2);
       const check = await octokit.rest.checks.create({
         ...github.context.repo,
