@@ -13365,10 +13365,10 @@ exports.getAnnotations = getAnnotations;
 async function pushAnnotations(input, annotations) {
     const octokit = (0, github_1.getOctokit)(input.ghToken);
     if (annotations.length > 0) {
-        return Promise.resolve();
+        return;
     }
     if (github_1.context.payload.pull_request && annotations.length > 0) {
-        octokit.rest.checks.create({
+        await octokit.rest.checks.create({
             ...github_1.context.repo,
             pull_number: github_1.context.payload.pull_request.number,
             name: 'Terraform Validator',
