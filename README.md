@@ -50,6 +50,7 @@ jobs:
 | -----------| -------------------------------------------------------------------------------------------------------- | ------------- | ------------- | ------------- |
 | mod | Git URL of a mod that will be installed. This will be passed on to `git clone` | Yes | | Input parameters |
 | export | Export output to a file. Supported export formats are asff, csv, html, json and md | No | | Input parameters |
+| directory | Directory with infrastructure code to scan explicitly e.g. `/example/aws` , if not specified, it considers root of the repository as default | No | | Input parameters |
 | output | The console output format. Possible values are brief, csv, html, json, md, text or none. | No | text | Input parameters |
 | run | A list of benchmarks and controls to run (comma-separated). If no value is specified, it runs `check all` | No | check all | Input parameters |
 | version | The version number of Steampipe that will be installed | No | latest | Input parameters |
@@ -62,6 +63,9 @@ Workflow with successful execution
 
 Workflow with failed execution
 ![](images/failed_execution.png)
+
+Workflow with annotation
+![](images/steampipe_tfscn_failure_with_annotation.png)
 
 Workflow with summarized execution
 ![](images/workflow_summarized.png)

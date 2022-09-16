@@ -13,27 +13,36 @@ export declare function getAnnotations(result: RootResult): Array<Annotation>;
  */
 export declare function pushAnnotations(input: ActionInput, annotations: Array<Annotation>): Promise<void>;
 export declare function parseResultFile(filePath: string): Promise<RootResult>;
-export interface Status {
+export interface Annotation {
+    path: string;
+    start_line: number;
+    end_line: number;
+    annotation_level: string;
+    message: string;
+    start_column: number;
+    end_column: number;
+}
+interface Status {
     alarm?: number;
     ok?: number;
     info?: number;
     skip?: number;
     error?: number;
 }
-export interface Summary {
+interface Summary {
     status?: Status;
 }
-export interface Dimension {
+interface Dimension {
     key?: string;
     value?: string;
 }
-export interface ControlResult {
+interface ControlResult {
     reason?: string;
     resource?: string;
     status?: string;
     dimensions?: Dimension[];
 }
-export interface ControlRun {
+interface ControlRun {
     summary?: Status;
     results?: ControlResult[];
     controlId?: string;
@@ -44,22 +53,14 @@ export interface ControlRun {
     runStatus?: number;
     runError?: string;
 }
-export interface GroupResult {
+interface GroupResult {
     groupId?: string;
     title?: string;
     description?: string;
     tags?: string;
     summary?: Summary;
-    groups?: GroupResult[];
-    controls?: ControlRun[];
+    groups: GroupResult[] | null;
+    controls: ControlRun[] | null;
 }
-export declare type RootResult = GroupResult;
-export interface Annotation {
-    path: string;
-    start_line: number;
-    end_line: number;
-    annotation_level: string;
-    message: string;
-    start_column: number;
-    end_column: number;
-}
+declare type RootResult = GroupResult;
+export {};

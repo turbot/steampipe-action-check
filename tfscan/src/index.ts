@@ -9,6 +9,7 @@ import { downloadAndDeflateSteampipe, installMod, installTerraform as installTer
 async function run() {
   try {
     const inputs = new ActionInput()
+    await inputs.validate()
 
     // install the mod right away
     // if this fails for some reason, we cannot continue
@@ -27,7 +28,7 @@ async function run() {
       await runSteampipeCheck(steampipePath, modPath, inputs, ["json", "md"])
     }
     catch (e) {
-      throw e
+      //throw e
     }
     finally {
       await exportStepSummary(inputs)
