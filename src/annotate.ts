@@ -202,9 +202,9 @@ function getAnnotationsForGroup(octokit: Octokit, group: GroupResult, input: Act
 
 async function AnnotationOnLine(octokit: Octokit, results: Array<ControlResult>, actionInputs: ActionInput) {
   try {
+    console.log(" AnnotationOnLine.1========== >>>>>>>>>>>", results)
     if (results === null)
       return;
-
     for (let i = 0; i < results.length; i++) {
       const result = results[i]
       var splitted = result.dimensions[0].value.split(":", 2);
