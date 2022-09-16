@@ -3,7 +3,7 @@ on:
   push:
     branches:
       - action-kp-lt
-  # pull_request:
+  pull_request:
 
 jobs:
   steampipe-terraform-checks:
