@@ -73,6 +73,7 @@ export interface Annotation {
   message: string;
   start_column: number;
   end_column: number;
+
 }
 
 
