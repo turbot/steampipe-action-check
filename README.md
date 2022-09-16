@@ -1,8 +1,8 @@
 # Steampipe GitHub Action
 
-Steampipe GitHub action is used for scanning infrastructure-as-code and other compliance checks in your GitHub workflow pipeline. By utilizing this GitHub action, you can automatically start to find, fix and monitor your project for configuration errors in Terraform.
+Steampipe GitHub action is used for scanning infrastructure-as-code and other compliance checks in your GitHub workflow pipeline. By utilizing this GitHub action, you can automatically start to monitor your project for configuration errors in Terraform.
 
-**Note** Currently it supports AWS, Azure and GCP terraform configuration checks.
+**Note** Currently it supports [AWS](https://hub.steampipe.io/mods/turbot/terraform_aws_compliance), [Azure](https://hub.steampipe.io/mods/turbot/terraform_azure_compliance), [GCP](https://hub.steampipe.io/mods/turbot/terraform_gcp_compliance) and [OCI](https://hub.steampipe.io/mods/turbot/terraform_oci_compliance) terraform configuration checks.
 
 ## How to use the Steampipe GitHub Action
 
@@ -13,8 +13,8 @@ All you need to do is:
 1. Follow the instructions at [GitHub configuration a workflow](https://help.github.com/en/actions/configuring-and-managing-workflows/configuring-a-workflow) to enable GitHub Action in your repository.
 2. Set up GitHub secrets (if required).
 3. Follow the examples provided in `examples/workflow`, to start with `terraform_compliance.yml`.
-4. The workflow `uses` the `turbot/steampipe-action`.
-5. Optionally, supply parameters to customize GitHub action behaviours.
+4. The workflow `uses` the `turbot/steampipe-action/tfscan`.
+5. Optionally, provide parameters to customize GitHub action behaviours.
 
 ## Usage Examples
 
@@ -41,7 +41,6 @@ jobs:
         continue-on-error: false
         uses: ./
         with:
-          plugins: terraform
           mod: 'https://github.com/turbot/steampipe-mod-terraform-aws-compliance.git'
 ```
 
