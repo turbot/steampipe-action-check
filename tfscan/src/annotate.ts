@@ -31,21 +31,36 @@ export async function pushAnnotations(input: ActionInput, annotations: Array<Ann
       return
     }
 
-    if (context.payload.pull_request && annotations.length > 0) {
+    const batches: Array<Array<Annotation>> = []
+
+    for (let ann of annotations) {
+      const lastBatch = batches.pop() || []
+
+      if (lastBatch.length > 49) {
+        batches.push(lastBatch)
+        batches.push([])
+      }
+
+      batches[batches.length - 1].push(ann)
+    }
+
+    for (let batch of batches) {
       await octokit.rest.checks.create({
         ...context.repo,
         pull_number: context.payload.pull_request.number,
-        name: 'tfscan',
         head_sha: context.payload.pull_request['head']['sha'],
+        check_run_id: context.runId,
+        name: 'tfscan',
         status: 'completed',
         conclusion: 'action_required',
         output: {
           title: 'Steampipe tfscan',
           summary: 'Terraform Validation Failed',
-          annotations: annotations
+          annotations: batch
         }
       });
     }
+
   } catch (error) {
     setFailed(error);
   }
