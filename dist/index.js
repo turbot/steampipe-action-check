@@ -15708,11 +15708,11 @@ async function AddPRComments(actionInputs, myExportFile) {
 }
 exports.AddPRComments = AddPRComments;
 function ParseOnRun(group, actionInputs) {
-    group.controls[0].results.forEach(function (result) {
+    group.controls.forEach((control) => control.results.forEach((result) => {
         if (result.status = 'alarm') {
             AnnotationOnLine(actionInputs, result);
         }
-    });
+    }));
 }
 /* async function CommentOnLine(actionInputs: ActionInput, result: Result) {
   const fileSHAMap = await GetPRFileInfos(actionInputs, result)
