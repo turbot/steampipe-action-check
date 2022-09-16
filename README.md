@@ -52,8 +52,8 @@ jobs:
 | plugins | A list of plugins to install and configure. This can be a set of comma-separated values | Yes |  | Input parameters |
 | mod | Git URL of a mod that will be installed. This will be passed on to `git clone` | Yes | | Input parameters |
 | connection_config | Connection config that steampipe will use | Yes |  | Input parameters |
-| export | Export output to files in various output formats such as csv, html, json, md, nunit3 or asff (json) - comma separated | No | | Input parameters |
-| output | The console output format. Possible values are brief,csv,html,json,md,text or none. | No | text | Input parameters |
+| export | Export output to a file. Supported export formats are asff, csv, html, json and md | No | | Input parameters |
+| output | The console output format. Possible values are brief, csv, html, json, md, text or none. | No | text | Input parameters |
 | run | A list of benchmarks and controls to run (comma-separated). If no value is specified, it runs `check all` | No | check all | Input parameters |
 | version | The version number of Steampipe that will be installed | No | latest | Input parameters |
 | where | Filter the list of controls to run, using a `sql` where clause against the `steampipe_control` reflection table | No | | Input parameters |
