@@ -207,9 +207,10 @@ async function AnnotationOnLine(octokit: Octokit, results: Array<ControlResult>,
       return;
     for (let i = 0; i < results.length; i++) {
       const result = results[i]
-      var splitted = result.dimensions[0].value.split(":", 2);
-      const check = await octokit.rest.checks.create({
-        ...github.context.repo,
+      const splitted = result.dimensions[0].value.split(":", 2);
+      const data = {
+        owner: github.context.repo.owner,
+        repo: github.context.repo.repo,
         pull_number: github.context.payload.pull_request.number,
         name: 'Terraform Validator',
         head_sha: github.context.payload.pull_request['head']['sha'],
@@ -230,7 +231,9 @@ async function AnnotationOnLine(octokit: Octokit, results: Array<ControlResult>,
             }
           ]
         }
-      });
+      }
+      console.log("AnnotationOnLine.2========== >>>>>>>>>>>", i, data)
+      const check = await octokit.rest.checks.create(data);
       console.log(check)
     }
   } catch (error) {
