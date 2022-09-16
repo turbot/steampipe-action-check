@@ -141,7 +141,7 @@ function getAnnotationsForControl(controlRun: ControlRun): Array<Annotation> {
   controlRun.results
   if (controlRun.results != null) {
     controlRun.results.forEach((result) => {
-      if (result.status = 'alarm') {
+      if (result.status === 'alarm') {
         // AnnotationOnLine(actionInputs, result)
         var splitted = result.dimensions[0].value.split(":", 2);
         annotations.push({
