@@ -13431,8 +13431,8 @@ function getAnnotationsForControl(controlRun) {
                     end_line: parseInt(lineNumber),
                     annotation_level: 'failure',
                     message: result.reason,
-                    start_column: 1,
-                    end_column: 1,
+                    start_column: 0,
+                    end_column: 0,
                 });
             }
         });
