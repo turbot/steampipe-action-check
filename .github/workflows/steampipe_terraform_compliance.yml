@@ -14,10 +14,6 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v3
 
-      - name: Steampipe terraform scan action - no input
-        continue-on-error: true
-        uses: ./tfscan
-
       - name: Steampipe terraform scan action - with mod
         continue-on-error: true
         uses: ./tfscan
