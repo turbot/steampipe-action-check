@@ -3,6 +3,8 @@ export declare class ActionInput {
     plugins: Array<string>;
     modRepository: string;
     connectionData: string;
+    eventName: string;
+    githubToken: string;
     private run;
     where: string | null;
     output: string;

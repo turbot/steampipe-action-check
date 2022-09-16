@@ -32,13 +32,13 @@ export declare function InstallPlugins(cliCmd?: string, plugins?: Array<string>)
  *
  * @param modRepository The HTTP/SSH url of the mod repository. This will be passed in as-is to `git clone`
  */
-export declare function InstallMod(modRepository: string): Promise<string>;
+export declare function InstallMod(modRepository?: string): Promise<string>;
 /**
  *
  * @param connectionData The connection configuration HCL. All connection configs are to be appended into a single HCL string.
  * @returns void
  */
-export declare function WriteConnections(connectionData: string): Promise<void>;
+export declare function WriteConnections(connectionData: string): Promise<string>;
 /**
  *
  * @param cliCmd string - The path to the installed steampipe CLI.
