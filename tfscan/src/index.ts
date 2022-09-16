@@ -20,7 +20,7 @@ async function run() {
     await writeConnectionForPlugin(inputs)
 
     // add the path to the Steampipe CLI so that it can be used by subsequent steps if required
-    addPath(steampipePath);
+    addPath(steampipePath)
 
     try {
       // since `steampipe check` may exit with a non-zero exit code - this is normal
