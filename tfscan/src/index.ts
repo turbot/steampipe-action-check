@@ -28,7 +28,7 @@ async function run() {
       await runSteampipeCheck(steampipePath, modPath, inputs, ["json", "md"])
     }
     catch (e) {
-      throw e
+      //throw e
     }
     finally {
       await exportStepSummary(inputs)
