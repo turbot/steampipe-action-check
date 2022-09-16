@@ -53,25 +53,16 @@ export interface FileInfo {
     previous_filename?: string;
 }
 export declare type RootResult = GroupResult;
-export interface Annotation {
-    path: string;
-    start_line: number;
-    end_line: number;
-    annotation_level: string;
-    message: string;
-    start_column: number;
-    end_column: number;
-}
 /**
  * Returns an array of annotations for a RootResult
  *
  * @param group GroupResult The group result returned by `steampipe check`
  * @returns
  */
-export declare function GetAnnotations(result: RootResult): Array<Annotation>;
+export declare function GetAnnotations(result: RootResult): Array<any>;
 /**
  *
  * @param annotations Array<Annotation> Pushed a set of annotations to github
  */
-export declare function PushAnnotations(annotations: Array<Annotation>, actionInputs: ActionInput): Promise<void>;
+export declare function PushAnnotations(annotations: Array<any>, actionInputs: ActionInput): Promise<void>;
 export declare function ParseResultFile(filePath: string): Promise<RootResult>;

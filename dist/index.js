@@ -15690,6 +15690,15 @@ const promises_1 = __nccwpck_require__(3292);
 const rest_1 = __nccwpck_require__(5375);
 const github = __importStar(__nccwpck_require__(5438));
 const core_1 = __nccwpck_require__(2186);
+// export interface Annotation {
+//   path: string;
+//   start_line: number;
+//   end_line: number;
+//   annotation_level: string;
+//   message: string;
+//   start_column: number;
+//   end_column: number;
+// }
 /**
  * Returns an array of annotations for a RootResult
  *

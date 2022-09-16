@@ -66,15 +66,15 @@ export interface FileInfo {
 
 export type RootResult = GroupResult
 
-export interface Annotation {
-  path: string;
-  start_line: number;
-  end_line: number;
-  annotation_level: string;
-  message: string;
-  start_column: number;
-  end_column: number;
-}
+// export interface Annotation {
+//   path: string;
+//   start_line: number;
+//   end_line: number;
+//   annotation_level: string;
+//   message: string;
+//   start_column: number;
+//   end_column: number;
+// }
 
 
 /**
@@ -83,7 +83,7 @@ export interface Annotation {
  * @param group GroupResult The group result returned by `steampipe check`
  * @returns 
  */
-export function GetAnnotations(result: RootResult): Array<Annotation> {
+export function GetAnnotations(result: RootResult): Array<any> {
   if (result === null) {
     return null
   }
@@ -94,7 +94,7 @@ export function GetAnnotations(result: RootResult): Array<Annotation> {
  * 
  * @param annotations Array<Annotation> Pushed a set of annotations to github
  */
-export async function PushAnnotations(annotations: Array<Annotation>, actionInputs: ActionInput) {
+export async function PushAnnotations(annotations: Array<any>, actionInputs: ActionInput) {
   try {
     const octokit = new Octokit({
       auth: actionInputs.githubToken
@@ -160,8 +160,8 @@ export async function ParseResultFile(filePath: string): Promise<RootResult> {
   return (JSON.parse(fileContent.toString()) as RootResult)
 }
 
-function getAnnotationsForGroup(group: GroupResult): Array<Annotation> {
-  const annotations: Array<Annotation> = []
+function getAnnotationsForGroup(group: GroupResult): Array<any> {
+  const annotations: Array<any> = []
   for (let g of group.groups) {
     annotations.push(...getAnnotationsForGroup(g))
   }
@@ -171,8 +171,8 @@ function getAnnotationsForGroup(group: GroupResult): Array<Annotation> {
   return annotations
 }
 
-function getAnnotationsForControl(controlRun: ControlRun): Array<Annotation> {
-  const annotations: Array<Annotation> = []
+function getAnnotationsForControl(controlRun: ControlRun): Array<any> {
+  const annotations: Array<any> = []
   controlRun.results
   if (controlRun.results != null) {
     controlRun.results.forEach((result) => {
