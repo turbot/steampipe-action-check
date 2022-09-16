@@ -1,14 +1,14 @@
-import { readFile } from "fs/promises";
 import { context, getOctokit } from "@actions/github";
-import { env } from "process";
+import { readFile } from "fs/promises";
 import { ActionInput } from "./input";
+
 /**
  * Returns an array of annotations for a RootResult
  * 
  * @param group GroupResult The group result returned by `steampipe check`
  * @returns 
  */
-export function GetAnnotations(result: RootResult): Array<Annotation> {
+export function getAnnotations(result: RootResult): Array<Annotation> {
   return getAnnotationsForGroup(result)
 }
 
@@ -17,13 +17,13 @@ export function GetAnnotations(result: RootResult): Array<Annotation> {
  * 
  * @param annotations Array<Annotation> Pushed a set of annotations to github
  */
-export async function PushAnnotations(input: ActionInput, annotations: Array<Annotation>) {
+export async function pushAnnotations(input: ActionInput, annotations: Array<Annotation>) {
   const octokit = getOctokit(input.ghToken);
   if (annotations.length > 0) {
     return Promise.resolve()
   }
 
-  if (context.payload.pull_request) {
+  if (context.payload.pull_request && annotations.length > 0) {
     octokit.rest.checks.create({
       ...context.repo,
       pull_number: context.payload.pull_request.number,
@@ -40,7 +40,7 @@ export async function PushAnnotations(input: ActionInput, annotations: Array<Ann
   }
 }
 
-export async function ParseResultFile(filePath: string): Promise<RootResult> {
+export async function parseResultFile(filePath: string): Promise<RootResult> {
   const fileContent = await readFile(filePath)
   return (JSON.parse(fileContent.toString()) as RootResult)
 }
@@ -69,15 +69,15 @@ function getAnnotationsForControl(controlRun: ControlRun): Array<Annotation> {
   if (controlRun.results != null) {
     controlRun.results.forEach((result) => {
       if (result.status === 'alarm') {
-        var splitted = result.dimensions[0].value.split(":", 2);
+        const [fileName, lineNumber, ...rest] = result.dimensions[0].value.split(":", 2);
         annotations.push({
-          path: splitted[0].replace(process.cwd() + "/", ''),
-          start_line: +(splitted[1]),
-          end_line: +(splitted[1]),
-          annotation_level: 'failure',
+          path: fileName.replace(process.cwd() + "/", ''),
+          start_line: +(lineNumber),
+          end_line: +(lineNumber),
+          annotation_level: result.status == "alarm" ? '' : '',
           message: result.reason,
-          start_column: +(splitted[1]),
-          end_column: +(splitted[1])
+          start_column: 1,
+          end_column: 1,
         });
       }
     })
