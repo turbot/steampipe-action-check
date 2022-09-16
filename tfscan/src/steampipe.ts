@@ -129,6 +129,15 @@ connection "tf_connection_${context.runId}" {
  */
 export async function runSteampipeCheck(cliCmd: string = "steampipe", workspaceChdir: string, actionInputs: ActionInput, xtraExports: Array<string>) {
   startGroup(`Running Check`)
+
+  // shutdown any running services of steampipe (if any)
+  try {
+    exec(cliCmd, ["service", "stop", "--force"])
+  }
+  catch(e){
+    // nothing to say here
+  }
+  
   let args = new Array<string>()
 
   args.push(
@@ -163,7 +172,7 @@ export async function runSteampipeCheck(cliCmd: string = "steampipe", workspaceC
 
   const execEnv = env
   execEnv.STEAMPIPE_CHECK_DISPLAY_WIDTH = "120"
-  execEnv.STEAMPIPE_LOG="TRACE"
+  execEnv.STEAMPIPE_LOG = "TRACE"
 
   await exec(cliCmd, args, {
     env: execEnv,
