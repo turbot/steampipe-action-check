@@ -92,7 +92,7 @@ export async function installMod(modRepository: string = "") {
   startGroup("Installing Mod")
   const cloneTo = `workspace_dir_${context.runId}`
   info(`Installing mod from ${modRepository}`)
-  await exec(await which("git", true), ["clone", modRepository, cloneTo], { silent: true })
+  await exec(await which("git", true), ["clone", modRepository, cloneTo], { silent: false })
   endGroup()
   return cloneTo
 }
