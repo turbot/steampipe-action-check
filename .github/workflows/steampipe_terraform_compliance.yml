@@ -17,6 +17,9 @@ jobs:
       - name: Steampipe terraform scan action - no input
         continue-on-error: true
         uses: ./tfscan
+        with:
+          mod: https://github.com/turbot/steampipe-mod-terraform-aws-compliance.git
+          run: benchmark.ec2
 
       - name: Steampipe terraform scan action - with mod
         continue-on-error: true
