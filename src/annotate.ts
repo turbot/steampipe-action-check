@@ -100,7 +100,19 @@ export async function PushAnnotations(annotations: Array<Annotation>, actionInpu
       auth: actionInputs.githubToken
     });
     annotations.forEach((annotation) => {
-      console.log('annotation----------------->>>>>>>>>>>>>>>', annotation)
+      console.log('annotation----------------->>>>>>>>>>>>>>>', {
+        ...github.context.repo,
+        pull_number: github.context.payload.pull_request.number,
+        name: 'Terraform Validator',
+        head_sha: github.context.payload.pull_request['head']['sha'],
+        status: 'completed',
+        conclusion: 'action_required',
+        output: {
+          title: 'Terraform Validator',
+          summary: 'Terraform Validator Failure',
+          annotations: [annotation]
+        }
+      })
       const check = octokit.rest.checks.create({
         ...github.context.repo,
         pull_number: github.context.payload.pull_request.number,
@@ -114,6 +126,7 @@ export async function PushAnnotations(annotations: Array<Annotation>, actionInpu
           annotations: [annotation]
         }
       });
+      console.log('check=================', check)
     })
   } catch (error) {
     setFailed(error);
@@ -148,7 +161,6 @@ function getAnnotationsForControl(controlRun: ControlRun): Array<Annotation> {
   if (controlRun.results != null) {
     controlRun.results.forEach((result) => {
       if (result.status === 'alarm') {
-        // AnnotationOnLine(actionInputs, result)
         var splitted = result.dimensions[0].value.split(":", 2);
         annotations.push({
           path: splitted[0].replace(process.cwd() + "/", ''),
