@@ -6732,7 +6732,7 @@ async function writeConnections(input) {
     const configFileName = `${d.getTime()}.spc`;
     (0, core_1.info)("Writing connection data");
     await (0, promises_1.writeFile)(`${configDir}/${configFileName}`, `
-connection "tf-connection-${d}" {
+connection "tf-connection-${d.getTime()}" {
   plugin = "terraform"
   paths = ["${input.scanDirectory}/**/*.tf"]
 }
