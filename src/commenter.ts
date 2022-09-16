@@ -40,14 +40,6 @@ function ParseOnRun(group: Group, actionInputs: ActionInput) {
       auth: actionInputs.githubToken
     });
     var splitted = result.dimensions[0].value.split(":", 2);
-    // const new_comment = await github.getOctokit(actionInputs.githubToken).rest.pulls.createReviewComment({
-    //   ...github.context.repo,
-    //   pull_number: github.context.payload.pull_request.number,
-    //   body: result.reason,
-    //   commit_id: fileSHAMap[splitted[0].replace(process.cwd() + "/", '')],
-    //   path: splitted[0].replace(process.cwd() + "/", ''), //examples/terraform/aws/ec2/ec2_ebs_default_encryption_enabled.tf
-    //   line: +splitted[1]
-    // })
     console.log("results---------------->>>>>>>>>", {
       ...github.context.repo,
       pull_number: github.context.payload.pull_request.number,
