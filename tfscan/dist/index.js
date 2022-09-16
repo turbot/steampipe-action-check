@@ -6524,7 +6524,7 @@ exports["default"] = _default;
 
 /***/ }),
 
-/***/ 5374:
+/***/ 9088:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
@@ -6555,13 +6555,17 @@ async function ParseResultFile(filePath) {
 exports.ParseResultFile = ParseResultFile;
 function getAnnotationsForGroup(group) {
     const annotations = [];
-    for (let g of group.groups) {
-        annotations.push(...getAnnotationsForGroup(g));
+    if (group.groups) {
+        for (let g of group.groups) {
+            annotations.push(...getAnnotationsForGroup(g));
+        }
     }
-    for (let c of group.controls) {
-        annotations.push(...getAnnotationsForControl(c));
+    if (group.controls) {
+        for (let c of group.controls) {
+            annotations.push(...getAnnotationsForControl(c));
+        }
+        return annotations;
     }
-    return annotations;
 }
 function getAnnotationsForControl(controlRun) {
     controlRun.results;
@@ -6581,33 +6585,28 @@ exports.ActionInput = void 0;
 const core_1 = __nccwpck_require__(2186);
 const process_1 = __nccwpck_require__(7282);
 class ActionInput {
-    version;
-    plugins;
-    modRepository;
-    connectionData;
     run;
+    version;
+    modRepository;
+    scanDirectory;
     where;
     output;
     export;
     summaryFile;
     constructor() {
-        this.version = (0, core_1.getInput)("version", { required: false, trimWhitespace: true }) || "latest";
-        this.plugins = (0, core_1.getInput)("plugins", { required: true, trimWhitespace: false })
-            .split(",")
-            .map(p => p.trim())
-            .filter(p => p.length > 0);
+        this.version = (0, core_1.getInput)("version", { required: false, trimWhitespace: true }) || 'latest';
         this.modRepository = (0, core_1.getInput)("mod", { required: false, trimWhitespace: true });
-        this.connectionData = (0, core_1.getInput)("connection_config", { required: false, trimWhitespace: false });
         this.run = (0, core_1.getInput)("run", { required: false, trimWhitespace: true })
-            .split(",")
+            .split(" ")
             .map(r => r.trim())
-            .filter(r => (r.length > 0)) || [];
+            .filter(r => (r.length > 0));
+        this.scanDirectory = (0, core_1.getInput)("directory", { required: false, trimWhitespace: false });
         this.where = (0, core_1.getInput)("where", { required: false, trimWhitespace: false });
         this.output = (0, core_1.getInput)("output", { required: false, trimWhitespace: true });
-        this.export = (0, core_1.getInput)("export", { required: false, trimWhitespace: true }).split(",").map(e => e.trim()).filter(e => e.length > 0);
+        this.export = (0, core_1.getInput)("export", { required: false, trimWhitespace: true }).split(" ").map(e => e.trim()).filter(e => e.length > 0);
         this.summaryFile = process_1.env['GITHUB_STEP_SUMMARY'];
     }
-    GetRun() {
+    getRun() {
         if (this.run.length == 0) {
             this.run = ["all"];
         }
@@ -6625,7 +6624,7 @@ exports.ActionInput = ActionInput;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.RunSteampipeCheck = exports.WriteConnections = exports.InstallMod = exports.InstallPlugins = exports.InstallSteampipe = exports.DownloadAndDeflateSteampipe = void 0;
+exports.runSteampipeCheck = exports.writeConnections = exports.installMod = exports.installTerraform = exports.installSteampipe = exports.downloadAndDeflateSteampipe = void 0;
 const core_1 = __nccwpck_require__(2186);
 const exec_1 = __nccwpck_require__(1514);
 const tool_cache_1 = __nccwpck_require__(7784);
@@ -6646,7 +6645,7 @@ const targets_1 = __nccwpck_require__(2531);
  *
  * @param version The version of steampipe to download. Default: `latest`
  */
-async function DownloadAndDeflateSteampipe(version = "latest") {
+async function downloadAndDeflateSteampipe(version = "latest") {
     (0, core_1.startGroup)("Download Steampipe");
     if (version !== "latest") {
         (0, core_1.info)(`Checking if ${version} is cached`);
@@ -6672,19 +6671,19 @@ async function DownloadAndDeflateSteampipe(version = "latest") {
     (0, core_1.info)(`Caching ${version}`);
     return await (0, tool_cache_1.cacheDir)(extractedTo, "steampipe", version, process_1.arch);
 }
-exports.DownloadAndDeflateSteampipe = DownloadAndDeflateSteampipe;
+exports.downloadAndDeflateSteampipe = downloadAndDeflateSteampipe;
 /**
  * InstallSteampipe installs steampipe by setting up the embedded postgres database
  *
  * @param cliCmd The path to the steampipe binary
  */
-async function InstallSteampipe(cliCmd = "steampipe") {
+async function installSteampipe(cliCmd = "steampipe") {
     (0, core_1.startGroup)("Installing Steampipe");
-    await (0, exec_1.exec)(cliCmd, ["query", "select 1"]);
+    await (0, exec_1.exec)(cliCmd, ["query", "select 1"], { silent: true });
     (0, core_1.endGroup)();
     return;
 }
-exports.InstallSteampipe = InstallSteampipe;
+exports.installSteampipe = installSteampipe;
 /**
  * Installs the list of steampipe plugins
  *
@@ -6692,64 +6691,66 @@ exports.InstallSteampipe = InstallSteampipe;
  * @param plugins `Array<string>` - an array of steampipe plugins to install. Passed to `steampipe plugin install` as-is
  * @returns
  */
-async function InstallPlugins(cliCmd = "steampipe", plugins = []) {
+async function installTerraform(cliCmd = "steampipe") {
     (0, core_1.startGroup)("Installing plugins");
-    if (plugins.length > 0) {
-        (0, core_1.info)(`Installing ${plugins}`);
-        await (0, exec_1.exec)(cliCmd, ["plugin", "install", ...plugins]);
-        (0, core_1.info)(`Installation complete`);
-    }
+    (0, core_1.info)(`Installing 'terraform@latest'`);
+    await (0, exec_1.exec)(cliCmd, ["plugin", "install", "terraform"], { silent: true });
+    (0, core_1.info)(`Installation complete`);
     (0, core_1.endGroup)();
     return;
 }
-exports.InstallPlugins = InstallPlugins;
+exports.installTerraform = installTerraform;
 /**
  * Installs a mod from the given Git Clone URL.
  * Forwards the GitURL as-is to `git clone`
  *
  * @param modRepository The HTTP/SSH url of the mod repository. This will be passed in as-is to `git clone`
  */
-async function InstallMod(modRepository) {
-    (0, core_1.startGroup)("Installing Mod");
+async function installMod(modRepository = "") {
     if (modRepository.trim().length === 0) {
-        (0, core_1.endGroup)();
         return Promise.resolve("");
     }
+    (0, core_1.startGroup)("Installing Mod");
     const cloneTo = `workspace_dir_${new Date().getTime()}`;
     (0, core_1.info)(`Installing mod from ${modRepository}`);
-    await (0, exec_1.exec)("git", ["clone", modRepository, cloneTo]);
+    await (0, exec_1.exec)("git", ["clone", "https://github.com/turbot/steampipe-mod-terraform-aws-compliance.git", cloneTo], { silent: true });
     (0, core_1.endGroup)();
     return cloneTo;
 }
-exports.InstallMod = InstallMod;
+exports.installMod = installMod;
 /**
  *
  * @param connectionData The connection configuration HCL. All connection configs are to be appended into a single HCL string.
  * @returns void
  */
-async function WriteConnections(connectionData) {
-    (0, core_1.startGroup)("Writing Connections");
+async function writeConnections(input) {
+    (0, core_1.startGroup)("Writing Connection Data");
     const d = new Date();
     const configDir = `${process_1.env["HOME"]}/.steampipe/config`;
     (0, core_1.debug)("Cleaning up old config directory");
     cleanConnectionConfigDir(configDir);
     const configFileName = `${d.getTime()}.spc`;
     (0, core_1.info)("Writing connection data");
-    await (0, promises_1.writeFile)(`${configDir}/${configFileName}`, connectionData);
+    await (0, promises_1.writeFile)(`${configDir}/${configFileName}`, `
+connection "tf-connection-${d}" {
+  plugin = "terraform"
+  paths = ["${input.scanDirectory}/**/*.tf"]
+}
+`);
     (0, core_1.info)("Finished writing connection data");
     (0, core_1.endGroup)();
 }
-exports.WriteConnections = WriteConnections;
+exports.writeConnections = writeConnections;
 /**
  *
  * @param cliCmd string - The path to the installed steampipe CLI.
  * @param workspaceChdir string - The path to the workspace directory where a mod (if any) is installed.
  * @param actionInputs string - The inputs that we got when this action was started.
  */
-async function RunSteampipeCheck(cliCmd = "steampipe", workspaceChdir, actionInputs, xtraExports) {
+async function runSteampipeCheck(cliCmd = "steampipe", workspaceChdir, actionInputs, xtraExports) {
     (0, core_1.startGroup)(`Running Check`);
     let args = new Array();
-    args.push("check", ...actionInputs.GetRun());
+    args.push("check", ...actionInputs.getRun());
     if (actionInputs.output.length > 0) {
         args.push(`--output=${actionInputs.output}`);
     }
@@ -6771,7 +6772,7 @@ async function RunSteampipeCheck(cliCmd = "steampipe", workspaceChdir, actionInp
     });
     (0, core_1.endGroup)();
 }
-exports.RunSteampipeCheck = RunSteampipeCheck;
+exports.runSteampipeCheck = runSteampipeCheck;
 async function cleanConnectionConfigDir(configDir) {
     const files = await (0, promises_1.readdir)(configDir);
     for (const file of files) {
@@ -7016,35 +7017,28 @@ const core_1 = __nccwpck_require__(2186);
 const console_1 = __nccwpck_require__(6206);
 const promises_1 = __nccwpck_require__(3292);
 const path_1 = __nccwpck_require__(1017);
-const commenter_1 = __nccwpck_require__(5374);
+const annotate_1 = __nccwpck_require__(9088);
 const input_1 = __nccwpck_require__(6747);
 const steampipe_1 = __nccwpck_require__(9885);
 async function run() {
     try {
-        const actionInputs = new input_1.ActionInput();
-        const steampipePath = `${await (0, steampipe_1.DownloadAndDeflateSteampipe)(actionInputs.version)}/steampipe`;
+        const inputs = new input_1.ActionInput();
+        const steampipePath = `${await (0, steampipe_1.downloadAndDeflateSteampipe)(inputs.version)}/steampipe`;
         (0, core_1.addPath)(steampipePath);
-        await (0, steampipe_1.InstallSteampipe)(steampipePath);
-        await (0, steampipe_1.InstallPlugins)(steampipePath, actionInputs.plugins);
-        await (0, steampipe_1.WriteConnections)(actionInputs.connectionData);
-        let modPath = "";
-        if (actionInputs.modRepository.length > 0) {
-            modPath = await (0, steampipe_1.InstallMod)(actionInputs.modRepository);
-            if (modPath.length == 0) {
-                (0, core_1.setFailed)("bad repository for mod");
-                return;
-            }
-        }
+        const modPath = await (0, steampipe_1.installMod)(inputs.modRepository);
+        await (0, steampipe_1.installSteampipe)(steampipePath);
+        await (0, steampipe_1.installTerraform)(steampipePath);
+        await (0, steampipe_1.writeConnections)(inputs);
         try {
-            // since `steampipe check` may exit with a non-zero exit code
-            await (0, steampipe_1.RunSteampipeCheck)(steampipePath, modPath, actionInputs, ["json", "md"]);
+            // since `steampipe check` may exit with a non-zero exit code - this is normal
+            await (0, steampipe_1.runSteampipeCheck)(steampipePath, modPath, inputs, ["json", "md"]);
         }
         catch (e) {
             throw e;
         }
         finally {
-            await exportStepSummary(actionInputs);
-            await exportAnnotations(actionInputs);
+            await exportStepSummary(inputs);
+            await exportAnnotations(inputs);
         }
     }
     catch (error) {
@@ -7057,11 +7051,11 @@ async function exportAnnotations(input) {
     const jsonFiles = await getExportedJSONFiles(input);
     const annotations = [];
     for (let j of jsonFiles) {
-        const result = await (0, commenter_1.ParseResultFile)(j);
-        annotations.push(...(0, commenter_1.GetAnnotations)(result));
+        const result = await (0, annotate_1.ParseResultFile)(j);
+        annotations.push(...(0, annotate_1.GetAnnotations)(result));
     }
     (0, console_1.info)(`Pushing Annotations`);
-    await (0, commenter_1.PushAnnotations)(annotations);
+    await (0, annotate_1.PushAnnotations)(annotations);
     removeFiles(jsonFiles);
     (0, core_1.endGroup)();
 }
@@ -7096,18 +7090,17 @@ async function getExportedJSONFiles(input) {
 }
 async function getExportedFileWithExtn(input, extn) {
     let files = new Array();
-    const dirContents = await (0, promises_1.readdir)(".");
+    const dirContents = await (0, promises_1.readdir)(".", { withFileTypes: true });
     for (let d of dirContents) {
-        const s = await (0, promises_1.stat)(d);
-        if (!s.isFile()) {
+        if (!d.isFile()) {
             continue;
         }
-        if ((0, path_1.extname)(d).length < 2) {
+        if ((0, path_1.extname)(d.name).length < 2) {
             continue;
         }
-        for (let r of input.GetRun()) {
-            if (d.startsWith(r) && (0, path_1.extname)(d) == `.${extn}`) {
-                files.push(d);
+        for (let r of input.getRun()) {
+            if (d.name.startsWith(r) && (0, path_1.extname)(d.name) == `.${extn}`) {
+                files.push(d.name);
             }
         }
     }
