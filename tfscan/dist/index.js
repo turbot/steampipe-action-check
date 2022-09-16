@@ -13347,7 +13347,6 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ParseResultFile = exports.PushAnnotations = exports.GetAnnotations = void 0;
 const promises_1 = __nccwpck_require__(3292);
 const github_1 = __nccwpck_require__(5438);
-const process_1 = __nccwpck_require__(7282);
 /**
  * Returns an array of annotations for a RootResult
  *
@@ -13364,7 +13363,7 @@ exports.GetAnnotations = GetAnnotations;
  * @param annotations Array<Annotation> Pushed a set of annotations to github
  */
 async function PushAnnotations(input, annotations) {
-    const octokit = (0, github_1.getOctokit)(process_1.env['GITHUB_TOKEN']);
+    const octokit = (0, github_1.getOctokit)(input.ghToken);
     if (annotations.length > 0) {
         return Promise.resolve();
     }

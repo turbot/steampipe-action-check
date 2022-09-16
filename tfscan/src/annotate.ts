@@ -18,7 +18,7 @@ export function GetAnnotations(result: RootResult): Array<Annotation> {
  * @param annotations Array<Annotation> Pushed a set of annotations to github
  */
 export async function PushAnnotations(input: ActionInput, annotations: Array<Annotation>) {
-  const octokit = getOctokit(env['GITHUB_TOKEN']);
+  const octokit = getOctokit(input.ghToken);
   if (annotations.length > 0) {
     return Promise.resolve()
   }
