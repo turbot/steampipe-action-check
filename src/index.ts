@@ -1,7 +1,7 @@
 import { addPath, setFailed } from "@actions/core";
 import { appendFile, copyFile, readdir, readFile, stat, unlink, writeFile } from "fs/promises";
 import { extname } from "path";
-import { AnnotateCommit, ParseResultFile } from "./commenter_1";
+import { Annotation, GetAnnotationsForGroup, ParseResultFile } from "./commenter";
 import { ActionInput } from "./input";
 import { DownloadAndDeflateSteampipe, InstallMod, InstallPlugins, InstallSteampipe, RunSteampipeCheck, WriteConnections } from "./steampipe";
 
@@ -38,11 +38,13 @@ async function run() {
 
       await copyFile("summary.md", actionInputs.summaryFile)
 
-      const annotations: Array<string> = []
+      const annotations: Array<Annotation> = []
       for (let j of jsonFiles) {
         const result = await ParseResultFile(j)
-        annotations.push(...await AnnotateCommit(result))
+        annotations.push(...GetAnnotationsForGroup(result))
       }
+
+      // push annotations to Github with Octokit
 
       removeFiles(mdFiles)
       removeFiles(jsonFiles)
