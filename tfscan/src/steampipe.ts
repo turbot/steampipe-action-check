@@ -1,5 +1,6 @@
 import { debug, endGroup, info, startGroup } from "@actions/core";
 import { exec } from "@actions/exec";
+import { which } from "@actions/io";
 import { cacheDir, downloadTool, extractTar, extractZip, find } from "@actions/tool-cache";
 import { readdir, unlink, writeFile } from "fs/promises";
 import { join } from "path";
@@ -90,7 +91,7 @@ export async function installMod(modRepository: string = "") {
   startGroup("Installing Mod")
   const cloneTo = `workspace_dir_${new Date().getTime()}`
   info(`Installing mod from ${modRepository}`)
-  await exec("git", ["clone", modRepository, cloneTo], { silent: true })
+  await exec(await which("git", true), ["clone", modRepository, cloneTo], { silent: true })
   endGroup()
   return cloneTo
 }
