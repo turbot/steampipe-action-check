@@ -6568,9 +6568,9 @@ function getAnnotationsForGroup(group) {
         }
         return annotations;
     }
+    return annotations;
 }
 function getAnnotationsForControl(controlRun) {
-    controlRun.results;
     return [];
 }
 
