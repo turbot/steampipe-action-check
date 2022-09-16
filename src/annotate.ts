@@ -123,7 +123,15 @@ export async function PushAnnotations(annotations: Array<Annotation>, actionInpu
         output: {
           title: 'Terraform Validator',
           summary: 'Terraform Validator Failure',
-          annotations: [annotation]
+          annotations: [{
+            path: annotation.path,
+            start_line: annotation.start_line,
+            end_line: annotation.end_line,
+            annotation_level: annotation.annotation_level,
+            message: annotation.message,
+            start_column: annotation.start_column,
+            end_column: annotation.end_column
+          }]
         }
       });
       console.log('check=================', check)
