@@ -4,31 +4,31 @@ import { appendFile, copyFile, readdir, readFile, stat, unlink, writeFile } from
 import { extname } from "path";
 import { Annotation, PushAnnotations, GetAnnotations, ParseResultFile } from "./annotate";
 import { ActionInput } from "./input";
-import { DownloadAndDeflateSteampipe, InstallMod, InstallPlugins, InstallSteampipe, RunSteampipeCheck, WriteConnections } from "./steampipe";
+import { downloadAndDeflateSteampipe, installMod, installTerraform, installSteampipe, runSteampipeCheck, writeConnections } from "./steampipe";
 
 async function run() {
   try {
-    const actionInputs = new ActionInput()
+    const inputs = new ActionInput()
 
-    const steampipePath = `${await DownloadAndDeflateSteampipe(actionInputs.version)}/steampipe`;
+    const steampipePath = `${await downloadAndDeflateSteampipe(inputs.version)}/steampipe`;
     addPath(steampipePath);
 
-    const modPath = await InstallMod(actionInputs.modRepository)
+    const modPath = await installMod(inputs.modRepository)
 
-    await InstallSteampipe(steampipePath)
-    await InstallPlugins(steampipePath, actionInputs.plugins)
-    await WriteConnections(actionInputs.connectionData)
+    await installSteampipe(steampipePath)
+    await installTerraform(steampipePath)
+    await writeConnections(inputs)
 
     try {
       // since `steampipe check` may exit with a non-zero exit code - this is normal
-      await RunSteampipeCheck(steampipePath, modPath, actionInputs, ["json", "md"])
+      await runSteampipeCheck(steampipePath, modPath, inputs, ["json", "md"])
     }
     catch (e) {
       throw e
     }
     finally {
-      await exportStepSummary(actionInputs)
-      await exportAnnotations(actionInputs)
+      await exportStepSummary(inputs)
+      await exportAnnotations(inputs)
     }
 
   } catch (error) {
@@ -97,7 +97,7 @@ async function getExportedFileWithExtn(input: ActionInput, extn: string) {
       continue
     }
 
-    for (let r of input.GetRun()) {
+    for (let r of input.getRun()) {
       if (d.name.startsWith(r) && extname(d.name) == `.${extn}`) {
         files.push(d.name)
       }

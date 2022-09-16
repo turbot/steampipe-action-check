@@ -1,31 +1,24 @@
-name: 'Steampipe GitHub Action'
-author: 'Turbot.com'
-description: 'Set up a specific version of Steampipe'
+name: "Steampipe GitHub Action"
+author: "Turbot.com"
+description: "Set up a specific version of Steampipe"
 
 branding:
-  color: 'red'
-  # TBD
-  icon: 'code'
+  color: "red"
+  icon: "shield"
 
 inputs:
   version:
     description: Version of Steampipe that will be installed.
     required: false
     default: latest
-  plugins:
-    description: A list of plugins to install and configure (comma-separated)
-    required: true ## no point running steampipe without any plugins.
-  connection_config:
-    description: Connection config that steampipe will use.
-    required: false
-    default: ""
   run:
     description: A list of benchmarks and controls to run (comma-separated). If left blank, `all` controls and benchmarks are run.
     required: false
     default: ""
-  mod:
-    description: Git URL of a mod that will be installed. Will be passed on to `git clone`.
-    required: true
+  directory:
+    description: Directory to run the scan on, from the repo root. Default is . (root of the repository)
+    required: false
+    default: "."
   output:
     description: Select a console output format i.e. brief, csv, html, json, md, text or none
     required: false

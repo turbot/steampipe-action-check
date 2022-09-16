@@ -20,7 +20,7 @@ import { Targets } from "./targets";
  * 
  * @param version The version of steampipe to download. Default: `latest`
  */
-export async function DownloadAndDeflateSteampipe(version: string = "latest") {
+export async function downloadAndDeflateSteampipe(version: string = "latest") {
   startGroup("Download Steampipe")
   if (version !== "latest") {
     info(`Checking if ${version} is cached`)
@@ -54,9 +54,9 @@ export async function DownloadAndDeflateSteampipe(version: string = "latest") {
  * 
  * @param cliCmd The path to the steampipe binary
  */
-export async function InstallSteampipe(cliCmd = "steampipe") {
+export async function installSteampipe(cliCmd = "steampipe") {
   startGroup("Installing Steampipe")
-  await exec(cliCmd, ["query", "select 1"])
+  await exec(cliCmd, ["query", "select 1"], { silent: true })
   endGroup()
   return
 }
@@ -68,13 +68,11 @@ export async function InstallSteampipe(cliCmd = "steampipe") {
  * @param plugins `Array<string>` - an array of steampipe plugins to install. Passed to `steampipe plugin install` as-is
  * @returns 
  */
-export async function InstallPlugins(cliCmd = "steampipe", plugins: Array<string> = []) {
+export async function installTerraform(cliCmd = "steampipe") {
   startGroup("Installing plugins")
-  if (plugins.length > 0) {
-    info(`Installing ${plugins}`)
-    await exec(cliCmd, ["plugin", "install", ...plugins])
-    info(`Installation complete`)
-  }
+  info(`Installing 'terraform@latest'`)
+  await exec(cliCmd, ["plugin", "install", "terraform"], { silent: true })
+  info(`Installation complete`)
   endGroup()
   return
 }
@@ -85,14 +83,14 @@ export async function InstallPlugins(cliCmd = "steampipe", plugins: Array<string
  * 
  * @param modRepository The HTTP/SSH url of the mod repository. This will be passed in as-is to `git clone`
  */
-export async function InstallMod(modRepository: string = "") {
+export async function installMod(modRepository: string = "") {
   if (modRepository.trim().length === 0) {
     return Promise.resolve("")
   }
   startGroup("Installing Mod")
   const cloneTo = `workspace_dir_${new Date().getTime()}`
   info(`Installing mod from ${modRepository}`)
-  await exec("git", ["clone", modRepository, cloneTo])
+  await exec("git", ["clone", "https://github.com/turbot/steampipe-mod-terraform-aws-compliance.git", cloneTo], { silent: true })
   endGroup()
   return cloneTo
 }
@@ -102,11 +100,8 @@ export async function InstallMod(modRepository: string = "") {
  * @param connectionData The connection configuration HCL. All connection configs are to be appended into a single HCL string.
  * @returns void
  */
-export async function WriteConnections(connectionData: string) {
-  if (connectionData.trim().length == 0) {
-    return Promise.resolve("")
-  }
-  startGroup("Writing Connections")
+export async function writeConnections(input: ActionInput) {
+  startGroup("Writing Connection Data")
   const d = new Date()
   const configDir = `${env["HOME"]}/.steampipe/config`
   debug("Cleaning up old config directory")
@@ -114,7 +109,12 @@ export async function WriteConnections(connectionData: string) {
 
   const configFileName = `${d.getTime()}.spc`
   info("Writing connection data")
-  await writeFile(`${configDir}/${configFileName}`, connectionData)
+  await writeFile(`${configDir}/${configFileName}`, `
+connection "tf-connection-${d}" {
+  plugin = "terraform"
+  paths = ["${input.scanDirectory}/**/*.tf"]
+}
+`)
   info("Finished writing connection data")
   endGroup()
 }
@@ -125,13 +125,13 @@ export async function WriteConnections(connectionData: string) {
  * @param workspaceChdir string - The path to the workspace directory where a mod (if any) is installed. 
  * @param actionInputs string - The inputs that we got when this action was started.
  */
-export async function RunSteampipeCheck(cliCmd: string = "steampipe", workspaceChdir: string, actionInputs: ActionInput, xtraExports: Array<string>) {
+export async function runSteampipeCheck(cliCmd: string = "steampipe", workspaceChdir: string, actionInputs: ActionInput, xtraExports: Array<string>) {
   startGroup(`Running Check`)
   let args = new Array<string>()
 
   args.push(
     "check",
-    ...actionInputs.GetRun(),
+    ...actionInputs.getRun(),
   )
 
   if (actionInputs.output.length > 0) {
