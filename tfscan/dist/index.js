@@ -13374,11 +13374,15 @@ async function pushAnnotations(input, annotations) {
         }
         const batches = [];
         for (let ann of annotations) {
-            const lastBatch = batches.pop() || [];
-            if (lastBatch.length > 49) {
-                batches.push(lastBatch);
+            if (batches.length == 0) {
+                // push in the first one
                 batches.push([]);
             }
+            // check if the last one has reached limit
+            if (batches[batches.length - 1].length > 49) {
+                batches.push([]);
+            }
+            // push this one to the last one
             batches[batches.length - 1].push(ann);
         }
         for (let batch of batches) {
