@@ -13372,18 +13372,28 @@ async function pushAnnotations(input, annotations) {
         if (annotations === null || annotations.length === 0) {
             return;
         }
-        if (github_1.context.payload.pull_request && annotations.length > 0) {
+        const batches = [];
+        for (let ann of annotations) {
+            const lastBatch = batches.pop() || [];
+            if (lastBatch.length > 49) {
+                batches.push(lastBatch);
+                batches.push([]);
+            }
+            batches[batches.length - 1].push(ann);
+        }
+        for (let batch of batches) {
             await octokit.rest.checks.create({
                 ...github_1.context.repo,
                 pull_number: github_1.context.payload.pull_request.number,
-                name: 'tfscan',
                 head_sha: github_1.context.payload.pull_request['head']['sha'],
+                check_run_id: github_1.context.runId,
+                name: 'tfscan',
                 status: 'completed',
                 conclusion: 'action_required',
                 output: {
                     title: 'Steampipe tfscan',
                     summary: 'Terraform Validation Failed',
-                    annotations: annotations
+                    annotations: batch
                 }
             });
         }
