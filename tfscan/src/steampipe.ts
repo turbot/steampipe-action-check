@@ -8,6 +8,7 @@ import { arch, env, platform } from "process";
 import { URL } from "url";
 import { ActionInput } from "./input";
 import { Targets } from "./targets";
+import { context } from "@actions/github"
 
 /**
  * 
@@ -89,7 +90,7 @@ export async function installMod(modRepository: string = "") {
     return Promise.resolve("")
   }
   startGroup("Installing Mod")
-  const cloneTo = `workspace_dir_${new Date().getTime()}`
+  const cloneTo = `workspace_dir_${context.runId}`
   info(`Installing mod from ${modRepository}`)
   await exec(await which("git", true), ["clone", modRepository, cloneTo], { silent: true })
   endGroup()
@@ -108,10 +109,10 @@ export async function writeConnections(input: ActionInput) {
   debug("Cleaning up old config directory")
   cleanConnectionConfigDir(configDir)
 
-  const configFileName = `${d.getTime()}.spc`
+  const configFileName = `config_${context.runId}.spc`
   info("Writing connection data")
   await writeFile(`${configDir}/${configFileName}`, `
-connection "tf_connection_${d.getTime()}" {
+connection "tf_connection_${context.runId}" {
   plugin = "terraform"
   paths = ["${input.scanDirectory}/**/*.tf"]
 }

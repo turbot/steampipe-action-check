@@ -13347,7 +13347,6 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ParseResultFile = exports.PushAnnotations = exports.GetAnnotations = void 0;
 const promises_1 = __nccwpck_require__(3292);
 const github_1 = __nccwpck_require__(5438);
-const process_1 = __nccwpck_require__(7282);
 /**
  * Returns an array of annotations for a RootResult
  *
@@ -13363,7 +13362,7 @@ exports.GetAnnotations = GetAnnotations;
  * @param annotations Array<Annotation> Pushed a set of annotations to github
  */
 async function PushAnnotations(annotations) {
-    const octokit = (0, github_1.getOctokit)(process_1.env['GITHUB_TOKEN']);
+    const octokit = (0, github_1.getOctokit)(github_1.context['token']);
     if (annotations.length > 0) {
         return Promise.resolve();
     }
@@ -13491,6 +13490,7 @@ const path_1 = __nccwpck_require__(1017);
 const process_1 = __nccwpck_require__(7282);
 const url_1 = __nccwpck_require__(7310);
 const targets_1 = __nccwpck_require__(2531);
+const github_1 = __nccwpck_require__(5438);
 /**
  *
  * Downloads and extracts the given steampipe version from the official steampipe releases in turbot/steampipe repository
@@ -13569,7 +13569,7 @@ async function installMod(modRepository = "") {
         return Promise.resolve("");
     }
     (0, core_1.startGroup)("Installing Mod");
-    const cloneTo = `workspace_dir_${new Date().getTime()}`;
+    const cloneTo = `workspace_dir_${github_1.context.runId}`;
     (0, core_1.info)(`Installing mod from ${modRepository}`);
     await (0, exec_1.exec)(await (0, io_1.which)("git", true), ["clone", modRepository, cloneTo], { silent: true });
     (0, core_1.endGroup)();
@@ -13587,10 +13587,10 @@ async function writeConnections(input) {
     const configDir = `${process_1.env["HOME"]}/.steampipe/config`;
     (0, core_1.debug)("Cleaning up old config directory");
     cleanConnectionConfigDir(configDir);
-    const configFileName = `${d.getTime()}.spc`;
+    const configFileName = `config_${github_1.context.runId}.spc`;
     (0, core_1.info)("Writing connection data");
     await (0, promises_1.writeFile)(`${configDir}/${configFileName}`, `
-connection "tf_connection_${d.getTime()}" {
+connection "tf_connection_${github_1.context.runId}" {
   plugin = "terraform"
   paths = ["${input.scanDirectory}/**/*.tf"]
 }
