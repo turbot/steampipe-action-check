@@ -20,11 +20,11 @@ export function getAnnotations(result: RootResult): Array<Annotation> {
 export async function pushAnnotations(input: ActionInput, annotations: Array<Annotation>) {
   const octokit = getOctokit(input.ghToken);
   if (annotations.length > 0) {
-    return Promise.resolve()
+    return
   }
 
   if (context.payload.pull_request && annotations.length > 0) {
-    octokit.rest.checks.create({
+    await octokit.rest.checks.create({
       ...context.repo,
       pull_number: context.payload.pull_request.number,
       name: 'Terraform Validator',
