@@ -1,3 +1,4 @@
+import { group } from "console";
 import { readFile } from "fs/promises";
 
 export type RootResult = GroupResult
@@ -30,13 +31,17 @@ export async function ParseResultFile(filePath: string): Promise<RootResult> {
 
 function getAnnotationsForGroup(group: GroupResult): Array<Annotation> {
   const annotations: Array<Annotation> = []
-  for (let g of group.groups) {
-    annotations.push(...getAnnotationsForGroup(g))
+  if (group.groups) {
+    for (let g of group.groups) {
+      annotations.push(...getAnnotationsForGroup(g))
+    }
   }
-  for (let c of group.controls) {
-    annotations.push(...getAnnotationsForControl(c))
+  if (group.controls) {
+    for (let c of group.controls) {
+      annotations.push(...getAnnotationsForControl(c))
+    }
+    return annotations
   }
-  return annotations
 }
 
 function getAnnotationsForControl(controlRun: ControlRun): Array<Annotation> {

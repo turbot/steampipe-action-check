@@ -16,15 +16,7 @@ jobs:
 
       - name: Steampipe terraform scan action
         continue-on-error: false
-        uses: ./
+        uses: ./tfscan
         with:
-          version: 'latest'
-          connection_config: |
-            connection "terraform" {
-              plugin = "terraform"
-              paths = ["examples/terraform/aws/**/*.tf"]
-            }
-          plugins: terraform
-          mod: 'https://github.com/turbot/steampipe-mod-terraform-aws-compliance.git'
           run: control.ec2_instance_not_use_default_vpc,control.ec2_ebs_default_encryption_enabled,control.s3_bucket_default_encryption_enabled
           output: text

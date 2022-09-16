@@ -7,6 +7,8 @@ export class ActionInput {
   version: string;
   modRepository: string;
 
+  scanDirectory: string;
+
   where: string | null;
 
   output: string;
@@ -23,6 +25,8 @@ export class ActionInput {
       .map(r => r.trim())
       .filter(r => (r.length > 0));
 
+    this.scanDirectory = getInput("directory", { required: false, trimWhitespace: false });
+
     this.where = getInput("where", { required: false, trimWhitespace: false });
 
     this.output = getInput("output", { required: false, trimWhitespace: true });
@@ -31,7 +35,7 @@ export class ActionInput {
     this.summaryFile = env['GITHUB_STEP_SUMMARY']
   }
 
-  public GetRun(): Array<string> {
+  public getRun(): Array<string> {
     if (this.run.length == 0) {
       this.run = ["all"]
     }
