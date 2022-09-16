@@ -1,13 +1,14 @@
-import { addPath, info, setFailed } from "@actions/core";
-import { appendFile, constants, copyFile, readdir, readFile, stat, unlink, writeFile } from "fs/promises";
-import { extname, join } from "path";
-import { ActionInput, GetInputs } from "./input";
+import { addPath, setFailed } from "@actions/core";
+import { appendFile, copyFile, readdir, readFile, stat, unlink, writeFile } from "fs/promises";
+import { extname } from "path";
+import { Annotation, PushAnnotations, GetAnnotations, ParseResultFile } from "./annotate";
+import { ActionInput } from "./input";
 import { DownloadAndDeflateSteampipe, InstallMod, InstallPlugins, InstallSteampipe, RunSteampipeCheck, WriteConnections } from "./steampipe";
 import { AddPRComments } from './commenter';
 
 async function run() {
   try {
-    const actionInputs = GetInputs()
+    const actionInputs = new ActionInput()
 
     const steampipePath = `${await DownloadAndDeflateSteampipe(actionInputs.version)}/steampipe`;
     addPath(steampipePath);
@@ -32,22 +33,42 @@ async function run() {
       // throw e
     }
     finally {
-      const mdFiles = await getExportedSummaryMarkdownFiles(actionInputs)
-      const jsonFiles = await getExportedJSONFiles(actionInputs)
-      jsonFiles.forEach((jsonFile) => {
-        AddPRComments(actionInputs, jsonFile)
-      })
-      await combineFiles(mdFiles, "summary.md")
+      // const mdFiles = await getExportedSummaryMarkdownFiles(actionInputs)
+      // const jsonFiles = await getExportedJSONFiles(actionInputs)
+      // jsonFiles.forEach((jsonFile) => {
+      //   AddPRComments(actionInputs, jsonFile)
+      // })
+      // await combineFiles(mdFiles, "summary.md")
 
-      await copyFile("summary.md", actionInputs.summaryFile)
+      // await copyFile("summary.md", actionInputs.summaryFile)
 
-      removeFiles(mdFiles)
-      removeFiles(jsonFiles)
+      // removeFiles(mdFiles)
+      // removeFiles(jsonFiles)
+      await exportStepSummary(actionInputs)
+      await exportAnnotations(actionInputs)
     }
 
   } catch (error) {
     setFailed(error.message);
   }
+}
+
+async function exportAnnotations(input: ActionInput) {
+  const jsonFiles = await getExportedJSONFiles(input)
+  const annotations: Array<Annotation> = []
+  for (let j of jsonFiles) {
+    const result = await ParseResultFile(j)
+    annotations.push(...GetAnnotations(result))
+  }
+  await PushAnnotations(annotations)
+  removeFiles(jsonFiles)
+}
+
+async function exportStepSummary(input: ActionInput) {
+  const mdFiles = await getExportedSummaryMarkdownFiles(input)
+  await combineFiles(mdFiles, "summary.md")
+  await copyFile("summary.md", input.summaryFile)
+  removeFiles(mdFiles)
 }
 
 async function removeFiles(files: Array<string>) {
@@ -85,7 +106,7 @@ async function getExportedFileWithExtn(input: ActionInput, extn: string) {
       continue
     }
 
-    for (let r of input.run) {
+    for (let r of input.GetRun()) {
       if (d.startsWith(r) && extname(d) == `.${extn}`) {
         files.push(d)
       }
