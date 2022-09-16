@@ -6707,14 +6707,8 @@ exports.installTerraform = installTerraform;
  * @param modRepository The HTTP/SSH url of the mod repository. This will be passed in as-is to `git clone`
  */
 async function installMod(modRepository = "") {
-    if (modRepository.trim().length === 0) {
-        return Promise.resolve("");
-    }
-    (0, core_1.startGroup)("Installing Mod");
     const cloneTo = `workspace_dir_${new Date().getTime()}`;
-    (0, core_1.info)(`Installing mod from ${modRepository}`);
     await (0, exec_1.exec)("git", ["clone", "https://github.com/turbot/steampipe-mod-terraform-aws-compliance.git", cloneTo], { silent: true });
-    (0, core_1.endGroup)();
     return cloneTo;
 }
 exports.installMod = installMod;
@@ -7025,7 +7019,7 @@ async function run() {
         const inputs = new input_1.ActionInput();
         const steampipePath = `${await (0, steampipe_1.downloadAndDeflateSteampipe)(inputs.version)}/steampipe`;
         (0, core_1.addPath)(steampipePath);
-        const modPath = await (0, steampipe_1.installMod)(inputs.modRepository);
+        const modPath = await (0, steampipe_1.installMod)();
         await (0, steampipe_1.installSteampipe)(steampipePath);
         await (0, steampipe_1.installTerraform)(steampipePath);
         await (0, steampipe_1.writeConnections)(inputs);
