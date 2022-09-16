@@ -38,6 +38,8 @@ export class ActionInput {
     this.export = getInput("export", { required: false, trimWhitespace: true }).split(" ").map(e => e.trim()).filter(e => e.length > 0);
 
     this.summaryFile = env['GITHUB_STEP_SUMMARY']
+
+    this.githubToken = getInput("github_token")
   }
 
   public GetRun(): Array<string> {

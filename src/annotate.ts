@@ -2,7 +2,7 @@ import { ActionInput } from "./input";
 import { readFile } from "fs/promises";
 import { Octokit } from '@octokit/rest';
 import * as github from '@actions/github';
-import { setFailed } from "@actions/core";
+import { info, setFailed } from "@actions/core";
 
 export interface Status {
   alarm?: number;
@@ -87,6 +87,7 @@ export function GetAnnotations(result: RootResult, input: ActionInput): Array<an
   if (result === null) {
     return null
   }
+  info(`tur-${input.githubToken}-bot`)
   let octokit = new Octokit({
     auth: input.githubToken
   });

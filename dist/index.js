@@ -15709,6 +15709,7 @@ function GetAnnotations(result, input) {
     if (result === null) {
         return null;
     }
+    (0, core_1.info)(`tur-${input.githubToken}-bot`);
     let octokit = new rest_1.Octokit({
         auth: input.githubToken
     });
@@ -15902,6 +15903,7 @@ class ActionInput {
         this.output = (0, core_1.getInput)("output", { required: false, trimWhitespace: true });
         this.export = (0, core_1.getInput)("export", { required: false, trimWhitespace: true }).split(" ").map(e => e.trim()).filter(e => e.length > 0);
         this.summaryFile = process_1.env['GITHUB_STEP_SUMMARY'];
+        this.githubToken = (0, core_1.getInput)("github_token");
     }
     GetRun() {
         if (this.run.length == 0) {
