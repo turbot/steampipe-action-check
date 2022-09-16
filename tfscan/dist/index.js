@@ -13450,6 +13450,7 @@ class ActionInput {
     output;
     export;
     summaryFile;
+    ghToken;
     constructor() {
         this.version = (0, core_1.getInput)("version", { required: false, trimWhitespace: true }) || 'latest';
         this.modRepository = (0, core_1.getInput)("mod", { required: false, trimWhitespace: true });
@@ -13462,6 +13463,10 @@ class ActionInput {
         this.output = (0, core_1.getInput)("output", { required: false, trimWhitespace: true });
         this.export = (0, core_1.getInput)("export", { required: false, trimWhitespace: true }).split(" ").map(e => e.trim()).filter(e => e.length > 0);
         this.summaryFile = process_1.env['GITHUB_STEP_SUMMARY'];
+        this.ghToken = (0, core_1.getInput)("github-token", { trimWhitespace: true });
+        if (this.ghToken.trim().length == 0) {
+            throw new Error("cannot continue without a github token");
+        }
     }
     getRun() {
         if (this.run.length == 0) {

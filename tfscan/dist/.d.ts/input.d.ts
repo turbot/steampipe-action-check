@@ -7,6 +7,7 @@ export declare class ActionInput {
     output: string;
     export: Array<string>;
     summaryFile: string;
+    ghToken: string;
     constructor();
     getRun(): Array<string>;
 }
