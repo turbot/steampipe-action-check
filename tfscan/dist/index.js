@@ -13472,6 +13472,11 @@ class ActionInput {
         }
         return this.run;
     }
+    validate() {
+        if (this.modRepository.trim().length == 0) {
+            throw new Error("a mod repository is required");
+        }
+    }
 }
 exports.ActionInput = ActionInput;
 
@@ -13930,6 +13935,7 @@ const steampipe_1 = __nccwpck_require__(9885);
 async function run() {
     try {
         const inputs = new input_1.ActionInput();
+        inputs.validate();
         // install the mod right away
         // if this fails for some reason, we cannot continue
         const modPath = await (0, steampipe_1.installMod)(inputs.modRepository);
