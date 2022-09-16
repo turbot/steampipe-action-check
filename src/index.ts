@@ -1,12 +1,13 @@
-import { addPath, info, setFailed } from "@actions/core";
-import { appendFile, constants, copyFile, readdir, readFile, stat, unlink, writeFile } from "fs/promises";
-import { extname, join } from "path";
-import { ActionInput, GetInputs } from "./input";
+import { addPath, setFailed } from "@actions/core";
+import { appendFile, copyFile, readdir, readFile, stat, unlink, writeFile } from "fs/promises";
+import { extname } from "path";
+import { AnnotateCommit, ParseResultFile } from "./commenter_1";
+import { ActionInput } from "./input";
 import { DownloadAndDeflateSteampipe, InstallMod, InstallPlugins, InstallSteampipe, RunSteampipeCheck, WriteConnections } from "./steampipe";
 
 async function run() {
   try {
-    const actionInputs = GetInputs()
+    const actionInputs = new ActionInput()
 
     const steampipePath = `${await DownloadAndDeflateSteampipe(actionInputs.version)}/steampipe`;
     addPath(steampipePath);
@@ -36,6 +37,12 @@ async function run() {
       await combineFiles(mdFiles, "summary.md")
 
       await copyFile("summary.md", actionInputs.summaryFile)
+
+      const annotations: Array<string> = []
+      for (let j of jsonFiles) {
+        const result = await ParseResultFile(j)
+        annotations.push(...await AnnotateCommit(result))
+      }
 
       removeFiles(mdFiles)
       removeFiles(jsonFiles)
@@ -81,7 +88,7 @@ async function getExportedFileWithExtn(input: ActionInput, extn: string) {
       continue
     }
 
-    for (let r of input.run) {
+    for (let r of input.GetRun()) {
       if (d.startsWith(r) && extname(d) == `.${extn}`) {
         files.push(d)
       }
