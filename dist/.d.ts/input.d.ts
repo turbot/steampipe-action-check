@@ -1,12 +1,13 @@
-export interface ActionInput {
+export declare class ActionInput {
     version: string;
     plugins: Array<string>;
     modRepository: string;
     connectionData: string;
-    run: Array<string>;
+    private run;
     where: string | null;
     output: string;
     export: Array<string>;
     summaryFile: string;
+    constructor();
+    GetRun(): Array<string>;
 }
-export declare function GetInputs(): ActionInput;

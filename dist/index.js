@@ -6524,30 +6524,97 @@ exports["default"] = _default;
 
 /***/ }),
 
+/***/ 5374:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.ParseResultFile = exports.PushAnnotations = exports.GetAnnotations = void 0;
+const promises_1 = __nccwpck_require__(3292);
+/**
+ * Returns an array of annotations for a RootResult
+ *
+ * @param group GroupResult The group result returned by `steampipe check`
+ * @returns
+ */
+function GetAnnotations(result) {
+    return getAnnotationsForGroup(result);
+}
+exports.GetAnnotations = GetAnnotations;
+/**
+ *
+ * @param annotations Array<Annotation> Pushed a set of annotations to github
+ */
+async function PushAnnotations(annotations) { }
+exports.PushAnnotations = PushAnnotations;
+async function ParseResultFile(filePath) {
+    const fileContent = await (0, promises_1.readFile)(filePath);
+    return JSON.parse(fileContent.toString());
+}
+exports.ParseResultFile = ParseResultFile;
+function getAnnotationsForGroup(group) {
+    const annotations = [];
+    for (let g of group.groups) {
+        annotations.push(...getAnnotationsForGroup(g));
+    }
+    for (let c of group.controls) {
+        annotations.push(...getAnnotationsForControl(c));
+    }
+    return annotations;
+}
+function getAnnotationsForControl(controlRun) {
+    controlRun.results;
+    return [];
+}
+
+
+/***/ }),
+
 /***/ 6747:
 /***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.GetInputs = void 0;
+exports.ActionInput = void 0;
 const core_1 = __nccwpck_require__(2186);
 const process_1 = __nccwpck_require__(7282);
-function GetInputs() {
-    let inputs = {
-        version: (0, core_1.getInput)("version", { required: false, trimWhitespace: true }) || "latest",
-        plugins: (0, core_1.getInput)("plugins", { required: true, trimWhitespace: false }).split(",").map(p => p.trim()).filter(p => p.length > 0),
-        modRepository: (0, core_1.getInput)("mod", { required: false, trimWhitespace: true }) || "",
-        connectionData: (0, core_1.getInput)("connection_config", { required: true, trimWhitespace: false }),
-        run: (0, core_1.getInput)("run", { required: false, trimWhitespace: true }).split(",").map(r => r.trim()).filter(r => (r.length > 0)) || [],
-        where: (0, core_1.getInput)("where", { required: false, trimWhitespace: false }) || "",
-        output: (0, core_1.getInput)("output", { required: false, trimWhitespace: true }) || "",
-        export: ((0, core_1.getInput)("export", { required: false, trimWhitespace: true }) || "").split(",").map(e => e.trim()).filter(e => e.length > 0),
-        summaryFile: process_1.env['GITHUB_STEP_SUMMARY']
-    };
-    return inputs;
+class ActionInput {
+    version;
+    plugins;
+    modRepository;
+    connectionData;
+    run;
+    where;
+    output;
+    export;
+    summaryFile;
+    constructor() {
+        this.version = (0, core_1.getInput)("version", { required: false, trimWhitespace: true }) || "latest";
+        this.plugins = (0, core_1.getInput)("plugins", { required: true, trimWhitespace: false })
+            .split(",")
+            .map(p => p.trim())
+            .filter(p => p.length > 0);
+        this.modRepository = (0, core_1.getInput)("mod", { required: false, trimWhitespace: true });
+        this.connectionData = (0, core_1.getInput)("connection_config", { required: false, trimWhitespace: false });
+        this.run = (0, core_1.getInput)("run", { required: false, trimWhitespace: true })
+            .split(",")
+            .map(r => r.trim())
+            .filter(r => (r.length > 0)) || [];
+        this.where = (0, core_1.getInput)("where", { required: false, trimWhitespace: false });
+        this.output = (0, core_1.getInput)("output", { required: false, trimWhitespace: true });
+        this.export = (0, core_1.getInput)("export", { required: false, trimWhitespace: true }).split(",").map(e => e.trim()).filter(e => e.length > 0);
+        this.summaryFile = process_1.env['GITHUB_STEP_SUMMARY'];
+    }
+    GetRun() {
+        if (this.run.length == 0) {
+            this.run = ["all"];
+        }
+        return this.run;
+    }
 }
-exports.GetInputs = GetInputs;
+exports.ActionInput = ActionInput;
 
 
 /***/ }),
@@ -6682,7 +6749,7 @@ exports.WriteConnections = WriteConnections;
 async function RunSteampipeCheck(cliCmd = "steampipe", workspaceChdir, actionInputs, xtraExports) {
     (0, core_1.startGroup)(`Running Check`);
     let args = new Array();
-    args.push("check", ...getCheckArg(actionInputs));
+    args.push("check", ...actionInputs.GetRun());
     if (actionInputs.output.length > 0) {
         args.push(`--output=${actionInputs.output}`);
     }
@@ -6710,12 +6777,6 @@ async function cleanConnectionConfigDir(configDir) {
     for (const file of files) {
         await (0, promises_1.unlink)((0, path_1.join)(configDir, file));
     }
-}
-function getCheckArg(input) {
-    if (input.run.length === 0) {
-        return ["all"];
-    }
-    return input.run;
 }
 function getSteampipeDownloadLink(version) {
     if (version === "latest") {
@@ -6767,6 +6828,14 @@ module.exports = require("assert");
 
 "use strict";
 module.exports = require("child_process");
+
+/***/ }),
+
+/***/ 6206:
+/***/ ((module) => {
+
+"use strict";
+module.exports = require("console");
 
 /***/ }),
 
@@ -6944,13 +7013,15 @@ var exports = __webpack_exports__;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core_1 = __nccwpck_require__(2186);
+const console_1 = __nccwpck_require__(6206);
 const promises_1 = __nccwpck_require__(3292);
 const path_1 = __nccwpck_require__(1017);
+const commenter_1 = __nccwpck_require__(5374);
 const input_1 = __nccwpck_require__(6747);
 const steampipe_1 = __nccwpck_require__(9885);
 async function run() {
     try {
-        const actionInputs = (0, input_1.GetInputs)();
+        const actionInputs = new input_1.ActionInput();
         const steampipePath = `${await (0, steampipe_1.DownloadAndDeflateSteampipe)(actionInputs.version)}/steampipe`;
         (0, core_1.addPath)(steampipePath);
         await (0, steampipe_1.InstallSteampipe)(steampipePath);
@@ -6972,17 +7043,38 @@ async function run() {
             throw e;
         }
         finally {
-            const mdFiles = await getExportedSummaryMarkdownFiles(actionInputs);
-            const jsonFiles = await getExportedJSONFiles(actionInputs);
-            await combineFiles(mdFiles, "summary.md");
-            await (0, promises_1.copyFile)("summary.md", actionInputs.summaryFile);
-            removeFiles(mdFiles);
-            removeFiles(jsonFiles);
+            await exportStepSummary(actionInputs);
+            await exportAnnotations(actionInputs);
         }
     }
     catch (error) {
         (0, core_1.setFailed)(error.message);
     }
+}
+async function exportAnnotations(input) {
+    (0, core_1.startGroup)("Processing output");
+    (0, console_1.info)("Fetching output");
+    const jsonFiles = await getExportedJSONFiles(input);
+    const annotations = [];
+    for (let j of jsonFiles) {
+        const result = await (0, commenter_1.ParseResultFile)(j);
+        annotations.push(...(0, commenter_1.GetAnnotations)(result));
+    }
+    (0, console_1.info)(`Pushing Annotations`);
+    await (0, commenter_1.PushAnnotations)(annotations);
+    removeFiles(jsonFiles);
+    (0, core_1.endGroup)();
+}
+async function exportStepSummary(input) {
+    (0, core_1.startGroup)("Sending Summary");
+    (0, console_1.info)("Fetching output");
+    const mdFiles = await getExportedSummaryMarkdownFiles(input);
+    (0, console_1.info)("Combining outputs");
+    await combineFiles(mdFiles, "summary.md");
+    (0, console_1.info)("Pushing to Platform");
+    await (0, promises_1.copyFile)("summary.md", input.summaryFile);
+    removeFiles(mdFiles);
+    (0, core_1.endGroup)();
 }
 async function removeFiles(files) {
     for (let f of files) {
@@ -7013,7 +7105,7 @@ async function getExportedFileWithExtn(input, extn) {
         if ((0, path_1.extname)(d).length < 2) {
             continue;
         }
-        for (let r of input.run) {
+        for (let r of input.GetRun()) {
             if (d.startsWith(r) && (0, path_1.extname)(d) == `.${extn}`) {
                 files.push(d);
             }

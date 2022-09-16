@@ -16,7 +16,7 @@ export class ActionInput {
   summaryFile: string;
 
   constructor() {
-    this.version = getInput("version", { required: false, trimWhitespace: true }) || "latest";
+    this.version = getInput("version", { required: false, trimWhitespace: true }) || 'latest';
     this.plugins = getInput("plugins", { required: true, trimWhitespace: false })
       .split(",")
       .map(p => p.trim())
@@ -26,14 +26,14 @@ export class ActionInput {
     this.connectionData = getInput("connection_config", { required: false, trimWhitespace: false });
 
     this.run = getInput("run", { required: false, trimWhitespace: true })
-      .split(",")
+      .split(" ")
       .map(r => r.trim())
-      .filter(r => (r.length > 0)) || [];
+      .filter(r => (r.length > 0));
 
     this.where = getInput("where", { required: false, trimWhitespace: false });
 
     this.output = getInput("output", { required: false, trimWhitespace: true });
-    this.export = getInput("export", { required: false, trimWhitespace: true }).split(",").map(e => e.trim()).filter(e => e.length > 0);
+    this.export = getInput("export", { required: false, trimWhitespace: true }).split(" ").map(e => e.trim()).filter(e => e.length > 0);
 
     this.summaryFile = env['GITHUB_STEP_SUMMARY']
   }
