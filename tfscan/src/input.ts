@@ -16,6 +16,8 @@ export class ActionInput {
 
   summaryFile: string;
 
+  ghToken: string;
+
   constructor() {
     this.version = getInput("version", { required: false, trimWhitespace: true }) || 'latest';
     this.modRepository = getInput("mod", { required: false, trimWhitespace: true });
@@ -33,6 +35,11 @@ export class ActionInput {
     this.export = getInput("export", { required: false, trimWhitespace: true }).split(" ").map(e => e.trim()).filter(e => e.length > 0);
 
     this.summaryFile = env['GITHUB_STEP_SUMMARY']
+    this.ghToken = getInput("github-token", { trimWhitespace: true })
+
+    if (this.ghToken.trim().length == 0) {
+      throw new Error("cannot continue without a github token")
+    }
   }
 
   public getRun(): Array<string> {
