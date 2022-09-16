@@ -4,20 +4,23 @@ import { appendFile, copyFile, readdir, readFile, stat, unlink, writeFile } from
 import { extname } from "path";
 import { Annotation, PushAnnotations, GetAnnotations, ParseResultFile } from "./annotate";
 import { ActionInput } from "./input";
-import { downloadAndDeflateSteampipe, installMod, installTerraform, installSteampipe, runSteampipeCheck, writeConnections } from "./steampipe";
+import { downloadAndDeflateSteampipe, installMod, installTerraform as installTerraformPlugin, installSteampipe as installSteampipeCLI, runSteampipeCheck, writeConnections as writeConnectionForPlugin } from "./steampipe";
 
 async function run() {
   try {
     const inputs = new ActionInput()
 
+    // install the mod right away
+    // if this fails for some reason, we cannot continue
+    const modPath = await installMod(inputs.modRepository)
+
     const steampipePath = `${await downloadAndDeflateSteampipe(inputs.version)}/steampipe`;
+    await installSteampipeCLI(steampipePath)
+    await installTerraformPlugin(steampipePath)
+    await writeConnectionForPlugin(inputs)
+
+    // add the path to the Steampipe CLI so that it can be used by subsequent steps if required
     addPath(steampipePath);
-
-    const modPath = await installMod()
-
-    await installSteampipe(steampipePath)
-    await installTerraform(steampipePath)
-    await writeConnections(inputs)
 
     try {
       // since `steampipe check` may exit with a non-zero exit code - this is normal
@@ -87,7 +90,7 @@ async function getExportedJSONFiles(input: ActionInput) {
 async function getExportedFileWithExtn(input: ActionInput, extn: string) {
   let files = new Array<string>()
 
-  const dirContents = await readdir(".",{withFileTypes:true})
+  const dirContents = await readdir(".", { withFileTypes: true })
   for (let d of dirContents) {
     if (!d.isFile()) {
       continue
