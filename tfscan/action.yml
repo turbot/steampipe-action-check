@@ -1,41 +1,41 @@
 name: "Steampipe GitHub Action"
 author: "Turbot.com"
-description: "Set up a specific version of Steampipe"
+description: "Run Steampipe against Terraform infrastructure code, as a pre-packaged GitHub Action"
 
 branding:
   color: "red"
   icon: "shield"
 
 inputs:
+  mod:
+    description: "Git URL of specific terraform compliance mod that will be installed. This will be passed on to `git clone`"
+    required: true
   version:
-    description: Version of Steampipe that will be installed.
+    description: "The version number of Steampipe that will be installed"
     required: false
-    default: latest
+    default: "latest"
   run:
-    description: A list of benchmarks and controls to run (comma-separated). If left blank, `all` controls and benchmarks are run.
+    description: "A list of benchmarks and controls to run (comma-separated). If no value is specified, it runs `check all`"
     required: false
     default: ""
   directory:
-    description: Directory to run the scan on, from the repo root. Default is `.` (root of the repository).
+    description: "Directory with infrastructure code to scan explicitly, if not specified, it considers root of the repository as default"
     required: false
     default: "."
-  mod:
-    description: Git clone URL of a steampipe mod that will be installed.
-    required: true
   output:
-    description: Select a console output format i.e. brief, csv, html, json, md, text or none.
+    description: "The console output format. Possible values are brief, csv, html, json, md, text or none"
     required: false
-    default: text
+    default: "text"
   export:
-    description: "Export output to files in various output formats such as csv, html, json, md, nunit3 or asff (json) - comma separated."
+    description: "Export output to a file. Supported export formats are asff, csv, html, json and md"
     required: false
     default: ""
   where:
-    description: SQL 'where' clause, or named query, used to filter controls
+    description: "Filter the list of controls to run, using a `sql` where clause against the `steampipe_control` reflection table"
     required: false
     default: ""
   github-token:
-    description: "the token is used for fetching patch of a pull request to show only new issues"
+    description: "The token is used for fetching patch of a pull request to show only new issues"
     default: ${{ github.token }}
     required: false
 

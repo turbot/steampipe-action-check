@@ -57,8 +57,6 @@ jobs:
 
 ## Example Screenshots
 
-*(To be updated)*
-
 Workflow with successful execution
 ![](images/successful_action.png)
 
