@@ -1,4 +1,4 @@
-require('./sourcemap-register.js');/******/ (() => { // webpackBootstrap
+/******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
 /***/ 7351:
@@ -13344,32 +13344,31 @@ function wrappy (fn, cb) {
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.ParseResultFile = exports.PushAnnotations = exports.GetAnnotations = void 0;
-const promises_1 = __nccwpck_require__(3292);
+exports.parseResultFile = exports.pushAnnotations = exports.getAnnotations = void 0;
 const github_1 = __nccwpck_require__(5438);
-const process_1 = __nccwpck_require__(7282);
+const promises_1 = __nccwpck_require__(3292);
 /**
  * Returns an array of annotations for a RootResult
  *
  * @param group GroupResult The group result returned by `steampipe check`
  * @returns
  */
-function GetAnnotations(result) {
+function getAnnotations(result) {
     return getAnnotationsForGroup(result);
 }
-exports.GetAnnotations = GetAnnotations;
+exports.getAnnotations = getAnnotations;
 /**
  * Pushes the annotations to Github.
  *
  * @param annotations Array<Annotation> Pushed a set of annotations to github
  */
-async function PushAnnotations(input, annotations) {
-    const octokit = (0, github_1.getOctokit)(process_1.env['GITHUB_TOKEN']);
+async function pushAnnotations(input, annotations) {
+    const octokit = (0, github_1.getOctokit)(input.ghToken);
     if (annotations.length > 0) {
-        return Promise.resolve();
+        return;
     }
-    if (github_1.context.payload.pull_request) {
-        octokit.rest.checks.create({
+    if (github_1.context.payload.pull_request && annotations.length > 0) {
+        await octokit.rest.checks.create({
             ...github_1.context.repo,
             pull_number: github_1.context.payload.pull_request.number,
             name: 'Terraform Validator',
@@ -13384,12 +13383,12 @@ async function PushAnnotations(input, annotations) {
         });
     }
 }
-exports.PushAnnotations = PushAnnotations;
-async function ParseResultFile(filePath) {
+exports.pushAnnotations = pushAnnotations;
+async function parseResultFile(filePath) {
     const fileContent = await (0, promises_1.readFile)(filePath);
     return JSON.parse(fileContent.toString());
 }
-exports.ParseResultFile = ParseResultFile;
+exports.parseResultFile = parseResultFile;
 function getAnnotationsForGroup(group) {
     const annotations = [];
     if (group.groups) {
@@ -13403,7 +13402,6 @@ function getAnnotationsForGroup(group) {
             const ann = getAnnotationsForControl(c);
             annotations.push(...ann);
         }
-        return annotations;
     }
     return annotations;
 }
@@ -13413,15 +13411,15 @@ function getAnnotationsForControl(controlRun) {
     if (controlRun.results != null) {
         controlRun.results.forEach((result) => {
             if (result.status === 'alarm') {
-                var splitted = result.dimensions[0].value.split(":", 2);
+                const [fileName, lineNumber, ...rest] = result.dimensions[0].value.split(":", 2);
                 annotations.push({
-                    path: splitted[0].replace(process.cwd() + "/", ''),
-                    start_line: +(splitted[1]),
-                    end_line: +(splitted[1]),
-                    annotation_level: 'failure',
+                    path: fileName.replace(process.cwd() + "/", ''),
+                    start_line: +(lineNumber),
+                    end_line: +(lineNumber),
+                    annotation_level: result.status == "alarm" ? '' : '',
                     message: result.reason,
-                    start_column: +(splitted[1]),
-                    end_column: +(splitted[1])
+                    start_column: 1,
+                    end_column: 1,
                 });
             }
         });
@@ -13575,9 +13573,9 @@ async function installMod(modRepository = "") {
         return Promise.resolve("");
     }
     (0, core_1.startGroup)("Installing Mod");
-    const cloneTo = `workspace_dir_${github_1.context.runId}`;
+    const cloneTo = `workspace_dir_${github_1.context.runId}_${new Date().getTime()}`;
     (0, core_1.info)(`Installing mod from ${modRepository}`);
-    await (0, exec_1.exec)(await (0, io_1.which)("git", true), ["clone", modRepository, cloneTo], { silent: true });
+    await (0, exec_1.exec)(await (0, io_1.which)("git", true), ["clone", modRepository, cloneTo], { silent: false });
     (0, core_1.endGroup)();
     return cloneTo;
 }
@@ -13952,11 +13950,11 @@ async function exportAnnotations(input) {
     const jsonFiles = await getExportedJSONFiles(input);
     const annotations = [];
     for (let j of jsonFiles) {
-        const result = await (0, annotate_1.ParseResultFile)(j);
-        annotations.push(...(0, annotate_1.GetAnnotations)(result));
+        const result = await (0, annotate_1.parseResultFile)(j);
+        annotations.push(...(0, annotate_1.getAnnotations)(result));
     }
     (0, console_1.info)(`Pushing Annotations`);
-    await (0, annotate_1.PushAnnotations)(input, annotations);
+    await (0, annotate_1.pushAnnotations)(input, annotations);
     removeFiles(jsonFiles);
     (0, core_1.endGroup)();
 }
@@ -14014,4 +14012,3 @@ run();
 module.exports = __webpack_exports__;
 /******/ })()
 ;
-//# sourceMappingURL=index.js.map

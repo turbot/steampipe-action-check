@@ -5,8 +5,7 @@
   "main": "dist/index.js",
   "scripts": {
     "tsc": "tsc",
-    "build": "ncc build src/index.ts -o dist --source-map --license LICENSE",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "ncc build src/index.ts -o dist --license LICENSE"
   },
   "repository": {
     "type": "git",
@@ -17,7 +16,7 @@
   "bugs": {
     "url": "https://github.com/turbot/steampipe-action/issues"
   },
-  "homepage": "https://github.com/turbot/steampipe-action#readme",
+  "homepage": "https://steampipe.io",
   "dependencies": {
     "@actions/core": "1.9.1",
     "@actions/exec": "1.1.1",
