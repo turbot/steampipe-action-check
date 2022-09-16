@@ -1,7 +1,7 @@
 import { addPath, setFailed } from "@actions/core";
 import { appendFile, copyFile, readdir, readFile, stat, unlink, writeFile } from "fs/promises";
 import { extname } from "path";
-import { Annotation, GetAnnotationsForGroup, ParseResultFile } from "./commenter";
+import { Annotation, PushAnnotations, GetAnnotations, ParseResultFile } from "./commenter";
 import { ActionInput } from "./input";
 import { DownloadAndDeflateSteampipe, InstallMod, InstallPlugins, InstallSteampipe, RunSteampipeCheck, WriteConnections } from "./steampipe";
 
@@ -32,27 +32,31 @@ async function run() {
       throw e
     }
     finally {
-      const mdFiles = await getExportedSummaryMarkdownFiles(actionInputs)
-      const jsonFiles = await getExportedJSONFiles(actionInputs)
-      await combineFiles(mdFiles, "summary.md")
-
-      await copyFile("summary.md", actionInputs.summaryFile)
-
-      const annotations: Array<Annotation> = []
-      for (let j of jsonFiles) {
-        const result = await ParseResultFile(j)
-        annotations.push(...GetAnnotationsForGroup(result))
-      }
-
-      // push annotations to Github with Octokit
-
-      removeFiles(mdFiles)
-      removeFiles(jsonFiles)
+      await exportStepSummary(actionInputs)
+      await exportAnnotations(actionInputs)
     }
-
+    
   } catch (error) {
     setFailed(error.message);
   }
+}
+
+async function exportAnnotations(input: ActionInput) {
+  const jsonFiles = await getExportedJSONFiles(input)
+  const annotations: Array<Annotation> = []
+  for (let j of jsonFiles) {
+    const result = await ParseResultFile(j)
+    annotations.push(...GetAnnotations(result))
+  }
+  await PushAnnotations(annotations)
+  removeFiles(jsonFiles)
+}
+
+async function exportStepSummary(input: ActionInput) {
+  const mdFiles = await getExportedSummaryMarkdownFiles(input)
+  await combineFiles(mdFiles, "summary.md")
+  await copyFile("summary.md", input.summaryFile)
+  removeFiles(mdFiles)
 }
 
 async function removeFiles(files: Array<string>) {
