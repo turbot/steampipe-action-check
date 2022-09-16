@@ -122,7 +122,7 @@ export async function PushAnnotations(annotations: Array<Annotation>, actionInpu
       output: {
         title: 'Terraform Validator',
         summary: 'Terraform Validator Failure',
-        annotations: JSON.stringify(annotations)
+        annotations: JSON.parse(JSON.stringify(annotations))
       }
     });
   } catch (error) {

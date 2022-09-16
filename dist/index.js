@@ -15735,7 +15735,7 @@ async function PushAnnotations(annotations, actionInputs) {
             output: {
                 title: 'Terraform Validator',
                 summary: 'Terraform Validator Failure',
-                annotations: JSON.stringify(annotations)
+                annotations: JSON.parse(JSON.stringify(annotations))
             }
         });
     }
