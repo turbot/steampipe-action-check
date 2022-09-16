@@ -44,9 +44,9 @@ function getAnnotationsForGroup(group: GroupResult): Array<Annotation> {
     }
     return annotations
   }
+  return annotations
 }
 
 function getAnnotationsForControl(controlRun: ControlRun): Array<Annotation> {
-  controlRun.results
   return []
 }
