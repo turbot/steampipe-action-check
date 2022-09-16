@@ -230,6 +230,7 @@ async function AnnotationOnLine(results: Array<ControlResult>, actionInputs: Act
           ]
         }
       });
+      console.log(check)
     }
   } catch (error) {
     setFailed(error);

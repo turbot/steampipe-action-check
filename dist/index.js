@@ -15849,6 +15849,7 @@ async function AnnotationOnLine(results, actionInputs) {
                     ]
                 }
             });
+            console.log(check);
         }
     }
     catch (error) {
