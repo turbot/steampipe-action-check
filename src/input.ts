@@ -22,7 +22,7 @@ export class ActionInput {
       .map(p => p.trim())
       .filter(p => p.length > 0);
 
-    this.modRepository = getInput("mod", { required: false, trimWhitespace: true }) || "";
+    this.modRepository = getInput("mod", { required: false, trimWhitespace: true });
     this.connectionData = getInput("connection_config", { required: false, trimWhitespace: false });
 
     this.run = getInput("run", { required: false, trimWhitespace: true })
@@ -30,10 +30,10 @@ export class ActionInput {
       .map(r => r.trim())
       .filter(r => (r.length > 0)) || [];
 
-    this.where = getInput("where", { required: false, trimWhitespace: false }) || "";
+    this.where = getInput("where", { required: false, trimWhitespace: false });
 
-    this.output = getInput("output", { required: false, trimWhitespace: true }) || "";
-    this.export = (getInput("export", { required: false, trimWhitespace: true }) || "").split(",").map(e => e.trim()).filter(e => e.length > 0);
+    this.output = getInput("output", { required: false, trimWhitespace: true });
+    this.export = getInput("export", { required: false, trimWhitespace: true }).split(",").map(e => e.trim()).filter(e => e.length > 0);
 
     this.summaryFile = env['GITHUB_STEP_SUMMARY']
   }
