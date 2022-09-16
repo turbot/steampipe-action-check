@@ -1,10 +1,12 @@
 import { ActionInput, GroupJson } from "./input";
-import { Group, Result } from "./output";
+import { FileInfo, Group, Result } from "./output";
 import { readFile } from "fs/promises";
 import { Octokit } from '@octokit/rest';
 import { setFailed, startGroup, endGroup } from "@actions/core";
 import * as github from '@actions/github';
 
+const patchRegex = new RegExp(`^@@.*\d [\+\-](\d+),?(\d+)?.+?@@`)
+const commitRefRegex = new RegExp(".+ref=(.+)")
 
 export async function AddPRComments(actionInputs: ActionInput, myExportFile: string) {
   startGroup(`Add Comments`)
@@ -26,7 +28,7 @@ export async function AddPRComments(actionInputs: ActionInput, myExportFile: str
 function ParseOnRun(group: Group, actionInputs: ActionInput) {
   group.controls[0].results.forEach(function (result) {
     if (result.status = 'alarm') {
-      CommentOnLine(actionInputs, result)
+      AnnotationOnLine(actionInputs, result)
     }
   })
 }
@@ -50,7 +52,7 @@ async function CommentOnLine(actionInputs: ActionInput, result: Result) {
       ...github.context.repo,
       pull_number: github.context.payload.pull_request.number,
       body: result.reason,
-      commit_id: fileSHAMap.get(splitted[0].replace(process.cwd() + "/", '')),
+      commit_id: '', //fileSHAMap.get(splitted[0].replace(process.cwd() + "/", '')),
       path: splitted[0].replace(process.cwd() + "/", ''), //examples/terraform/aws/ec2/ec2_ebs_default_encryption_enabled.tf
       line: +splitted[1]
     })
@@ -58,21 +60,10 @@ async function CommentOnLine(actionInputs: ActionInput, result: Result) {
       ...github.context.repo,
       pull_number: github.context.payload.pull_request.number,
       body: result.reason,
-      commit_id: fileSHAMap[splitted[0].replace(process.cwd() + "/", '')],
+      commit_id: '', //fileSHAMap[splitted[0].replace(process.cwd() + "/", '')],
       path: splitted[0].replace(process.cwd() + "/", ''), //examples/terraform/aws/ec2/ec2_ebs_default_encryption_enabled.tf
       line: +splitted[1]
     })
-    // console.log('result==============>>>>>>>>>', {
-    //   ...github.context.repo,
-    //   pull_number: github.context.payload.pull_request.number,
-    //   body: result.reason,
-    //   commit_id: github.context.sha,
-    //   path: splitted[0].split("/")[splitted[0].split("/").length - 1],
-    //   start_line: +(splitted[1]),
-    //   start_side: 'RIGHT',
-    //   line: +(splitted[1]),
-    //   side: 'RIGHT'
-    // })
     console.log("new_comment---------->>>>>>>>>>>.", new_comment)
   } catch (error) {
     setFailed(error);
@@ -88,11 +79,10 @@ async function AnnotationOnLine(actionInputs: ActionInput, result: Result) {
     });
     var splitted = result.dimensions[0].value.split(":", 2);
     const check = await octokit.rest.checks.create({
-      owner: 'turbot',
+      ...github.context.repo,
       pull_number: github.context.payload.pull_request.number,
-      repo: github.context.repo.repo,
       name: 'Terraform Validator',
-      head_sha: github.context.sha,
+      head_sha: github.context.payload.pull_request['head']['sha'],
       status: 'completed',
       conclusion: 'failure',
       output: {
@@ -100,7 +90,7 @@ async function AnnotationOnLine(actionInputs: ActionInput, result: Result) {
         summary: result.reason,
         annotations: [
           {
-            path: splitted[0].split("/")[splitted[0].split("/").length - 1],
+            path: splitted[0].replace(process.cwd() + "/", ''),
             start_line: +(splitted[1]),
             end_line: +(splitted[1]),
             annotation_level: 'failure',
@@ -118,19 +108,54 @@ async function AnnotationOnLine(actionInputs: ActionInput, result: Result) {
 
 }
 
-async function GetPRFileInfos(actionInputs: ActionInput, result: Result): Promise<Map<string, string>> {
+async function GetPRFileInfos(actionInputs: ActionInput, result: Result): Promise<FileInfo[]> {
   try {
     const files = await github.getOctokit(actionInputs.githubToken).rest.pulls.listFiles({
       ...github.context.repo,
       pull_number: github.context.payload.pull_request.number,
       per_page: 3000
     })
-    const fileSHAMap = new Map<string, string>();
-    files.data.forEach(function (val) {
-      fileSHAMap.set(val.filename, val.sha)
-    })
-    return fileSHAMap;
+    return files.data;
   } catch (error) {
     return null
   }
+}
+
+function GetCommitInfo(file: FileInfo) {
+  var isBinary: boolean
+  const patch = file.patch
+  const hunk = parseHunkPositions(patch, file.filename)
+
+  const shaGroups = file.contents_url.match(commitRefRegex)//commitRefRegex.FindAllStringSubmatch(file.GetContentsURL(), -1)
+  if (shaGroups.length < 1) {
+    return null;
+  }
+  const sha = shaGroups[0][1]
+
+  return {
+    fileName: file.filename,
+    hunkStart: hunk.hunkStart,
+    hunkEnd: hunk.hunkStart + (hunk.hunkEnd - 1),
+    sha: sha,
+    likelyBinary: isBinary,
+  };
+}
+
+function parseHunkPositions(patch: string, filename: string): { hunkStart: number, hunkEnd: number } {
+  if (patch != "") {
+    const groups: Array<string> = patch.match(patchRegex)
+    if (groups != null && groups.length < 1) {
+      return { hunkStart: 0, hunkEnd: 0 }
+    }
+
+    const patchGroup = groups[0]
+    var endPos = 2
+    if (patchGroup.length > 2 && patchGroup[2] == "") {
+      endPos = 1
+    }
+
+    var hunkStart = +patchGroup[1]
+    var hunkEnd = +patchGroup[endPos]
+  }
+  return { hunkStart, hunkEnd }
 }
