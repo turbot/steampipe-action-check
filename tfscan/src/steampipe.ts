@@ -2,7 +2,7 @@ import { debug, endGroup, info, startGroup } from "@actions/core";
 import { exec } from "@actions/exec";
 import { which } from "@actions/io";
 import { cacheDir, downloadTool, extractTar, extractZip, find } from "@actions/tool-cache";
-import { readdir, unlink, writeFile } from "fs/promises";
+import { lstat, readdir, unlink, writeFile } from "fs/promises";
 import { join } from "path";
 import { arch, env, platform } from "process";
 import { URL } from "url";
@@ -35,7 +35,6 @@ export async function downloadAndDeflateSteampipe(version: string = "latest") {
     info(`Could not find ${version} in cache. Need to download.`)
   }
 
-
   const downloadLink = getSteampipeDownloadLink(version)
   info(`Downloading ${version}...`)
   const downloadedArchive = await downloadTool(downloadLink.toString())
@@ -64,13 +63,12 @@ export async function installSteampipe(cliCmd = "steampipe") {
 }
 
 /**
- * Installs the list of steampipe plugins
+ * Installs the terraform steampipe plugins
  * 
  * @param cliCmd THe path to the steampipe binary
- * @param plugins `Array<string>` - an array of steampipe plugins to install. Passed to `steampipe plugin install` as-is
  * @returns 
  */
-export async function installTerraform(cliCmd = "steampipe") {
+export async function installTerraformPlugin(cliCmd = "steampipe") {
   startGroup("Installing plugins")
   info(`Installing 'terraform@latest'`)
   await exec(cliCmd, ["plugin", "install", "terraform"], { silent: true })
@@ -92,7 +90,13 @@ export async function installMod(modRepository: string = "") {
   startGroup("Installing Mod")
   const cloneTo = `workspace_dir_${context.runId}_${new Date().getTime()}`
   info(`Installing mod from ${modRepository}`)
-  await exec(await which("git", true), ["clone", modRepository, cloneTo], { silent: false })
+  try {
+    await exec(await which("git", true), ["clone", modRepository, cloneTo], { silent: false })
+  }
+  catch (e) {
+    endGroup()
+    throw new Error("error while trying to clone the mod: ", e)
+  }
   endGroup()
   return cloneTo
 }
@@ -107,6 +111,9 @@ export async function writeConnections(input: ActionInput) {
   const d = new Date()
   const configDir = `${env["HOME"]}/.steampipe/config`
   debug("Cleaning up old config directory")
+  // clean up the config directory
+  // this will take care of any default configs done during plugin installation
+  // and also configs which were created in steps above this step which uses this action.
   cleanConnectionConfigDir(configDir)
 
   const configFileName = `config_${context.runId}.spc`
@@ -129,7 +136,7 @@ connection "tf_connection_${context.runId}" {
  */
 export async function runSteampipeCheck(cliCmd: string = "steampipe", workspaceChdir: string, actionInputs: ActionInput, xtraExports: Array<string>) {
   startGroup(`Running Check`)
-  
+
   let args = new Array<string>()
 
   args.push(
