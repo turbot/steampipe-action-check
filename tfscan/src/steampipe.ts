@@ -2,7 +2,7 @@ import { debug, endGroup, info, startGroup } from "@actions/core";
 import { exec } from "@actions/exec";
 import { which } from "@actions/io";
 import { cacheDir, downloadTool, extractTar, extractZip, find } from "@actions/tool-cache";
-import { readdir, unlink, writeFile } from "fs/promises";
+import { lstat, readdir, unlink, writeFile } from "fs/promises";
 import { join } from "path";
 import { arch, env, platform } from "process";
 import { URL } from "url";
@@ -34,7 +34,6 @@ export async function downloadAndDeflateSteampipe(version: string = STEAMPIPE_VE
     info(`Could not find ${version} in cache. Need to download.`)
   }
 
-
   const downloadLink = getSteampipeDownloadLink(version)
   info(`Downloading ${version}...`)
   const downloadedArchive = await downloadTool(downloadLink.toString())
@@ -63,13 +62,12 @@ export async function installSteampipe(cliCmd = STEAMPIPE_KEY) {
 }
 
 /**
- * Installs the list of steampipe plugins
+ * Installs the terraform steampipe plugins
  * 
  * @param cliCmd THe path to the steampipe binary
- * @param plugins `Array<string>` - an array of steampipe plugins to install. Passed to `steampipe plugin install` as-is
  * @returns 
  */
-export async function installTerraform(cliCmd = STEAMPIPE_KEY) {
+export async function installTerraformPlugin(cliCmd = STEAMPIPE_KEY) {
   startGroup("Installing plugins")
   info(`Installing 'terraform@latest'`)
   await exec(cliCmd, [STEAMPIPE_PLUGIN_INSTALL_TERRAFORM], { silent: true })
@@ -91,7 +89,13 @@ export async function installMod(modRepository: string = "") {
   startGroup("Installing Mod")
   const cloneTo = `workspace_dir_${context.runId}_${new Date().getTime()}`
   info(`Installing mod from ${modRepository}`)
-  await exec(await which(GIT_KEY, true), [GIT_COMMAND_CLONE, modRepository, cloneTo], { silent: false })
+  try {
+    await exec(await which(GIT_KEY, true), [GIT_COMMAND_CLONE, modRepository, cloneTo], { silent: false })
+  }
+  catch (e) {
+    endGroup()
+    throw new Error("error while trying to clone the mod: ", e)
+  }
   endGroup()
   return cloneTo
 }
@@ -104,6 +108,9 @@ export async function installMod(modRepository: string = "") {
 export async function writeConnections(input: ActionInput) {
   startGroup("Writing Connection Data")
   debug("Cleaning up old config directory")
+  // clean up the config directory
+  // this will take care of any default configs done during plugin installation
+  // and also configs which were created in steps above this step which uses this action.
   cleanConnectionConfigDir()
 
   info("Writing connection data")

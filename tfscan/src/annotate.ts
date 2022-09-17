@@ -72,10 +72,6 @@ export async function pushAnnotations(input: ActionInput, annotations: Array<Ann
 }
 
 export async function parseResultFile(filePath: string): Promise<RootResult> {
-  if (context.payload.pull_request == null) {
-    setFailed('No pull request found.');
-    return null;
-  }
   const fileContent = await readFile(filePath)
   return (JSON.parse(fileContent.toString()) as RootResult)
 }

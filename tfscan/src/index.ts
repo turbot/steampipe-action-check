@@ -1,12 +1,13 @@
 import { addPath, endGroup, setFailed, startGroup } from "@actions/core";
+import { context } from "@actions/github";
 import { info } from "console";
-import { appendFile, copyFile, readdir, readFile, stat, unlink, writeFile } from "fs/promises";
+import { appendFile, copyFile, readdir, readFile, unlink, writeFile } from "fs/promises";
 import { extname } from "path";
-import { pushAnnotations, getAnnotations, parseResultFile } from "./annotate";
 import { STEAMPIPE_KEY, STEAMPIPE_MOD_EXPORT_FILE_MD, STEAMPIPE_MOD_OUTPUT_FILE_EXTN_JSON, STEAMPIPE_MOD_OUTPUT_FILE_EXTN_MD } from "./constants";
 import { ActionInput } from "./input";
 import { Annotation } from "./models/annotate-models";
-import { downloadAndDeflateSteampipe, installMod, installTerraform as installTerraformPlugin, installSteampipe as installSteampipeCLI, runSteampipeCheck, writeConnections as writeConnectionForPlugin } from "./steampipe";
+import { getAnnotations, parseResultFile, pushAnnotations } from "./annotate";
+import { downloadAndDeflateSteampipe, installMod, installTerraformPlugin as installTerraformPlugin, installSteampipe as installSteampipeCLI, runSteampipeCheck, writeConnections as writeConnectionForPlugin } from "./steampipe";
 
 async function run() {
   try {
@@ -20,7 +21,12 @@ async function run() {
     const steampipePath = `${await downloadAndDeflateSteampipe(inputs.version)}/${STEAMPIPE_KEY}`;
     await installSteampipeCLI(steampipePath)
     await installTerraformPlugin(steampipePath)
-    await writeConnectionForPlugin(inputs)
+    try {
+      await writeConnectionForPlugin(inputs)
+    }
+    catch (e) {
+      throw new Error("error trying to create connection", e)
+    }
 
     // add the path to the Steampipe CLI so that it can be used by subsequent steps if required
     addPath(steampipePath)
@@ -30,7 +36,7 @@ async function run() {
       await runSteampipeCheck(steampipePath, modPath, inputs, [STEAMPIPE_MOD_OUTPUT_FILE_EXTN_JSON, STEAMPIPE_MOD_OUTPUT_FILE_EXTN_MD])
     }
     catch (e) {
-      //throw e
+      // throw e
     }
     finally {
       await exportStepSummary(inputs)
@@ -43,6 +49,9 @@ async function run() {
 }
 
 async function exportAnnotations(input: ActionInput) {
+  if (context.payload.pull_request == null) {
+    return
+  }
   startGroup("Processing output")
   info("Fetching output")
   const jsonFiles = await getExportedJSONFiles(input)
