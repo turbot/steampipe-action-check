@@ -2,7 +2,7 @@ import { debug, endGroup, info, startGroup } from "@actions/core";
 import { exec } from "@actions/exec";
 import { which } from "@actions/io";
 import { cacheDir, downloadTool, extractTar, extractZip, find } from "@actions/tool-cache";
-import { readdir, unlink, writeFile } from "fs/promises";
+import { lstat, readdir, unlink, writeFile } from "fs/promises";
 import { join } from "path";
 import { arch, env, platform } from "process";
 import { URL } from "url";
@@ -63,13 +63,12 @@ export async function installSteampipe(cliCmd = "steampipe") {
 }
 
 /**
- * Installs the list of steampipe plugins
+ * Installs the terraform steampipe plugins
  * 
  * @param cliCmd THe path to the steampipe binary
- * @param plugins `Array<string>` - an array of steampipe plugins to install. Passed to `steampipe plugin install` as-is
  * @returns 
  */
-export async function installTerraform(cliCmd = "steampipe") {
+export async function installTerraformPlugin(cliCmd = "steampipe") {
   startGroup("Installing plugins")
   info(`Installing 'terraform@latest'`)
   await exec(cliCmd, ["plugin", "install", "terraform"], { silent: true })
@@ -112,6 +111,9 @@ export async function writeConnections(input: ActionInput) {
   const d = new Date()
   const configDir = `${env["HOME"]}/.steampipe/config`
   debug("Cleaning up old config directory")
+  // clean up the config directory
+  // this will take care of any default configs done during plugin installation
+  // and also configs which were created in steps above this step which uses this action.
   cleanConnectionConfigDir(configDir)
 
   const configFileName = `config_${context.runId}.spc`

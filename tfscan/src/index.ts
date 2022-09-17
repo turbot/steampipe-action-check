@@ -5,7 +5,7 @@ import { appendFile, copyFile, readdir, readFile, unlink, writeFile } from "fs/p
 import { extname } from "path";
 import { Annotation, getAnnotations, parseResultFile, pushAnnotations } from "./annotate";
 import { ActionInput } from "./input";
-import { downloadAndDeflateSteampipe, installMod, installSteampipe as installSteampipeCLI, installTerraform as installTerraformPlugin, runSteampipeCheck, writeConnections as writeConnectionForPlugin } from "./steampipe";
+import { downloadAndDeflateSteampipe, installMod, installTerraformPlugin as installTerraformPlugin, installSteampipe as installSteampipeCLI, runSteampipeCheck, writeConnections as writeConnectionForPlugin } from "./steampipe";
 
 async function run() {
   try {
@@ -19,7 +19,12 @@ async function run() {
     const steampipePath = `${await downloadAndDeflateSteampipe(inputs.version)}/steampipe`;
     await installSteampipeCLI(steampipePath)
     await installTerraformPlugin(steampipePath)
-    await writeConnectionForPlugin(inputs)
+    try {
+      await writeConnectionForPlugin(inputs)
+    }
+    catch (e) {
+      throw new Error("error trying to create connection", e)
+    }
 
     // add the path to the Steampipe CLI so that it can be used by subsequent steps if required
     addPath(steampipePath)
