@@ -65,7 +65,7 @@ More examples are provided in `examples/workflow` starting with `terraform_aws_c
 
 ## Example Screenshots
 
-Workflow with successful execution
+Steampipe action with successful execution
 ![](images/successful_action.png)
 
 Workflow with failed execution
