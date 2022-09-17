@@ -65,16 +65,11 @@ More examples are provided in `examples/workflow` starting with `terraform_aws_c
 
 ## Example Screenshots
 
-Steampipe action with successful execution
-![](images/successful_action.png)
+Action with successful execution
+![](images/tfscan_successful_execution.png)
 
-Workflow with failed execution
-![](images/failed_execution.png)
+Action with annotation
+![](images/tfscan_failure_with_annotation.png)
 
-Workflow with annotation
-![](images/steampipe_tfscn_failure_with_annotation.png)
-
-Workflow with summarized execution
-![](images/workflow_summarized.png)
-
-
+Action with unchanged file
+![](images/tfscan_unchanged_file_annotation.png)
