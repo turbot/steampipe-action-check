@@ -51,7 +51,7 @@ export class ActionInput {
 
   public async validate() { 
     if (this.modRepository.trim().length == 0){
-      throw new Error("a mod repository is required")
+      throw new Error("a mod repository is required to run this action. Head over to https://hub.steampipe.io/mods?q=terraform for mods you can run with this action.")
     }
   }
 }

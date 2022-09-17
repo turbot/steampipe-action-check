@@ -35,7 +35,6 @@ export async function downloadAndDeflateSteampipe(version: string = "latest") {
     info(`Could not find ${version} in cache. Need to download.`)
   }
 
-
   const downloadLink = getSteampipeDownloadLink(version)
   info(`Downloading ${version}...`)
   const downloadedArchive = await downloadTool(downloadLink.toString())
@@ -92,7 +91,13 @@ export async function installMod(modRepository: string = "") {
   startGroup("Installing Mod")
   const cloneTo = `workspace_dir_${context.runId}_${new Date().getTime()}`
   info(`Installing mod from ${modRepository}`)
-  await exec(await which("git", true), ["clone", modRepository, cloneTo], { silent: false })
+  try {
+    await exec(await which("git", true), ["clone", modRepository, cloneTo], { silent: false })
+  }
+  catch (e) {
+    endGroup()
+    throw new Error("error while trying to clone the mod: ", e)
+  }
   endGroup()
   return cloneTo
 }
@@ -129,7 +134,7 @@ connection "tf_connection_${context.runId}" {
  */
 export async function runSteampipeCheck(cliCmd: string = "steampipe", workspaceChdir: string, actionInputs: ActionInput, xtraExports: Array<string>) {
   startGroup(`Running Check`)
-  
+
   let args = new Array<string>()
 
   args.push(
