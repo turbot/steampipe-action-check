@@ -43,7 +43,6 @@ jobs:
 
       - name: Steampipe terraform scan action
         uses: turbot/steampipe-action/tfscan
-        continue-on-error: false
         with:
           mod: 'https://github.com/turbot/steampipe-mod-terraform-aws-compliance.git'
 ```
