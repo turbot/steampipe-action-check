@@ -1,8 +1,9 @@
 import { setFailed } from "@actions/core";
 import { context, getOctokit } from "@actions/github";
 import { readFile } from "fs/promises";
-import { cwd } from "process";
+import { GITHUB_PULL_REQUEST_KEY_HEAD, GITHUB_PULL_REQUEST_KEY_SHA, STEAMPIPE_ACTION_NAME, STEAMPIPE_ANNOTATION_CONCLUSION_ACTION_REQUIRED, STEAMPIPE_ANNOTATION_LEVEL, STEAMPIPE_ANNOTATION_STATUS_COMPLETED, STEAMPIPE_ANNOTATION_SUMMARY, STEAMPIPE_ANNOTATION_TITLE, STEAMPIPE_MOD_RUN_STATUS_ALARM, STEAMPIPE_MOD_RUN_STATUS_ERROR } from "./constants";
 import { ActionInput } from "./input";
+import { Annotation, ControlRun, GroupResult, RootResult } from "./models/annotate-models"
 
 /**
  * Returns an array of annotations for a RootResult
@@ -52,14 +53,14 @@ export async function pushAnnotations(input: ActionInput, annotations: Array<Ann
       await octokit.rest.checks.create({
         ...context.repo,
         pull_number: context.payload.pull_request.number,
-        head_sha: context.payload.pull_request['head']['sha'],
+        head_sha: context.payload.pull_request[GITHUB_PULL_REQUEST_KEY_HEAD][GITHUB_PULL_REQUEST_KEY_SHA],
         check_run_id: context.runId,
-        name: 'tfscan',
-        status: 'completed',
-        conclusion: 'action_required',
+        name: STEAMPIPE_ACTION_NAME,
+        status: STEAMPIPE_ANNOTATION_STATUS_COMPLETED,
+        conclusion: STEAMPIPE_ANNOTATION_CONCLUSION_ACTION_REQUIRED,
         output: {
-          title: 'Steampipe tfscan',
-          summary: 'Terraform Validation Failed',
+          title: STEAMPIPE_ANNOTATION_TITLE,
+          summary: STEAMPIPE_ANNOTATION_SUMMARY,
           annotations: batch
         }
       });
@@ -101,7 +102,7 @@ function getAnnotationsForControl(controlRun: ControlRun): Array<Annotation> {
   const annotations: Array<Annotation> = []
 
   for (let result of controlRun.results || []) {
-    if (result.status != 'alarm' && result.status != 'error') {
+    if (result.status != STEAMPIPE_MOD_RUN_STATUS_ALARM && result.status != STEAMPIPE_MOD_RUN_STATUS_ERROR) {
       continue
     }
 
@@ -121,7 +122,7 @@ function getAnnotationsForControl(controlRun: ControlRun): Array<Annotation> {
         path: fileName.replace(process.cwd() + "/", ''),
         start_line: parseInt(lineNumber),
         end_line: parseInt(lineNumber),
-        annotation_level: 'failure',
+        annotation_level: STEAMPIPE_ANNOTATION_LEVEL,
         message: result.reason,
         start_column: 0,
         end_column: 0,
@@ -131,61 +132,3 @@ function getAnnotationsForControl(controlRun: ControlRun): Array<Annotation> {
 
   return annotations;
 }
-
-export interface Annotation {
-  path: string;
-  start_line: number;
-  end_line: number;
-  annotation_level: string;
-  message: string;
-  start_column: number;
-  end_column: number;
-}
-
-interface Status {
-  alarm?: number;
-  ok?: number;
-  info?: number;
-  skip?: number;
-  error?: number;
-}
-
-interface Summary {
-  status?: Status;
-}
-
-interface Dimension {
-  key?: string;
-  value?: string;
-}
-
-interface ControlResult {
-  reason?: string;
-  resource?: string;
-  status?: string;
-  dimensions?: Dimension[];
-}
-
-interface ControlRun {
-  summary?: Status;
-  results?: ControlResult[];
-  controlId?: string;
-  description?: string;
-  severity?: string;
-  tags?: string;
-  title?: string;
-  runStatus?: number;
-  runError?: string;
-}
-
-interface GroupResult {
-  groupId?: string;
-  title?: string;
-  description?: string;
-  tags?: string;
-  summary?: Summary;
-  groups: GroupResult[] | null;
-  controls: ControlRun[] | null;
-}
-
-type RootResult = GroupResult

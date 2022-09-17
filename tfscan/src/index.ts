@@ -2,8 +2,10 @@ import { addPath, endGroup, setFailed, startGroup } from "@actions/core";
 import { info } from "console";
 import { appendFile, copyFile, readdir, readFile, stat, unlink, writeFile } from "fs/promises";
 import { extname } from "path";
-import { Annotation, pushAnnotations, getAnnotations, parseResultFile } from "./annotate";
+import { pushAnnotations, getAnnotations, parseResultFile } from "./annotate";
+import { STEAMPIPE_KEY, STEAMPIPE_MOD_EXPORT_FILE_MD, STEAMPIPE_MOD_OUTPUT_FILE_EXTN_JSON, STEAMPIPE_MOD_OUTPUT_FILE_EXTN_MD } from "./constants";
 import { ActionInput } from "./input";
+import { Annotation } from "./models/annotate-models";
 import { downloadAndDeflateSteampipe, installMod, installTerraform as installTerraformPlugin, installSteampipe as installSteampipeCLI, runSteampipeCheck, writeConnections as writeConnectionForPlugin } from "./steampipe";
 
 async function run() {
@@ -15,7 +17,7 @@ async function run() {
     // if this fails for some reason, we cannot continue
     const modPath = await installMod(inputs.modRepository)
 
-    const steampipePath = `${await downloadAndDeflateSteampipe(inputs.version)}/steampipe`;
+    const steampipePath = `${await downloadAndDeflateSteampipe(inputs.version)}/${STEAMPIPE_KEY}`;
     await installSteampipeCLI(steampipePath)
     await installTerraformPlugin(steampipePath)
     await writeConnectionForPlugin(inputs)
@@ -25,7 +27,7 @@ async function run() {
 
     try {
       // since `steampipe check` may exit with a non-zero exit code - this is normal
-      await runSteampipeCheck(steampipePath, modPath, inputs, ["json", "md"])
+      await runSteampipeCheck(steampipePath, modPath, inputs, [STEAMPIPE_MOD_OUTPUT_FILE_EXTN_JSON, STEAMPIPE_MOD_OUTPUT_FILE_EXTN_MD])
     }
     catch (e) {
       //throw e
@@ -60,9 +62,9 @@ async function exportStepSummary(input: ActionInput) {
   info("Fetching output")
   const mdFiles = await getExportedSummaryMarkdownFiles(input)
   info("Combining outputs")
-  await combineFiles(mdFiles, "summary.md")
+  await combineFiles(mdFiles, STEAMPIPE_MOD_EXPORT_FILE_MD)
   info("Pushing to Platform")
-  await copyFile("summary.md", input.summaryFile)
+  await copyFile(STEAMPIPE_MOD_EXPORT_FILE_MD, input.summaryFile)
   removeFiles(mdFiles)
   endGroup()
 }
@@ -82,10 +84,10 @@ async function combineFiles(files: Array<string>, writeTo: string) {
 }
 
 async function getExportedSummaryMarkdownFiles(input: ActionInput) {
-  return await getExportedFileWithExtn(input, "md")
+  return await getExportedFileWithExtn(input, STEAMPIPE_MOD_OUTPUT_FILE_EXTN_MD)
 }
 async function getExportedJSONFiles(input: ActionInput) {
-  return await getExportedFileWithExtn(input, "json")
+  return await getExportedFileWithExtn(input, STEAMPIPE_MOD_OUTPUT_FILE_EXTN_JSON)
 }
 
 async function getExportedFileWithExtn(input: ActionInput, extn: string) {
@@ -93,11 +95,7 @@ async function getExportedFileWithExtn(input: ActionInput, extn: string) {
 
   const dirContents = await readdir(".", { withFileTypes: true })
   for (let d of dirContents) {
-    if (!d.isFile()) {
-      continue
-    }
-
-    if (extname(d.name).length < 2) {
+    if (!d.isFile() || extname(d.name).length < 2) {
       continue
     }
 
