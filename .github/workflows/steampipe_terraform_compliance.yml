@@ -16,7 +16,7 @@ jobs:
 
       - name: Steampipe terraform scan action - with mod & default check all
         continue-on-error: true
-        uses: turbot/steampipe-action/tfscan@tfscan
+        uses: turbot/steampipe-action/tfscan@release/v0.1
         with:
           directory: examples/terraform/aws/
           mod: https://github.com/turbot/steampipe-mod-terraform-aws-compliance.git
