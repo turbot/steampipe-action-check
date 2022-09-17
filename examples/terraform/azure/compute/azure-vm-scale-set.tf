@@ -14,7 +14,7 @@ resource "azurerm_subnet" "named_test_resource" {
   name                 = "test45"
   resource_group_name  = azurerm_resource_group.named_test_resource.name
   virtual_network_name = azurerm_virtual_network.named_test_resource.name
-  address_prefix     = "10.0.2.0/24"
+  address_prefix       = "10.0.2.0/24"
 }
 
 resource "azurerm_public_ip" "named_test_resource" {
@@ -47,8 +47,8 @@ resource "azurerm_linux_virtual_machine_scale_set" "named_test_resource" {
 
   sku = "Standard_F2"
 
-  instances           = 1
-  admin_username      = "adminuser"
+  instances      = 1
+  admin_username = "adminuser"
 
   source_image_reference {
     publisher = "Canonical"

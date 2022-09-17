@@ -1,5 +1,5 @@
 resource "google_compute_subnetwork" "compute_subnetwork_private_ip_google_access" {
-  name          = "ipv6-test-subnetwork"
+  name = "ipv6-test-subnetwork"
 
   ip_cidr_range = "10.0.0.0/22"
   region        = "us-west2"
@@ -9,7 +9,7 @@ resource "google_compute_subnetwork" "compute_subnetwork_private_ip_google_acces
 
   private_ip_google_access = true
 
-  network       = google_compute_network.compute_subnetwork_private_ip_google_access_test.id
+  network = google_compute_network.compute_subnetwork_private_ip_google_access_test.id
 }
 
 resource "google_compute_network" "compute_subnetwork_private_ip_google_access_test" {
