@@ -13408,10 +13408,6 @@ async function pushAnnotations(input, annotations) {
 }
 exports.pushAnnotations = pushAnnotations;
 async function parseResultFile(filePath) {
-    if (github_1.context.payload.pull_request == null) {
-        (0, core_1.setFailed)('No pull request found.');
-        return null;
-    }
     const fileContent = await (0, promises_1.readFile)(filePath);
     return JSON.parse(fileContent.toString());
 }
@@ -13509,7 +13505,7 @@ class ActionInput {
     }
     async validate() {
         if (this.modRepository.trim().length == 0) {
-            throw new Error("a mod repository is required");
+            throw new Error("a mod repository is required to run this action. Head over to https://hub.steampipe.io/mods?q=terraform for mods you can run with this action.");
         }
     }
 }
@@ -13524,7 +13520,7 @@ exports.ActionInput = ActionInput;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.runSteampipeCheck = exports.writeConnections = exports.installMod = exports.installTerraform = exports.installSteampipe = exports.downloadAndDeflateSteampipe = void 0;
+exports.runSteampipeCheck = exports.writeConnections = exports.installMod = exports.installTerraformPlugin = exports.installSteampipe = exports.downloadAndDeflateSteampipe = void 0;
 const core_1 = __nccwpck_require__(2186);
 const exec_1 = __nccwpck_require__(1514);
 const io_1 = __nccwpck_require__(7436);
@@ -13587,13 +13583,12 @@ async function installSteampipe(cliCmd = "steampipe") {
 }
 exports.installSteampipe = installSteampipe;
 /**
- * Installs the list of steampipe plugins
+ * Installs the terraform steampipe plugins
  *
  * @param cliCmd THe path to the steampipe binary
- * @param plugins `Array<string>` - an array of steampipe plugins to install. Passed to `steampipe plugin install` as-is
  * @returns
  */
-async function installTerraform(cliCmd = "steampipe") {
+async function installTerraformPlugin(cliCmd = "steampipe") {
     (0, core_1.startGroup)("Installing plugins");
     (0, core_1.info)(`Installing 'terraform@latest'`);
     await (0, exec_1.exec)(cliCmd, ["plugin", "install", "terraform"], { silent: true });
@@ -13601,7 +13596,7 @@ async function installTerraform(cliCmd = "steampipe") {
     (0, core_1.endGroup)();
     return;
 }
-exports.installTerraform = installTerraform;
+exports.installTerraformPlugin = installTerraformPlugin;
 /**
  * Installs a mod from the given Git Clone URL.
  * Forwards the GitURL as-is to `git clone`
@@ -13615,7 +13610,13 @@ async function installMod(modRepository = "") {
     (0, core_1.startGroup)("Installing Mod");
     const cloneTo = `workspace_dir_${github_1.context.runId}_${new Date().getTime()}`;
     (0, core_1.info)(`Installing mod from ${modRepository}`);
-    await (0, exec_1.exec)(await (0, io_1.which)("git", true), ["clone", modRepository, cloneTo], { silent: false });
+    try {
+        await (0, exec_1.exec)(await (0, io_1.which)("git", true), ["clone", modRepository, cloneTo], { silent: false });
+    }
+    catch (e) {
+        (0, core_1.endGroup)();
+        throw new Error("error while trying to clone the mod: ", e);
+    }
     (0, core_1.endGroup)();
     return cloneTo;
 }
@@ -13630,6 +13631,9 @@ async function writeConnections(input) {
     const d = new Date();
     const configDir = `${process_1.env["HOME"]}/.steampipe/config`;
     (0, core_1.debug)("Cleaning up old config directory");
+    // clean up the config directory
+    // this will take care of any default configs done during plugin installation
+    // and also configs which were created in steps above this step which uses this action.
     cleanConnectionConfigDir(configDir);
     const configFileName = `config_${github_1.context.runId}.spc`;
     (0, core_1.info)("Writing connection data");
@@ -13950,6 +13954,7 @@ var exports = __webpack_exports__;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const core_1 = __nccwpck_require__(2186);
+const github_1 = __nccwpck_require__(5438);
 const console_1 = __nccwpck_require__(6206);
 const promises_1 = __nccwpck_require__(3292);
 const path_1 = __nccwpck_require__(1017);
@@ -13965,8 +13970,13 @@ async function run() {
         const modPath = await (0, steampipe_1.installMod)(inputs.modRepository);
         const steampipePath = `${await (0, steampipe_1.downloadAndDeflateSteampipe)(inputs.version)}/steampipe`;
         await (0, steampipe_1.installSteampipe)(steampipePath);
-        await (0, steampipe_1.installTerraform)(steampipePath);
-        await (0, steampipe_1.writeConnections)(inputs);
+        await (0, steampipe_1.installTerraformPlugin)(steampipePath);
+        try {
+            await (0, steampipe_1.writeConnections)(inputs);
+        }
+        catch (e) {
+            throw new Error("error trying to create connection", e);
+        }
         // add the path to the Steampipe CLI so that it can be used by subsequent steps if required
         (0, core_1.addPath)(steampipePath);
         try {
@@ -13974,7 +13984,7 @@ async function run() {
             await (0, steampipe_1.runSteampipeCheck)(steampipePath, modPath, inputs, ["json", "md"]);
         }
         catch (e) {
-            //throw e
+            // throw e
         }
         finally {
             await exportStepSummary(inputs);
@@ -13986,6 +13996,9 @@ async function run() {
     }
 }
 async function exportAnnotations(input) {
+    if (github_1.context.payload.pull_request == null) {
+        return;
+    }
     (0, core_1.startGroup)("Processing output");
     (0, console_1.info)("Fetching output");
     const jsonFiles = await getExportedJSONFiles(input);

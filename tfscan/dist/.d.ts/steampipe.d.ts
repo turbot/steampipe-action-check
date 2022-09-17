@@ -19,13 +19,12 @@ export declare function downloadAndDeflateSteampipe(version?: string): Promise<s
  */
 export declare function installSteampipe(cliCmd?: string): Promise<void>;
 /**
- * Installs the list of steampipe plugins
+ * Installs the terraform steampipe plugins
  *
  * @param cliCmd THe path to the steampipe binary
- * @param plugins `Array<string>` - an array of steampipe plugins to install. Passed to `steampipe plugin install` as-is
  * @returns
  */
-export declare function installTerraform(cliCmd?: string): Promise<void>;
+export declare function installTerraformPlugin(cliCmd?: string): Promise<void>;
 /**
  * Installs a mod from the given Git Clone URL.
  * Forwards the GitURL as-is to `git clone`
