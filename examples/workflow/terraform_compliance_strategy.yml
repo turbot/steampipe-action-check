@@ -15,7 +15,7 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v3
       - name: Run Steampipe Terraform Compliance - ${{ matrix.folder }}
-        uses: ./tfscan
+        uses: turbot/steampipe-action/tfscan
         with:
           version: latest
           mod: 'https://github.com/turbot/steampipe-mod-terraform-${{ matrix.folder }}-compliance.git'

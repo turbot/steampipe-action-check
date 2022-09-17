@@ -12,7 +12,7 @@ data "aws_ami" "ubuntu" {
 resource "aws_instance" "rajweb2" {
   ami           = data.aws_ami.ubuntu.id
   instance_type = "t3.medium"
-  ebs_optimized = true
+  ebs_optimized = false
   monitoring    = true
 
   root_block_device {
