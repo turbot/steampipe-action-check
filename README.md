@@ -69,3 +69,5 @@ Workflow with annotation
 
 Workflow with summarized execution
 ![](images/workflow_summarized.png)
+
+![License](https://img.shields.io/badge/license-Apache-blue)  &nbsp;
