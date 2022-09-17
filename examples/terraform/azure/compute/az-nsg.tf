@@ -9,7 +9,7 @@ resource "azurerm_resource_group" "example" {
 resource "azurerm_network_security_group" "example" {
   name                = "acceptanceTestSecurityGroup1"
   resource_group_name = azurerm_resource_group.example.name
-  location = azurerm_resource_group.example.location
+  location            = azurerm_resource_group.example.location
 }
 
 resource "azurerm_network_security_rule" "example" {
