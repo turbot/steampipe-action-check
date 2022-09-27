@@ -7,7 +7,7 @@
 [![OCI Terraform Compliance](https://img.shields.io/badge/terraform-OCI_Compliance-red)](https://hub.steampipe.io/mods/turbot/terraform_oci_compliance) &nbsp;
 ![License](https://img.shields.io/badge/license-Apache-blue)  &nbsp;
 
-Steampipe GitHub action is used for scanning infrastructure-as-code and other compliance checks in your GitHub workflow pipeline. By utilizing this GitHub action, you can automatically start to monitor your project for configuration issues in Terraform.
+Steampipe GitHub action is used for scanning infrastructure-as-code checks in your GitHub workflow pipeline. By utilizing this GitHub action, you can automatically start to monitor your project for configuration issues in Terraform.
 
 **Note** Currently it supports [AWS](https://hub.steampipe.io/mods/turbot/terraform_aws_compliance), [Azure](https://hub.steampipe.io/mods/turbot/terraform_azure_compliance), [GCP](https://hub.steampipe.io/mods/turbot/terraform_gcp_compliance) and [OCI](https://hub.steampipe.io/mods/turbot/terraform_oci_compliance) terraform configuration checks.
 
