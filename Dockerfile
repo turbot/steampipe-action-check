@@ -7,7 +7,7 @@ FROM alpine:3.10
 # Add a new user "nonroot" with user id 8877
 RUN adduser -u 8877 --disabled-password nonroot
 # Change to non-root privilege
-USER nonroot
+# USER nonroot
 
 
 # Copies your code file from your action repository to the filesystem path `/` of the container
