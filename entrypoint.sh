@@ -1,11 +1,12 @@
 #!/bin/sh
 
-set -xe
+# set -xe
 
-echo "Hello $1"
-if ["$1" == "latest"]
+echo "Hello $INPUT_STEAMPIPE_VERSION"
+if [ "$INPUT_STEAMPIPE_VERSION" == "latest" ]
 then
   echo "latest"
 else
   echo "not latest"
 fi
+uname -m
