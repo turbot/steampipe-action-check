@@ -13,4 +13,4 @@ jobs:
         uses: ./ # Uses an action in the root directory
         id: hello
         with:
-          steampipe-version: latest
+          steampipe_version: latest
