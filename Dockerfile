@@ -5,7 +5,7 @@ FROM alpine:3.10
 #     && rm -rf /var/cache/apk/*
 
 # Add a new user "nonroot" with user id 8877
-RUN adduser -u 8877 nonroot
+RUN adduser -u 8877 --disabled-password nonroot
 # Change to non-root privilege
 USER nonroot
 
