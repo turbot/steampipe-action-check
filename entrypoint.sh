@@ -9,4 +9,4 @@ then
 else
   echo "not latest"
 fi
-uname -m
+uname -mp
