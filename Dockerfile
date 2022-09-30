@@ -4,10 +4,10 @@ FROM alpine:3.10
 # RUN apk --no-cache --update add bash git \
 #     && rm -rf /var/cache/apk/*
 
-# Add a new user "john" with user id 8877
-RUN useradd -u 8877 john
+# Add a new user "nonroot" with user id 8877
+RUN adduser -u 8877 nonroot
 # Change to non-root privilege
-USER john
+USER nonroot
 
 
 # Copies your code file from your action repository to the filesystem path `/` of the container
