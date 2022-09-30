@@ -9,8 +9,8 @@ branding:
 inputs:
   mod:
     description: "Git URL of specific terraform compliance mod that will be installed. This will be passed on to `git clone`"
-    required: true
-  version:
+    required: false
+  steampipe_version:
     description: "The version number of Steampipe that will be installed"
     required: false
     default: "latest"
@@ -36,9 +36,11 @@ inputs:
     default: ""
   github-token:
     description: "The token is used for fetching patch of a pull request to show only new issues"
-    default: ${{ github.token }}
     required: false
+    default: ${{ github.token }}
 
 runs:
-  using: node16
-  main: dist/index.js
+  using: 'docker'
+  image: 'Dockerfile'
+  args:
+    - ${{ inputs.steampipe_version }}
