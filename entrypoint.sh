@@ -2,13 +2,18 @@
 
 # set -xe
 
-echo "Hello $INPUT_STEAMPIPE_VERSION"
 if [ "$INPUT_STEAMPIPE_VERSION" == "latest" ]
 then
   echo "latest"
-  wget "https://github.com/turbot/steampipe/releases/latest/download/steampipe_linux_amd64.tar.gz"
+  # wget -c "https://github.com/turbot/steampipe/releases/latest/download/steampipe_linux_amd64.tar.gz" -O - | tar -xz
+  wget -c "https://github.com/turbot/steampipe/releases/latest/download/steampipe_linux_amd64.tar.gz" && tar -xzf  steampipe_linux_amd64.tar.gz -C ./
+  ./steampipe query "select 1"
+
 else
   echo "not latest"
-  wget "https://github.com/turbot/steampipe/releases/download/v0.16.4/steampipe_linux_amd64.tar.gz"
+  # wget -c "https://github.com/turbot/steampipe/releases/download/v0.16.4/steampipe_linux_amd64.tar.gz" -O - | tar -xz
+  wget -c "https://github.com/turbot/steampipe/releases/download/v0.16.4/steampipe_linux_amd64.tar.gz" && tar -xzf  steampipe_linux_amd64.tar.gz -C ./
+  ./steampipe query "select 1"
 fi
-uname -mp
+
+
