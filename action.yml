@@ -45,3 +45,7 @@ inputs:
 runs:
   using: 'docker'
   image: 'Dockerfile'
+  args:
+    - ${{ inputs.mod_url }}
+    - ${{ inputs.plugin }}
+    - ${{ inputs.steampipe_version }}
