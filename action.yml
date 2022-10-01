@@ -7,13 +7,16 @@ branding:
   icon: "shield"
 
 inputs:
-  mod:
+  mod_url:
     description: "Git URL of specific terraform compliance mod that will be installed. This will be passed on to `git clone`"
     required: false
   steampipe_version:
     description: "The version number of Steampipe that will be installed"
     required: false
     default: "latest"
+  plugin:
+    description: "Git URL of specific terraform compliance mod that will be installed. This will be passed on to `git clone`"
+    required: false
   run:
     description: "A list of benchmarks and controls to run (comma-separated). If no value is specified, it runs `check all`"
     required: false
