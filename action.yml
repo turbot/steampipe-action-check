@@ -20,7 +20,7 @@ inputs:
   run:
     description: "A list of benchmarks and controls to run (comma-separated). If no value is specified, it runs `check all`"
     required: false
-    default: ""
+    default: "all"
   directory:
     description: "Directory with infrastructure code to scan explicitly, if not specified, it considers root of the repository as default"
     required: false
@@ -45,7 +45,7 @@ inputs:
 runs:
   using: 'docker'
   image: 'Dockerfile'
-  args:
-    - ${{ inputs.mod_url }}
-    - ${{ inputs.plugin }}
-    - ${{ inputs.steampipe_version }}
+  # args:
+  #   - ${{ inputs.mod_url }}
+  #   - ${{ inputs.plugin }}
+  #   - ${{ inputs.steampipe_version }}
