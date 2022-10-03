@@ -9,11 +9,11 @@ setup_plugin()
   
   # Add config file
   export X=0
-  echo "\nconnection \"$INPUT_PLUGIN$X\" {" > ~/.steampipe/config/terraform.spc
-  echo "  plugin = \"$INPUT_PLUGIN\"" >> ~/.steampipe/config/terraform.spc
-  echo "  paths = [ \"/home/steampipe/**/*.tf\" ]" >> ~/.steampipe/config/terraform.spc
-  echo "}" >> ~/.steampipe/config/terraform.spc
-  cat ~/.steampipe/config/terraform.spc
+  echo "\nconnection \"$INPUT_PLUGIN$X\" {" > /home/steampipe/.steampipe/config/terraform.spc
+  echo "  plugin = \"$INPUT_PLUGIN\"" >> /home/steampipe/.steampipe/config/terraform.spc
+  echo "  paths = [ \"/home/steampipe/**/*.tf\" ]" >> /home/steampipe/.steampipe/config/terraform.spc
+  echo "}" >> /home/steampipe/.steampipe/config/terraform.spc
+  cat /home/steampipe/.steampipe/config/terraform.spc
 }
 
 run_infra_check() {
