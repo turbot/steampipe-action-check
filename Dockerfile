@@ -1,14 +1,14 @@
-FROM turbot/steampipe
+FROM gcr.io/distroless/nodejs20-debian11
 
-# Setup prerequisites (as root)
-USER root:0
+RUN apk --no-cache --update add \
+    curl \
+    git \
+    && rm -rf /var/cache/apk/*
 
-RUN apt-get update -y \
- && apt-get install -y git
- 
-RUN echo $steampipe_version
+COPY ./entrypoint.sh /entrypoint.sh
 
-USER steampipe:0
+RUN chmod +x /entrypoint.sh
 
-# Code file to execute when the docker container starts up (`entrypoint.sh`)
-ENTRYPOINT ["./entrypoint.sh"]
+COPY ./ /app
+
+ENTRYPOINT ["/entrypoint.sh"]

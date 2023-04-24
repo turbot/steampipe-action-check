@@ -25,18 +25,6 @@ inputs:
     description: "Directory with infrastructure code to scan explicitly, if not specified, it considers root of the repository as default"
     required: false
     default: "."
-  output:
-    description: "The console output format. Possible values are brief, csv, html, json, md, text or none"
-    required: false
-    default: "text"
-  export:
-    description: "Export output to a file. Supported export formats are asff, csv, html, json and md"
-    required: false
-    default: ""
-  where:
-    description: "Filter the list of controls to run, using a `sql` where clause against the `steampipe_control` reflection table"
-    required: false
-    default: ""
   github-token:
     description: "The token is used for fetching patch of a pull request to show only new issues"
     required: false
@@ -45,7 +33,3 @@ inputs:
 runs:
   using: 'docker'
   image: 'Dockerfile'
-  # args:
-  #   - ${{ inputs.mod_url }}
-  #   - ${{ inputs.plugin }}
-  #   - ${{ inputs.steampipe_version }}
