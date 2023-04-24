@@ -14,6 +14,7 @@ RUN chmod +x /entrypoint.sh
 # switch to the non-root steampipe user which we inherit from the base image
 USER steampipe
 
-COPY ./src /js-app
+RUN npm run ncc
+COPY ./dist /js-app
 
 ENTRYPOINT ["/entrypoint.sh"]
