@@ -2,7 +2,7 @@
 
 set -e
 
-INSTALL_DIR=~/install
+INSTALL_DIR=./sp_install
 PLUGIN_NAME=terraform
 
 RunList=
