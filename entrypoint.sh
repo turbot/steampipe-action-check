@@ -2,11 +2,11 @@
 
 set -xe
 
-INSTALL_DIR=/install
-PLUGIN_NAME=terraform
+readonly INSTALL_DIR=/install
+readonly PLUGIN_NAME=terraform
 
 RunList=()
-if [ -z "$INPUT_RUN" ];then
+if [ -z "$INPUT_RUN" ]; then
   RunList=("all")
 else
   while read -r line; do
@@ -14,11 +14,11 @@ else
   done <<< "$INPUT_RUN"
 fi
 
-steampipe query "select 1" --install-dir $INSTALL_DIR
+steampipe query "select 1" --install-dir "$INSTALL_DIR"
 
 setup_plugin()
 {
-  steampipe plugin install $PLUGIN_NAME --install-dir $INSTALL_DIR
+  steampipe plugin install "$PLUGIN_NAME" --install-dir "$INSTALL_DIR"
   
   connection_data="
 connection \"terraform\" {
@@ -28,9 +28,9 @@ connection \"terraform\" {
 "
 
   # Add config file
-  echo $connection_data >> $INSTALL_DIR/config/terraform.spc
+  echo "$connection_data" >> "$INSTALL_DIR/config/terraform.spc"
   echo "Wrote connection file:"
-  cat $INSTALL_DIR/config/terraform.spc
+  cat "$INSTALL_DIR/config/terraform.spc"
   echo "<<<<<<<<<<<<<<<<<<<<<<"
 }
 
@@ -39,6 +39,7 @@ run_infra_check() {
     echo "S"
   else
     echo "F"
+    exit 1 # Exit with non-zero status code to indicate failure
   fi
 }
 
