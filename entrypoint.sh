@@ -17,7 +17,7 @@ setup_plugin()
 }
 
 run_infra_check() {
-  if steampipe check $INPUT_RUN ; then
+  if steampipe check $INPUT_RUN --export=check.json; then
     echo "Success"
   else
     echo "Fail"
@@ -28,6 +28,7 @@ run_infra_check() {
 setup_plugin
 
 # Copy infra files
+pwd
 cp -r examples/terraform/aws /home/steampipe/aws
 
 # Mod installation
