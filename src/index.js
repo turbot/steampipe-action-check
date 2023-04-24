@@ -17,4 +17,5 @@ async function run() {
   }
 }
 
-run()
+// run()
+console.log("Now we will annotate the PR with the JS code that is getting executed")
