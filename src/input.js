@@ -2,12 +2,12 @@ import { getInput } from "@actions/core";
 import { env } from "process";
 
 export class ActionInput {
-  private run: Array<string>;
-  scanDirectory: string;
-  where: string | null;
-  output: string;
-  export: Array<string>;
-  ghToken: string;
+  run;
+  scanDirectory;
+  where;
+  output;
+  export;
+  ghToken;
 
   constructor() {
     this.run = getInput("run", { required: false, trimWhitespace: true })
@@ -26,7 +26,7 @@ export class ActionInput {
     }
   }
 
-  public getRun(): Array<string> {
+  getRun = () => {
     if (this.run.length == 0) {
       this.run = ["all"]
     }

@@ -2,18 +2,18 @@ import { appendFile, readdir, readFile, unlink, writeFile } from "fs/promises";
 import { extname } from "path";
 import { ActionInput } from "./input";
 
-export async function removeFiles(files: Array<string>) {
+export async function removeFiles(files) {
   for (let f of files) {
     await unlink(f)
   }
 }
 
-export async function getExportedJSONFiles(input: ActionInput) {
+export async function getExportedJSONFiles(input) {
   return await getExportedFileWithExtn(input, "json")
 }
 
-async function getExportedFileWithExtn(input: ActionInput, extn: string) {
-  let files = new Array<string>()
+async function getExportedFileWithExtn(input, extn) {
+  let files = []
 
   const dirContents = await readdir(".", { withFileTypes: true })
   for (let d of dirContents) {

@@ -6,14 +6,14 @@ import { Annotation, ControlRun, GroupResult, RootResult } from "./annotate-mode
 import { ActionInput } from "./input";
 import * as utils from "./utils";
 
-export async function processAnnotations(input: ActionInput) {
+export async function processAnnotations(input) {
   if (context.payload.pull_request == null) {
     return
   }
   startGroup("Processing output")
   info("Fetching output")
   const jsonFiles = await utils.getExportedJSONFiles(input)
-  const annotations: Array<Annotation> = []
+  const annotations = []
   for (let j of jsonFiles) {
     const result = await parseResultFile(j)
     annotations.push(...getAnnotations(result))
@@ -30,16 +30,16 @@ export async function processAnnotations(input: ActionInput) {
  * @param group GroupResult The group result returned by `steampipe check`
  * @returns 
  */
-export function getAnnotations(result: RootResult): Array<Annotation> {
+export function getAnnotations(result) {
   if (result === null) {
     return null
   }
   return getAnnotationsForGroup(result)
 }
 
-export async function parseResultFile(filePath: string): Promise<RootResult> {
+export async function parseResultFile(filePath) {
   const fileContent = await readFile(filePath)
-  return (JSON.parse(fileContent.toString()) as RootResult)
+  return JSON.parse(fileContent.toString())
 }
 
 /**
@@ -47,7 +47,7 @@ export async function parseResultFile(filePath: string): Promise<RootResult> {
  * 
  * @param annotations Array<Annotation> Pushed a set of annotations to github
  */
-export async function pushAnnotations(input: ActionInput, annotations: Array<Annotation>) {
+export async function pushAnnotations(input, annotations) {
 
   try {
 
@@ -56,7 +56,7 @@ export async function pushAnnotations(input: ActionInput, annotations: Array<Ann
       return
     }
 
-    const batches: Array<Array<Annotation>> = []
+    const batches = []
 
     for (let ann of annotations) {
       if (batches.length == 0) {
@@ -95,8 +95,8 @@ export async function pushAnnotations(input: ActionInput, annotations: Array<Ann
   }
 }
 
-function getAnnotationsForGroup(group: GroupResult): Array<Annotation> {
-  const annotations: Array<Annotation> = []
+function getAnnotationsForGroup(group) {
+  const annotations = []
   if (group.groups) {
     for (let g of group.groups) {
       const ann = getAnnotationsForGroup(g)
@@ -112,9 +112,9 @@ function getAnnotationsForGroup(group: GroupResult): Array<Annotation> {
   return annotations
 }
 
-function getAnnotationsForControl(controlRun: ControlRun): Array<Annotation> {
+function getAnnotationsForControl(controlRun) {
   const lineRegex = new RegExp(`.*:[\d]*`)
-  const annotations: Array<Annotation> = []
+  const annotations = []
 
   for (let result of controlRun.results || []) {
     if (result.status != 'alarm' && result.status != 'error') {
