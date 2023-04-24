@@ -31,8 +31,8 @@ runs:
   using: 'docker'
   image: 'Dockerfile'
   args:
-    - ${{steampipe_version}}
-    - ${{mod_url}}
-    - ${{run}}
-    - ${{paths}}
-    - ${{github_token}}
+    - ${{ inputs.steampipe_version }}
+    - ${{ inputs.mod_url }}
+    - ${{ inputs.run }}
+    - ${{ inputs.paths }}
+    - ${{ inputs.github_token }}
