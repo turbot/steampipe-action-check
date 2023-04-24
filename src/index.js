@@ -1,11 +1,16 @@
 import { setFailed } from "@actions/core";
 import { processAnnotations } from "./annotate";
-import { ActionInput } from "./input";
 
 async function run() {
   try {
-    const inputs = new ActionInput()
-    await processAnnotations(inputs)
+
+    token = getInput("github-token", { trimWhitespace: true })
+    run = getInput("run", { trimWhitespace: true })
+    runs = []
+    for (let i = 2; i < process.argv.length; i++) {
+      runs.push(process.argv[i]);
+    }
+    await processAnnotations({ token, runs })
 
   } catch (error) {
     setFailed(error.message);

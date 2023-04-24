@@ -1,6 +1,5 @@
 import { appendFile, readdir, readFile, unlink, writeFile } from "fs/promises";
 import { extname } from "path";
-import { ActionInput } from "./input";
 
 export async function removeFiles(files) {
   for (let f of files) {
@@ -25,7 +24,7 @@ async function getExportedFileWithExtn(input, extn) {
       continue
     }
 
-    for (let r of input.getRun()) {
+    for (let r of input.runs) {
       if (d.name.startsWith(r) && extname(d.name) == `.${extn}`) {
         files.push(d.name)
       }

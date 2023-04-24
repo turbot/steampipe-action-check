@@ -2,8 +2,6 @@ import { endGroup, setFailed, startGroup } from "@actions/core";
 import { context, getOctokit } from "@actions/github";
 import { info } from "console";
 import { readFile } from "fs/promises";
-import { Annotation, ControlRun, GroupResult, RootResult } from "./annotate-models";
-import { ActionInput } from "./input";
 import * as utils from "./utils";
 
 export async function processAnnotations(input) {
@@ -49,49 +47,43 @@ export async function parseResultFile(filePath) {
  */
 export async function pushAnnotations(input, annotations) {
 
-  try {
+  const octokit = getOctokit(input.token);
+  if (annotations === null || annotations.length === 0) {
+    return
+  }
 
-    const octokit = getOctokit(input.ghToken);
-    if (annotations === null || annotations.length === 0) {
-      return
+  const chunks = []
+
+  for (let ann of annotations) {
+    if (chunks.length == 0) {
+      // push in the first one
+      chunks.push([])
     }
 
-    const batches = []
+    // check if the last one has reached limit
+    if (chunks[chunks.length - 1].length > 49) {
+      chunks.push([])
+    }
 
-    for (let ann of annotations) {
-      if (batches.length == 0) {
-        // push in the first one
-        batches.push([])
+    // push this one to the last one
+    chunks[chunks.length - 1].push(ann)
+  }
+
+  for (let chunk of chunks) {
+    await octokit.rest.checks.create({
+      ...context.repo,
+      pull_number: context.payload.pull_request.number,
+      head_sha: context.payload.pull_request['head']['sha'],
+      check_run_id: context.runId,
+      name: 'tfscan',
+      status: 'completed',
+      conclusion: 'action_required',
+      output: {
+        title: 'Steampipe tfscan',
+        summary: 'Terraform Validation Failed',
+        annotations: chunk
       }
-
-      // check if the last one has reached limit
-      if (batches[batches.length - 1].length > 49) {
-        batches.push([])
-      }
-
-      // push this one to the last one
-      batches[batches.length - 1].push(ann)
-    }
-
-    for (let batch of batches) {
-      await octokit.rest.checks.create({
-        ...context.repo,
-        pull_number: context.payload.pull_request.number,
-        head_sha: context.payload.pull_request['head']['sha'],
-        check_run_id: context.runId,
-        name: 'tfscan',
-        status: 'completed',
-        conclusion: 'action_required',
-        output: {
-          title: 'Steampipe tfscan',
-          summary: 'Terraform Validation Failed',
-          annotations: batch
-        }
-      });
-    }
-
-  } catch (error) {
-    setFailed(error);
+    });
   }
 }
 
