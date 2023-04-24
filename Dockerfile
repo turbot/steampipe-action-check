@@ -1,8 +1,9 @@
-FROM debian:bullseye-slim
+ARG INPUT_STEAMPIPE_VERSION="latest"
+FROM ghcr.io/turbot/steampipe:${INPUT_STEAMPIPE_VERSION}
 LABEL maintainer="Turbot Support <help@turbot.com>"
 
+USER root
 RUN apt update
-RUN apt install -y curl
 RUN curl -fsSL https://deb.nodesource.com/setup_current.x | bash -
 RUN apt install -y nodejs
 

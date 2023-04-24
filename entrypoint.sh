@@ -2,20 +2,6 @@
 
 set -xe
 
-# install steampipe
-RUN=$INPUT_RUN
-VERSION_TO_INSTALL=
-if [ -z "$INPUT_STEAMPIPE_VERSION" ]
-then
-  echo ""
-else
-  VERSION_TO_INSTALL=$INPUT_STEAMPIPE_VERSION
-fi
-
-curl https://raw.githubusercontent.com/turbot/steampipe/main/install.sh -o /tmp/install.sh
-chmod +x /tmp/install.sh 
-/tmp/install.sh $VERSION_TO_INSTALL
-
 SP=$(which steampipe)
 
 INSTALL_DIR=/install
