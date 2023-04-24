@@ -14,14 +14,11 @@ inputs:
     description: "The version number of Steampipe that will be installed"
     required: false
     default: "latest"
-  plugin:
-    description: "Git URL of specific terraform compliance mod that will be installed. This will be passed on to `git clone`"
-    required: false
   run:
     description: "A list of benchmarks and controls to run (comma-separated). If no value is specified, it runs `check all`"
     required: false
     default: "all"
-  directory:
+  paths:
     description: "Directory with infrastructure code to scan explicitly, if not specified, it considers root of the repository as default"
     required: false
     default: "."
@@ -33,3 +30,9 @@ inputs:
 runs:
   using: 'docker'
   image: 'Dockerfile'
+  args:
+    - ${{steampipe_version}}
+    - ${{mod_url}}
+    - ${{run}}
+    - ${{paths}}
+    - ${{github_token}}
