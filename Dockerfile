@@ -14,9 +14,6 @@ RUN chmod +x /entrypoint.sh
 # switch to the non-root steampipe user which we inherit from the base image
 USER steampipe
 
-# Tell docker that all future commands should run as the appuser user
-USER steampipeuser
-
 COPY ./src /js-app
 
 ENTRYPOINT ["/entrypoint.sh"]
