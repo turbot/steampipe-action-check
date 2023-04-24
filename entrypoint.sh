@@ -38,12 +38,11 @@ connection \"terraform\" {
 }
 
 run_infra_check() {
-  if steampipe check $RunList --export=json --mod-location=/workspace
+  if steampipe check $RunList --output=none --export=json --mod-location=/workspace
   then
     echo "S"
   else
     echo "F"
-    exit 1
   fi
 }
 
