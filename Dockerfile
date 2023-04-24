@@ -13,6 +13,7 @@ RUN chmod +x /entrypoint.sh
 
 # switch to the non-root steampipe user which we inherit from the base image
 USER steampipe
+WORKDIR $GITHUB_WORKSPACE
 
 RUN npm run ncc
 COPY ./dist /js-app
