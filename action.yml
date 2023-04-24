@@ -13,7 +13,7 @@ inputs:
   steampipe_version:
     description: "The version number of Steampipe that will be installed"
     required: false
-    default: "latest"
+    default: ""
   run:
     description: "A list of benchmarks and controls to run (comma-separated). If no value is specified, it runs `check all`"
     required: false
