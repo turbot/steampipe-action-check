@@ -2,7 +2,6 @@
 
 set -e
 
-INSTALL_DIR=./sp_install
 PLUGIN_NAME=terraform
 
 RunList=
@@ -18,11 +17,11 @@ $INPUT_RUN
 EOF
 fi
 
-steampipe query "select 1" --install-dir "$INSTALL_DIR"
+steampipe query "select 1"
 
 setup_plugin()
 {
-  steampipe plugin install "$PLUGIN_NAME" --install-dir "$INSTALL_DIR"
+  steampipe plugin install "$PLUGIN_NAME"
 
   connection_data="
 connection \"terraform\" {
@@ -32,9 +31,9 @@ connection \"terraform\" {
 "
 
   # Add config file
-  printf '%s\n' "$connection_data" > "$INSTALL_DIR/config/terraform.spc"
+  printf '%s\n' "$connection_data" > "~/.steampipe/config/terraform.spc"
   printf '%s\n' "Wrote connection file:"
-  cat "$INSTALL_DIR/config/terraform.spc"
+  cat "~/.steampipe/config/terraform.spc"
   printf '%s\n' "<<<<<<<<<<<<<<<<<<<<<<"
 }
 
