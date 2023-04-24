@@ -2,25 +2,23 @@
 
 set -xe
 
-SP=$(which steampipe)
-
 INSTALL_DIR=/install
 PLUGIN_NAME=terraform
 
 RunList=()
-if [ -z "$RUN" ];then
+if [ -z "$INPUT_RUN" ];then
   RunList=("all")
 else
   while read -r line; do
     RunList+=("$line")
-  done <<< "$RUN"
+  done <<< "$INPUT_RUN"
 fi
 
-$SP query "select 1" --install-dir $INSTALL_DIR
+steampipe query "select 1" --install-dir $INSTALL_DIR
 
 setup_plugin()
 {
-  $SP plugin install $PLUGIN_NAME --install-dir $INSTALL_DIR
+  steampipe plugin install $PLUGIN_NAME --install-dir $INSTALL_DIR
   
   connection_data="
 connection \"terraform\" {
@@ -37,7 +35,7 @@ connection \"terraform\" {
 }
 
 run_infra_check() {
-  if $SP check ${RunList[@]} --export=json --mod-location=/workspace; then
+  if steampipe check ${RunList[@]} --export=json --mod-location=/workspace; then
     echo "S"
   else
     echo "F"
@@ -45,10 +43,6 @@ run_infra_check() {
 }
 
 setup_plugin
-
-# Mod installation
 git clone --depth 1 $INPUT_MOD_URL /workspace
-
 run_infra_check
-
-node /js-app/index.js benchmark.b1 benchmark.b2
+node /js-app/index.js ${RunList[@]}
