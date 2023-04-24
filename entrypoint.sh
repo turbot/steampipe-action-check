@@ -32,7 +32,7 @@ connection \"terraform\" {
 "
 
   # Add config file
-  printf '%s\n' "$connection_data" >> "$INSTALL_DIR/config/terraform.spc"
+  printf '%s\n' "$connection_data" > "$INSTALL_DIR/config/terraform.spc"
   printf '%s\n' "Wrote connection file:"
   cat "$INSTALL_DIR/config/terraform.spc"
   printf '%s\n' "<<<<<<<<<<<<<<<<<<<<<<"
