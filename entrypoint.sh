@@ -31,7 +31,7 @@ connection \"terraform\" {
 "
 
   # Add config file
-  printf '%s\n' "$connection_data" > "~/.steampipe/config/terraform.spc"
+  printf '%s\n' "$connection_data" > "$HOME/.steampipe/config/terraform.spc"
   printf '%s\n' "Wrote connection file:"
   cat "~/.steampipe/config/terraform.spc"
   printf '%s\n' "<<<<<<<<<<<<<<<<<<<<<<"
