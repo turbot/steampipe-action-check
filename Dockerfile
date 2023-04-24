@@ -1,6 +1,7 @@
-FROM gcr.io/distroless/nodejs20-debian11
+FROM node:20-alpine3.16
 
-COPY --chmod=+x ./entrypoint.sh /entrypoint.sh
+COPY ./entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
 
 COPY ./src /js-app
 
