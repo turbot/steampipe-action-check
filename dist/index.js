@@ -9695,36 +9695,37 @@ var external_path_ = __nccwpck_require__(1017);
 
 async function removeFiles(files) {
   for (let f of files) {
-    await (0,promises_namespaceObject.unlink)(f)
+    await (0,promises_namespaceObject.unlink)(f);
   }
 }
 
 async function getExportedJSONFiles(input) {
-  return await getExportedFileWithExtn(input, "json")
+  return await getExportedFileWithExtn(input, "json");
 }
 
 async function getExportedFileWithExtn(input, extn) {
-  let files = []
+  let files = [];
 
-  const dirContents = await (0,promises_namespaceObject.readdir)(".", { withFileTypes: true })
+  const dirContents = await (0,promises_namespaceObject.readdir)(".", { withFileTypes: true });
   for (let d of dirContents) {
     if (!d.isFile()) {
-      continue
+      continue;
     }
 
     if ((0,external_path_.extname)(d.name).length < 2) {
-      continue
+      continue;
     }
 
     for (let r of input.runs) {
       if (d.name.startsWith(r) && (0,external_path_.extname)(d.name) == `.${extn}`) {
-        files.push(d.name)
+        files.push(d.name);
       }
     }
   }
 
-  return files
+  return files;
 }
+
 ;// CONCATENATED MODULE: ./src/annotate.js
 
 
@@ -9734,67 +9735,66 @@ async function getExportedFileWithExtn(input, extn) {
 
 async function processAnnotations(input) {
   if (github.context.payload.pull_request == null) {
-    return
+    return;
   }
-  (0,core.startGroup)("Processing output")
-  ;(0,external_console_namespaceObject.info)("Fetching output")
-  const jsonFiles = await getExportedJSONFiles(input)
-  const annotations = []
+  (0,core.startGroup)("Processing output");
+  (0,external_console_namespaceObject.info)("Fetching output");
+  const jsonFiles = await getExportedJSONFiles(input);
+  const annotations = [];
   for (let j of jsonFiles) {
-    const result = await parseResultFile(j)
-    annotations.push(...getAnnotations(result))
+    const result = await parseResultFile(j);
+    annotations.push(...getAnnotations(result));
   }
-  (0,external_console_namespaceObject.info)(`Pushing Annotations`)
-  await pushAnnotations(input, annotations)
-  removeFiles(jsonFiles)
-  ;(0,core.endGroup)()
+  (0,external_console_namespaceObject.info)(`Pushing Annotations`);
+  await pushAnnotations(input, annotations);
+  removeFiles(jsonFiles);
+  (0,core.endGroup)();
 }
 
 /**
  * Returns an array of annotations for a RootResult
- * 
+ *
  * @param group GroupResult The group result returned by `steampipe check`
- * @returns 
+ * @returns
  */
 function getAnnotations(result) {
   if (result === null) {
-    return null
+    return null;
   }
-  return getAnnotationsForGroup(result)
+  return getAnnotationsForGroup(result);
 }
 
 async function parseResultFile(filePath) {
-  const fileContent = await (0,promises_namespaceObject.readFile)(filePath)
-  return JSON.parse(fileContent.toString())
+  const fileContent = await (0,promises_namespaceObject.readFile)(filePath);
+  return JSON.parse(fileContent.toString());
 }
 
 /**
  * Pushes the annotations to Github.
- * 
+ *
  * @param annotations Array<Annotation> Pushed a set of annotations to github
  */
 async function pushAnnotations(input, annotations) {
-
   const octokit = (0,github.getOctokit)(input.token);
   if (annotations === null || annotations.length === 0) {
-    return
+    return;
   }
 
-  const chunks = []
+  const chunks = [];
 
   for (let ann of annotations) {
     if (chunks.length == 0) {
       // push in the first one
-      chunks.push([])
+      chunks.push([]);
     }
 
     // check if the last one has reached limit
     if (chunks[chunks.length - 1].length > 49) {
-      chunks.push([])
+      chunks.push([]);
     }
 
     // push this one to the last one
-    chunks[chunks.length - 1].push(ann)
+    chunks[chunks.length - 1].push(ann);
   }
 
   for (let chunk of chunks) {
@@ -9803,61 +9803,61 @@ async function pushAnnotations(input, annotations) {
       pull_number: github.context.payload.pull_request.number,
       head_sha: github.context.payload.pull_request.head.sha,
       check_run_id: github.context.runId,
-      name: 'tfscan',
-      status: 'completed',
-      conclusion: 'action_required',
+      name: "tfscan",
+      status: "completed",
+      conclusion: "action_required",
       output: {
-        title: 'Steampipe tfscan',
-        summary: 'Terraform Validation Failed',
-        annotations: chunk
-      }
+        title: "Steampipe tfscan",
+        summary: "Terraform Validation Failed",
+        annotations: chunk,
+      },
     });
   }
 }
 
 function getAnnotationsForGroup(group) {
-  const annotations = []
+  const annotations = [];
   if (group.groups) {
     for (let g of group.groups) {
-      const ann = getAnnotationsForGroup(g)
-      annotations.push(...ann)
+      const ann = getAnnotationsForGroup(g);
+      annotations.push(...ann);
     }
   }
   if (group.controls) {
     for (let c of group.controls) {
-      const ann = getAnnotationsForControl(c)
-      annotations.push(...ann)
+      const ann = getAnnotationsForControl(c);
+      annotations.push(...ann);
     }
   }
-  return annotations
+  return annotations;
 }
 
 function getAnnotationsForControl(controlRun) {
-  const lineRegex = new RegExp(`.*:[\d]*`)
-  const annotations = []
+  const lineRegex = new RegExp(`.*:[\d]*`);
+  const annotations = [];
 
   for (let result of controlRun.results || []) {
-    if (result.status != 'alarm' && result.status != 'error') {
-      continue
+    if (result.status != "alarm" && result.status != "error") {
+      continue;
     }
 
     for (let dim of result.dimensions || []) {
       if ((dim.value || "").trim().length == 0) {
-        continue
+        continue;
       }
 
       if (!lineRegex.test(dim.value || "")) {
         // this is not a file_path:line_number value
-        continue
+        continue;
       }
 
       const [fileName, lineNumber, ...rest] = dim.value.split(":", 2);
 
       annotations.push({
-        path: fileName.replace(process.cwd() + "/", ''),
+        path: fileName.replace(process.cwd() + "/", ""),
         start_line: parseInt(lineNumber),
         end_line: parseInt(lineNumber),
-        annotation_level: 'failure',
+        annotation_level: "failure",
         message: result.reason,
         start_column: 0,
         end_column: 0,
@@ -9867,13 +9867,14 @@ function getAnnotationsForControl(controlRun) {
 
   return annotations;
 }
+
 ;// CONCATENATED MODULE: ./src/index.js
 
 
 
 async function run() {
   try {
-    token = getInput("github-token", { trimWhitespace: true });
+    token = (0,core.getInput)("github-token", { trimWhitespace: true });
     let runs = [];
     for (let i = 2; i < process.argv.length; i++) {
       runs.push(process.argv[i]);
@@ -9884,7 +9885,7 @@ async function run() {
   }
 }
 
-run()
+run();
 
 })();
 
