@@ -78,7 +78,7 @@ runs:
         else
           RunList=
           while read line; do
-            if [ -z $RunList ];then
+            if [ -z "$RunList" ];then
               $RunList=$line
             else
               RunList="$RunList $line"
