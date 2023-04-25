@@ -35,11 +35,9 @@ runs:
     - name: Install Steampipe
       shell: bash
       run: |
-        # curl -fsSL https://raw.githubusercontent.com/turbot/steampipe/main/install.sh -o /tmp/install_steampipe.sh
-        # chmod +x /tmp/install_steampipe.sh
-        # /tmp/install_steampipe.sh ${{ inputs.steampipe_version }}
-
+        su root
         curl https://raw.githubusercontent.com/turbot/steampipe/main/install.sh | bash -s ${{ inputs.steampipe_version }}
+        su -
         steampipe query "select 1"
     - name: Clone Mod
       shell: bash
