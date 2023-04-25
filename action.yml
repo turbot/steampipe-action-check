@@ -85,10 +85,11 @@ runs:
         fi
 
         echo "run_list=$RunList" >> $GITHUB_OUTPUT
+        echo "run_list=$RunList"
     - name: Run Check
       shell: bash
       run: |
-        steampipe check ${{ steps.get-check.outputs.run_list }} --output=none --mod-location="/tmp/mod" --export=json,md --install-dir=/tmp/sp_install_dir
+        steampipe check ${{ steps.get-checks.outputs.run_list }} --output=none --mod-location="/tmp/mod" --export=json,md --install-dir=/tmp/sp_install_dir
         # ignore the 1 exit code which gets set if there are only alarms
         exit_code=$(echo $?)
         if [[ $exit_code -le 1 ]];then
@@ -99,6 +100,6 @@ runs:
     - name: Annotate and Summarize
       shell: bash
       run: |
-        node ${{ github.action_path }}/dist/index.js ${{ steps.get-check.outputs.run_list }}
+        node ${{ github.action_path }}/dist/index.js ${{ steps.get-checks.outputs.run_list }}
       env:
         INPUT_GITHUB-TOKEN: ${{ inputs.github-token }}
