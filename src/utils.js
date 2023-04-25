@@ -1,12 +1,6 @@
 import { extname } from "path";
 import { appendFile, copyFile, readdir, readFile, unlink, writeFile } from "fs/promises";
 
-export async function removeFiles(files) {
-  for (let f of files) {
-    await unlink(f);
-  }
-}
-
 export async function getExportedJSONFiles(input) {
   return await getExportedFileWithExtn(input, "json");
 }
