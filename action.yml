@@ -28,31 +28,11 @@ inputs:
     default: ${{ github.token }}
 
 runs:
-  using: "composite"
-  steps:
-    - id: setup-steampipe
-      shell: bash
-      run: curl -fsSL https://raw.githubusercontent.com/turbot/steampipe/main/install.sh | bash -E
-    - id: setup-node
-      uses: actions/setup-node@v3
-    - id: install-terraform
-      shell: bash
-      run: |
-        steampipe plugin install "$PLUGIN_NAME"
-
-        connection_data="
-          connection \"terraform\" {
-            plugin = \"terraform\"
-            paths = [ \"$INPUT_PATHS/**/*.tf\" ]
-          }
-          "
-
-        # Add config file
-        printf '%s\n' "$connection_data" > "/home/steampipe/.steampipe/config/terraform.spc"
-        printf '%s\n' "Wrote connection file:"
-        cat /home/steampipe/.steampipe/config/terraform.spc
-        printf '%s\n' "<<<<<<<<<<<<<<<<<<<<<<"
-    - id: run-check
-      shell: bash
-      run: |
-        steampipe check ${{inputs.run}} --output=none --export=json --mod-location=/workspace
+  using: 'docker'
+  image: 'Dockerfile'
+  args:
+    - ${{ inputs.steampipe_version }}
+    - ${{ inputs.mod_url }}
+    - ${{ inputs.run }}
+    - ${{ inputs.paths }}
+    - ${{ inputs.github_token }}

@@ -11,12 +11,12 @@ RUN apt install -y nodejs
 COPY ./entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
+# update the access flags so that the steampipe user can write to it
+RUN chmod 777 $GITHUB_WORKSPACE
+
 # switch to the non-root steampipe user which we inherit from the base image
 USER steampipe
 
-RUN cd $GITHUB_WORKSPACE
-RUN npm run ncc
-RUN cd -
 COPY ./dist /js-app
 
 ENTRYPOINT ["/entrypoint.sh"]
