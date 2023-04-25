@@ -43,19 +43,19 @@ runs:
       run: |
         steampipe plugin install terraform --install-dir /tmp/sp_install_dir > /dev/null
         # write config
-        if [ "${{inputs.path}}" -eq "." ];then
+        if [ "${{inputs.path}}" = "." ];then
           connection_data="
-            connection \"terraform\" {
-              plugin = \"terraform\"
-              paths = [ \"./**/*.tf\" ]
-            }
+          connection \"terraform\" {
+            plugin = \"terraform\"
+            paths = [ \"./**/*.tf\" ]
+          }
           "
         else
           connection_data="
-            connection \"terraform\" {
-              plugin = \"terraform\"
-              paths = [ \"${{inputs.path}}\" ]
-            }
+          connection \"terraform\" {
+            plugin = \"terraform\"
+            paths = [ \"${{inputs.path}}\" ]
+          }
           "
         fi
 
