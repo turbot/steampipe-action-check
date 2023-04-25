@@ -63,7 +63,10 @@ runs:
         steampipe check "${{ inputs.run }}" --output=text --mod-location="/tmp/mod" --export=json --install-dir /tmp/sp_install_dir
         # ignore the 1 exit code which gets set if there are only alarms
         exit_code=$(echo $?)
-        if [[ exit_code -gt 1 ]];then
+        if [[ $exit_code -le 1 ]];then
+          # 1 exit code is when we have only alarms but not errors - ignore this
+          exit 0
+        else
           exit $exit_code
         fi
     - name: Annotate
