@@ -18,7 +18,7 @@ inputs:
     description: "A list of benchmarks and controls to run (space-separated). If no value is specified, it runs `check all`"
     required: false
     default: "all"
-  path:
+  paths:
     description: "Directory with infrastructure code to scan explicitly, if not specified, it considers root of the repository as default"
     required: false
     default: "."
@@ -45,7 +45,7 @@ runs:
         # Setup plugin and connection
         steampipe plugin install terraform --install-dir /tmp/sp_install_dir > /dev/null
         # write config
-        if [ "${{inputs.path}}" = "." ];then
+        if [ "${{inputs.paths}}" = "." ];then
           connection_data="
           connection \"terraform\" {
             plugin = \"terraform\"
@@ -56,7 +56,7 @@ runs:
           connection_data="
           connection \"terraform\" {
             plugin = \"terraform\"
-            paths = [ \"${{inputs.path}}\" ]
+            paths = [ \"${{inputs.paths}}\" ]
           }
           "
         fi
@@ -89,9 +89,7 @@ runs:
         ${{ inputs.checks }}
         EOF
         fi
-
         echo "run_list=$RunList" >> $GITHUB_OUTPUT
-        echo "run_list=$RunList"
     - name: Run Check
       shell: bash
       run: |
