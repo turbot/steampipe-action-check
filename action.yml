@@ -61,9 +61,12 @@ runs:
       shell: bash
       run: |
         set +e
-        steampipe check "${{ inputs.run }}" --output=none --mod-location="/tmp/mod" --export=json --install-dir /tmp/sp_install_dir
+        steampipe check "${{ inputs.run }}" --output=none --mod-location="/tmp/mod" --export=json,md --install-dir /tmp/sp_install_dir
         # ignore the 1 exit code which gets set if there are only alarms
         exit_code=$(echo $?)
+        for i in ./*.md; do
+          echo $(cat $i) >> $GITHUB_STEP_SUMMARY
+        done
         if [[ $exit_code -le 1 ]];then
           exit 0
         else
