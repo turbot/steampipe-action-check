@@ -78,17 +78,14 @@ runs:
         else
           RunList=
           while read line; do
-            if [ -z "$RunList" ];then
-              $RunList=$line
-            else
-              RunList="$RunList $line"
-            fi
+            RunList="$RunList $line"
           done <<EOF
         ${{ inputs.checks }}
         EOF
         fi
 
         echo "run_list=$RunList" >> $GITHUB_OUTPUT
+        echo "run_list=$RunList"
     - name: Run Check
       shell: bash
       run: |
