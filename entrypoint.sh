@@ -51,9 +51,9 @@ run_infra_check() {
     echo "F"
   fi
 }
-echo $GITHUB_WORKSPACE/workspace
-chown -R steampipe:0 $GITHUB_WORKSPACE/workspace
-chmod -R 777 $GITHUB_WORKSPACE/workspace
+echo $GITHUB_WORKSPACE
+chown -R steampipe:0 $GITHUB_WORKSPACE
+chmod -R 777 $GITHUB_WORKSPACE
 
 setup_plugin
 git clone --depth 1 "$INPUT_MOD_URL" /workspace

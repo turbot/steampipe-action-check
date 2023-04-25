@@ -30,9 +30,3 @@ inputs:
 runs:
   using: 'docker'
   image: 'Dockerfile'
-  args:
-    - ${{ inputs.steampipe_version }}
-    - ${{ inputs.mod_url }}
-    - ${{ inputs.run }}
-    - ${{ inputs.paths }}
-    - ${{ inputs.github_token }}
