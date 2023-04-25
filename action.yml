@@ -73,5 +73,3 @@ runs:
       shell: bash
       run: |
         node ${{ github.action_path }}/dist/index.js ${{ inputs.run }}
-      with:
-        github-token: ${{ github.token }}
