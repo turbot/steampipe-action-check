@@ -71,16 +71,15 @@ runs:
       shell: bash
       run: |
         set +e
-        echo "${{ inputs.checks }}"
         if [ -z "${{ inputs.checks }}" ]
         then
           RunList="all"
         else
           RunList=
           while read line; do
-            RunList="$RunList $line"
+            RunList="$RunList$line "
           done <<EOF
-        $INPUT_CHECKS
+        ${{ inputs.checks }}
         EOF
         fi
 
