@@ -72,5 +72,6 @@ runs:
     - name: Annotate
       shell: bash
       run: |
-        echo "${{ github.token }}"
         node ${{ github.action_path }}/dist/index.js ${{ inputs.run }}
+      with:
+        github-token: ${{ github.token }}
