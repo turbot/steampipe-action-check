@@ -60,7 +60,7 @@ runs:
     - name: Run Check
       shell: bash
       run: |
-        steampipe check "${{ inputs.run }}" --output=table --mod-location="/tmp/mod" --export=json --install-dir /tmp/sp_install_dir
+        steampipe check "${{ inputs.run }}" --output=text --mod-location="/tmp/mod" --export=json --install-dir /tmp/sp_install_dir
     - name: Annotate
       shell: bash
       run: |
