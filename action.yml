@@ -72,4 +72,4 @@ runs:
     - name: Annotate
       shell: bash
       run: |
-        node ./dist/index.js "${{ inputs.run }}"
+        node ${{ github.action_path }}/dist/index.js "${{ inputs.run }}"
