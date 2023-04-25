@@ -1,4 +1,4 @@
-import { setFailed, getInput } from "@actions/core";
+import { setFailed, getInput, info } from "@actions/core";
 import { processAnnotations } from "./annotate";
 
 async function run() {
@@ -11,7 +11,7 @@ async function run() {
     for (let i = 2; i < process.argv.length; i++) {
       runs.push(process.argv[i]);
     }
-    console.log(`working with runs: ${runs}`)
+    info(`working with runs: ${runs}`)
     await processAnnotations({ token, runs });
   } catch (error) {
     setFailed(error.message);
