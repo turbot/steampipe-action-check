@@ -89,6 +89,8 @@ runs:
     - name: Run Check
       shell: bash
       run: |
+        # set a width value since github uses a non-graphic shell for execution
+        STEAMPIPE_CHECK_DISPLAY_WIDTH=120
         steampipe check ${{ steps.get-checks.outputs.run_list }} --output=brief --mod-location="/tmp/mod" --export=json,md --install-dir=/tmp/sp_install_dir
         # ignore the 1 exit code which gets set if there are only alarms
         exit_code=$(echo $?)
