@@ -65,7 +65,7 @@ runs:
         # ignore the 1 exit code which gets set if there are only alarms
         exit_code=$(echo $?)
         for i in ./*.md; do
-          echo $(cat $i) >> $GITHUB_STEP_SUMMARY
+          cat $i >> $GITHUB_STEP_SUMMARY
         done
         if [[ $exit_code -le 1 ]];then
           exit 0
