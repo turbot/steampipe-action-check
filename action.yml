@@ -14,7 +14,7 @@ inputs:
     description: "The version number of Steampipe that will be installed"
     required: false
     default: ""
-  run:
+  checks:
     description: "A list of benchmarks and controls to run (space-separated). If no value is specified, it runs `check all`"
     required: false
     default: "all"
@@ -43,12 +43,21 @@ runs:
       run: |
         steampipe plugin install terraform --install-dir /tmp/sp_install_dir > /dev/null
         # write config
-        connection_data="
-          connection \"terraform\" {
-            plugin = \"terraform\"
-            paths = [ \"${{inputs.path}}/**/*.tf\" ]
-          }
-        "
+        if [ "${{inputs.path}}" -eq "." ];then
+          connection_data="
+            connection \"terraform\" {
+              plugin = \"terraform\"
+              paths = [ \"${{inputs.path}}/**/*.tf\" ]
+            }
+          "
+        else
+          connection_data="
+            connection \"terraform\" {
+              plugin = \"terraform\"
+              paths = [ \"${{inputs.path}}\" ]
+            }
+          "
+        fi
 
         # Write the config file
         printf '%s\n' "$connection_data" > "/tmp/sp_install_dir/config/terraform.spc"
@@ -57,11 +66,28 @@ runs:
       run: |
         mkdir /tmp/mod
         git clone --depth 1 "${{ inputs.mod_url }}" /tmp/mod
-    - name: Run Check
+    - name: Get checks
+      id: get-checks
       shell: bash
       run: |
         set +e
-        steampipe check "${{ inputs.run }}" --output=none --mod-location="/tmp/mod" --export=json,md --install-dir=/tmp/sp_install_dir
+        if [ -z "${{ inputs.checks }}" ]
+        then
+          RunList=("all")
+        else
+          RunList=()
+          while read line; do
+            RunList+=("$line")
+          done <<EOF
+        $INPUT_CHECKS
+        EOF
+        fi
+
+        echo "::set-output name=run_list::${RunList[*]}"
+    - name: Run Check
+      shell: bash
+      run: |
+        steampipe check ${{ steps.get-check.outputs.my_output }} --output=none --mod-location="/tmp/mod" --export=json,md --install-dir=/tmp/sp_install_dir
         # ignore the 1 exit code which gets set if there are only alarms
         exit_code=$(echo $?)
         if [[ $exit_code -le 1 ]];then
@@ -69,9 +95,9 @@ runs:
         else
           exit $exit_code
         fi
-    - name: Annotate
+    - name: Annotate and Summarize
       shell: bash
       run: |
-        node ${{ github.action_path }}/dist/index.js ${{ inputs.run }}
+        node ${{ github.action_path }}/dist/index.js ${{ steps.get-check.outputs.my_output }}
       env:
         INPUT_GITHUB-TOKEN: ${{ inputs.github-token }}
