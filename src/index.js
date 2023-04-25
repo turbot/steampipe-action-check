@@ -7,11 +7,11 @@ async function run() {
       trimWhitespace: true,
       required: true,
     });
-    console.log("token------------------", token, token.substring(2, 10));
     let runs = [];
     for (let i = 2; i < process.argv.length; i++) {
       runs.push(process.argv[i]);
     }
+    console.log(`working with runs: ${runs}`)
     await processAnnotations({ token, runs });
   } catch (error) {
     setFailed(error.message);

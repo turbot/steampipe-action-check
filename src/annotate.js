@@ -16,7 +16,7 @@ export async function processAnnotations(input) {
     const result = await parseResultFile(j);
     annotations.push(...getAnnotations(result));
   }
-  info(`Pushing Annotations`);
+  info(`Pushing Annotations: ${annotations.length}`);
   await pushAnnotations(input, annotations);
   utils.removeFiles(jsonFiles);
   endGroup();
@@ -68,7 +68,10 @@ export async function pushAnnotations(input, annotations) {
     chunks[chunks.length - 1].push(ann);
   }
 
+  info(`Chunks to push: ${chunks.length}`);
+
   for (let chunk of chunks) {
+    info(`Pushing chunk ${chunk}`);
     await octokit.rest.checks.create({
       ...context.repo,
       pull_number: context.payload.pull_request.number,
