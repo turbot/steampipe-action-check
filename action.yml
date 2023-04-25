@@ -77,7 +77,6 @@ runs:
       shell: bash
       run: |
         # Convert multiline 'checks' input to single line arguments which we can send to 'check'
-        set +e
         if [ -z "${{ inputs.checks }}" ]
         then
           # default to all
@@ -97,6 +96,7 @@ runs:
       shell: bash
       run: |
         # Run Steampipe Check
+        set +e
         STEAMPIPE_CHECK_DISPLAY_WIDTH=120 steampipe check ${{ steps.get-checks.outputs.run_list }} --output=brief --mod-location="/tmp/mod" --export=json,md --install-dir=/tmp/sp_install_dir
         # ignore the 1 exit code which gets set if there are only alarms
         exit_code=$(echo $?)
