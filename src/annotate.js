@@ -16,7 +16,7 @@ export async function processAnnotations(input) {
     const result = await parseResultFile(j);
     annotations.push(...getAnnotations(result));
   }
-  info(`Pushing Annotations: ${annotations.length}`);
+  info(`Pushing Annotations: from files: ${jsonFiles} length: ${annotations.length}`);
   await pushAnnotations(input, annotations);
   utils.removeFiles(jsonFiles);
   endGroup();
