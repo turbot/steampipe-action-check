@@ -4,6 +4,7 @@ set -e
 
 # update the access flags so that the steampipe user can write to it
 chmod -R 777 $GITHUB_WORKSPACE
+chown -R steampipe:0 $GITHUB_WORKSPACE
 
 # switch to the non-root steampipe user which we inherit from the base image
 su steampipe
@@ -51,9 +52,6 @@ run_infra_check() {
     echo "F"
   fi
 }
-echo $GITHUB_WORKSPACE
-chown -R steampipe:0 $GITHUB_WORKSPACE
-chmod -R 777 $GITHUB_WORKSPACE
 
 setup_plugin
 git clone --depth 1 "$INPUT_MOD_URL" /workspace
