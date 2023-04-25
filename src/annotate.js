@@ -74,11 +74,11 @@ export async function pushAnnotations(input, annotations) {
       pull_number: context.payload.pull_request.number,
       head_sha: context.payload.pull_request["head"]["sha"],
       check_run_id: context.runId,
-      name: "tfscan",
+      name: "steampipe-iac-scan",
       status: "completed",
       conclusion: "action_required",
       output: {
-        title: "Steampipe tfscan",
+        title: "Steampipe IAC Scan",
         summary: "Terraform Validation Failed",
         annotations: chunk,
       },
