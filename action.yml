@@ -35,13 +35,13 @@ runs:
     - name: Install Steampipe
       shell: bash
       run: |
-        sudo /bin/sh -c "$(curl -fsSL https://raw.githubusercontent.com/turbot/steampipe/main/install.sh)"
-        steampipe -v
-        steampipe query "select 1"
+        curl https://raw.githubusercontent.com/turbot/steampipe/main/install.sh | sudo bash -s ${{ inputs.steampipe_version }}
+        mkdir -p /tmp/sp_install_dir
+        steampipe query "select 1" --install-dir /tmp/sp_install_dir
     - name: Install and configure Terraform Plugin
       shell: bash
       run: |
-        steampipe plugin install terraform
+        steampipe plugin install terraform --install-dir /tmp/sp_install_dir
         # write config
         connection_data="
           connection \"terraform\" {
@@ -51,7 +51,7 @@ runs:
         "
 
         # Write the config file
-        printf '%s\n' "$connection_data" > "/home/steampipe/.steampipe/config/terraform.spc"
+        printf '%s\n' "$connection_data" > "/tmp/sp_install_dir/config/terraform.spc"
     - name: Get Mod
       shell: bash
       run: |
@@ -60,7 +60,7 @@ runs:
     - name: Run Check
       shell: bash
       run: |
-        steampipe check "${{ inputs.run }}" --output=table --mod-location="/tmp/mod" --export=json
+        steampipe check "${{ inputs.run }}" --output=table --mod-location="/tmp/mod" --export=json --install-dir /tmp/sp_install_dir
     - name: Annotate
       shell: bash
       run: |
