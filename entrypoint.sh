@@ -2,6 +2,12 @@
 
 set -e
 
+# update the access flags so that the steampipe user can write to it
+chmod -R 777 $GITHUB_WORKSPACE
+
+# switch to the non-root steampipe user which we inherit from the base image
+su steampipe
+
 PLUGIN_NAME=terraform
 
 RunList=
