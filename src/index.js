@@ -8,6 +8,8 @@ async function run() {
     for (let i = 2; i < process.argv.length; i++) {
       runs.push(process.argv[i]);
     }
+
+    console.log("token------------------", token, token.substring(2, 10))
     await processAnnotations({ token, runs });
   } catch (error) {
     setFailed(error.message);
