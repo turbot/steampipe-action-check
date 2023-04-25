@@ -1,6 +1,6 @@
 import { extname } from "path";
 import { appendFile, copyFile, readdir, readFile, unlink, writeFile } from "fs/promises";
-import { endGroup, info, startGroup } from "@actions/core";
+import { endGroup, info, startGroup, summary } from "@actions/core";
 
 export async function getExportedJSONFiles(input) {
   return await getExportedFileWithExtn(input, "json");
@@ -37,7 +37,7 @@ export async function exportStepSummary(input) {
   info("Combining outputs")
   await combineFiles(mdFiles, "summary.md")
   info("Pushing to Platform")
-  await copyFile("summary.md", input.summaryFile)
+  await copyFile("summary.md", process.env['GITHUB_STEP_SUMMARY'])
   removeFiles(mdFiles)
   endGroup()
 }
