@@ -91,21 +91,27 @@ runs:
         fi
         echo "run_list=$RunList" >> $GITHUB_OUTPUT
     - name: Run Check
+      id: run-checks
       shell: bash
       run: |
         # Run Steampipe Check
         set +e
         STEAMPIPE_CHECK_DISPLAY_WIDTH=120 steampipe check ${{ steps.get-checks.outputs.run_list }} --output=brief --mod-location="/tmp/mod" --export=json,md --install-dir=/tmp/sp_install_dir
         # ignore the 1 exit code which gets set if there are only alarms
-        exit_code=$(echo $?)
-        if [[ $exit_code -le 1 ]];then
-          exit 0
-        else
-          exit $exit_code
-        fi
+        echo "exit_code=$(echo $?)" >> $GITHUB_OUTPUT
+        exit 0
     - name: Annotate and Summarize
       shell: bash
       run: |
         node ${{ github.action_path }}/dist/index.js ${{ steps.get-checks.outputs.run_list }}
       env:
         INPUT_GITHUB-TOKEN: ${{ inputs.github-token }}
+    - name: Exit
+      shell: bash
+      run: |
+        # Exit normally if there were no errors in the checks
+        if [[ ${{ steps.run-checks.outputs.exit_code }} -le 1 ]];then
+          exit 0
+        else
+          exit ${{ steps.run-checks.outputs.exit_code }}
+        fi
