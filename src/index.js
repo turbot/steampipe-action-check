@@ -1,4 +1,4 @@
-import { setFailed } from "@actions/core";
+import { setFailed, getInput } from "@actions/core";
 import { processAnnotations } from "./annotate";
 
 async function run() {
@@ -14,4 +14,4 @@ async function run() {
   }
 }
 
-run()
+run();
