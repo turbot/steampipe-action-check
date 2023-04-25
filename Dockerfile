@@ -12,7 +12,7 @@ COPY ./entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
 # update the access flags so that the steampipe user can write to it
-RUN chmod -R 777 $GITHUB_WORKSPACE
+# RUN chmod -R 777 $GITHUB_WORKSPACE
 
 # switch to the non-root steampipe user which we inherit from the base image
 USER steampipe
