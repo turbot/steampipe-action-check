@@ -25,7 +25,7 @@ async function getExportedFileWithExtn(input, extn) {
     }
 
     for (let r of input.runs) {
-      if ( extname(d.name) == `.${extn}` && d.name.includes(r)) {
+      if (extname(d.name) == `.${extn}` && d.name.includes(r)) {
         files.push(d.name);
       }
     }
