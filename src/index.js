@@ -1,5 +1,6 @@
 import { setFailed, getInput, info } from "@actions/core";
 import { processAnnotations } from "./annotate";
+import { exportStepSummary } from "./utils";
 
 async function run() {
   try {
@@ -13,6 +14,7 @@ async function run() {
     }
     info(`working with runs: ${runs}`)
     await processAnnotations({ token, runs });
+    await exportStepSummary({ token, runs });
   } catch (error) {
     setFailed(error.message);
   }
