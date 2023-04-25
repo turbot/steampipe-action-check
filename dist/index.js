@@ -9695,7 +9695,7 @@ var external_path_ = __nccwpck_require__(1017);
 
 async function removeFiles(files) {
   for (let f of files) {
-    await unlink(f)
+    await (0,promises_namespaceObject.unlink)(f)
   }
 }
 
@@ -9706,18 +9706,18 @@ async function getExportedJSONFiles(input) {
 async function getExportedFileWithExtn(input, extn) {
   let files = []
 
-  const dirContents = await readdir(".", { withFileTypes: true })
+  const dirContents = await (0,promises_namespaceObject.readdir)(".", { withFileTypes: true })
   for (let d of dirContents) {
     if (!d.isFile()) {
       continue
     }
 
-    if (extname(d.name).length < 2) {
+    if ((0,external_path_.extname)(d.name).length < 2) {
       continue
     }
 
     for (let r of input.runs) {
-      if (d.name.startsWith(r) && extname(d.name) == `.${extn}`) {
+      if (d.name.startsWith(r) && (0,external_path_.extname)(d.name) == `.${extn}`) {
         files.push(d.name)
       }
     }
@@ -9732,22 +9732,22 @@ async function getExportedFileWithExtn(input, extn) {
 
 
 
-async function annotate_processAnnotations(input) {
-  if (context.payload.pull_request == null) {
+async function processAnnotations(input) {
+  if (github.context.payload.pull_request == null) {
     return
   }
-  startGroup("Processing output")
-  info("Fetching output")
-  const jsonFiles = await utils.getExportedJSONFiles(input)
+  (0,core.startGroup)("Processing output")
+  ;(0,external_console_namespaceObject.info)("Fetching output")
+  const jsonFiles = await getExportedJSONFiles(input)
   const annotations = []
   for (let j of jsonFiles) {
     const result = await parseResultFile(j)
     annotations.push(...getAnnotations(result))
   }
-  info(`Pushing Annotations`)
+  (0,external_console_namespaceObject.info)(`Pushing Annotations`)
   await pushAnnotations(input, annotations)
-  utils.removeFiles(jsonFiles)
-  endGroup()
+  removeFiles(jsonFiles)
+  ;(0,core.endGroup)()
 }
 
 /**
@@ -9764,7 +9764,7 @@ function getAnnotations(result) {
 }
 
 async function parseResultFile(filePath) {
-  const fileContent = await readFile(filePath)
+  const fileContent = await (0,promises_namespaceObject.readFile)(filePath)
   return JSON.parse(fileContent.toString())
 }
 
@@ -9775,7 +9775,7 @@ async function parseResultFile(filePath) {
  */
 async function pushAnnotations(input, annotations) {
 
-  const octokit = getOctokit(input.token);
+  const octokit = (0,github.getOctokit)(input.token);
   if (annotations === null || annotations.length === 0) {
     return
   }
@@ -9799,10 +9799,10 @@ async function pushAnnotations(input, annotations) {
 
   for (let chunk of chunks) {
     await octokit.rest.checks.create({
-      ...context.repo,
-      pull_number: context.payload.pull_request.number,
-      head_sha: context.payload.pull_request['head']['sha'],
-      check_run_id: context.runId,
+      ...github.context.repo,
+      pull_number: github.context.payload.pull_request.number,
+      head_sha: github.context.payload.pull_request.head.sha,
+      check_run_id: github.context.runId,
       name: 'tfscan',
       status: 'completed',
       conclusion: 'action_required',
@@ -9874,22 +9874,17 @@ function getAnnotationsForControl(controlRun) {
 async function run() {
   try {
     token = getInput("github-token", { trimWhitespace: true });
-    run = getInput("run", { trimWhitespace: true });
-    runs = [];
+    let runs = [];
     for (let i = 2; i < process.argv.length; i++) {
       runs.push(process.argv[i]);
     }
     await processAnnotations({ token, runs });
   } catch (error) {
-    setFailed(error.message);
+    (0,core.setFailed)(error.message);
   }
 }
 
-// run()
-console.log(
-  "Now we will annotate the PR with the JS code that is getting executed",
-  process.argv
-);
+run()
 
 })();
 
