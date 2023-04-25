@@ -15,7 +15,7 @@ inputs:
     required: false
     default: ""
   run:
-    description: "A list of benchmarks and controls to run (comma-separated). If no value is specified, it runs `check all`"
+    description: "A list of benchmarks and controls to run (space-separated). If no value is specified, it runs `check all`"
     required: false
     default: "all"
   path:
@@ -35,14 +35,9 @@ runs:
     - name: Install Steampipe
       shell: bash
       run: |
-        su root
-        curl https://raw.githubusercontent.com/turbot/steampipe/main/install.sh | bash -s ${{ inputs.steampipe_version }}
-        su -
+        sudo /bin/sh -c "$(curl -fsSL https://raw.githubusercontent.com/turbot/steampipe/main/install.sh)"
+        steampipe -v
         steampipe query "select 1"
-    - name: Clone Mod
-      shell: bash
-      run: |
-        git clone ${{ inputs.mod_url }}
     - name: Install and configure Terraform Plugin
       shell: bash
       run: |
@@ -65,4 +60,8 @@ runs:
     - name: Run Check
       shell: bash
       run: |
-        steampipe check "${{ inputs.run }}" --output=table --mod-location="/tmp/mod"
+        steampipe check "${{ inputs.run }}" --output=table --mod-location="/tmp/mod" --export=json
+    - name: Annotate
+      shell: bash
+      run: |
+        node ./dist/index.js "${{ inputs.run }}"
