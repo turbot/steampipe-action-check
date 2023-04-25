@@ -1,5 +1,6 @@
 import { extname } from "path";
 import { appendFile, copyFile, readdir, readFile, unlink, writeFile } from "fs/promises";
+import { endGroup, info, startGroup } from "@actions/core";
 
 export async function getExportedJSONFiles(input) {
   return await getExportedFileWithExtn(input, "json");
@@ -18,10 +19,6 @@ async function getExportedFileWithExtn(input, extn) {
       continue;
     }
 
-    if (extname(d.name).length < 2) {
-      continue;
-    }
-
     for (let r of input.runs) {
       if (extname(d.name) == `.${extn}` && d.name.includes(r)) {
         files.push(d.name);
@@ -34,7 +31,7 @@ async function getExportedFileWithExtn(input, extn) {
 
 
 export async function exportStepSummary(input) {
-  startGroup("Sending Summary")
+  startGroup("Building Summary")
   info("Fetching output")
   const mdFiles = await getExportedMDFiles(input)
   info("Combining outputs")
