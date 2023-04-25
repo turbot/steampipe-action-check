@@ -4,21 +4,26 @@ on:
     branches:
       - main
   pull_request:
+  workflow_dispatch:
 
 jobs:
-  build:
+  steampipe-terraform-compliance:
     runs-on: ubuntu-latest
+    
     steps:
       - name: Check out repository
         uses: actions/checkout@v3
 
       - name: Run Steampipe Terraform AWS Compliance
-        uses: turbot/steampipe-action/tfscan
+        uses: turbot/steampipe-iac-action
         with:
-          mod: 'https://github.com/turbot/steampipe-mod-terraform-aws-compliance.git'
-          benchmark: benchmark.ec2
+          mod_url: 'https://github.com/turbot/steampipe-mod-terraform-aws-compliance.git'
+          checks: |
+                  benchmark.ec2
+                  benchmark.ecs
 
       - name: Run Steampipe Terraform GCP Compliance
-        uses: turbot/steampipe-action/tfscan
+        uses: turbot/steampipe-iac-action
         with:
-          mod: 'https://github.com/turbot/steampipe-mod-terraform-gcp-compliance.git'
+          mod_url: 'https://github.com/turbot/steampipe-mod-terraform-gcp-compliance.git'
+          checks: benchmark.kms

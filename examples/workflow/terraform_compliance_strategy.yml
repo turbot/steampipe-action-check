@@ -4,18 +4,21 @@ on:
     branches:
       - main
   pull_request:
+  workflow_dispatch:
 
 jobs:
-  build:
+  steampipe-terraform-compliance:
     strategy:
       matrix:
         folder: [aws, azure, gcp]
     runs-on: ubuntu-latest
+
     steps:
       - name: Check out repository
         uses: actions/checkout@v3
+
       - name: Run Steampipe Terraform Compliance - ${{ matrix.folder }}
-        uses: turbot/steampipe-action/tfscan
+        uses: turbot/steampipe-iac-action
         with:
-          version: latest
-          mod: 'https://github.com/turbot/steampipe-mod-terraform-${{ matrix.folder }}-compliance.git'
+          mod_url: 'https://github.com/turbot/steampipe-mod-terraform-${{ matrix.folder }}-compliance.git'
+          version: v0.19.4

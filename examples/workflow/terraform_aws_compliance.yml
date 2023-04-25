@@ -1,4 +1,4 @@
-name: Run Steampipe Checks
+name: Run Steampipe Terraform Compliance
 on:
   push:
     branches:
@@ -7,23 +7,15 @@ on:
   workflow_dispatch:
 
 jobs:
-  steampipe-terraform-checks:
+  steampipe-terraform-compliance:
     runs-on: ubuntu-latest
 
     steps:
       - name: Check out repository
         uses: actions/checkout@v3
 
-      - name: Steampipe terraform scan action - with mod & default check all
-        continue-on-error: true
-        uses: turbot/steampipe-action/tfscan@release/v0.1
+      - name: Steampipe terraform scan action - with mod_url & default check all
+        uses: turbot/steampipe-iac-action
         with:
-          directory: examples/terraform/aws/
-          mod: https://github.com/turbot/steampipe-mod-terraform-aws-compliance.git
-
-      # - name: Steampipe terraform scan action - with mod and specific controls
-      #   continue-on-error: true
-      #   uses: turbot/steampipe-action/tfscan@tfscan
-      #   with:
-      #     mod: https://github.com/turbot/steampipe-mod-terraform-aws-compliance.git
-      #     run: control.ec2_instance_not_use_default_vpc control.ec2_ebs_default_encryption_enabled control.s3_bucket_default_encryption_enabled
+          mod_url: https://github.com/turbot/steampipe-mod-terraform-aws-compliance.git
+          path: examples/terraform/aws/
