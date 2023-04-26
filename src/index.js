@@ -1,18 +1,16 @@
-import { setFailed, getInput, info } from "@actions/core";
+import { setFailed } from "@actions/core";
 import { processAnnotations } from "./annotate";
 import { exportStepSummary } from "./utils";
 
 async function run() {
   try {
-    let token = getInput("github-token", {
-      trimWhitespace: true,
-      required: true,
-    });
-    let runs = [];
-    for (let i = 2; i < process.argv.length; i++) {
-      runs.push(process.argv[i]);
+    let token = process.env['GITHUB_TOKEN'];
+    if (token.trim().length == 0){
+      throw new Error("token is required but was not supplied")
     }
-    info(`working with runs: ${runs}`)
+    // start from the third element in the argument vector, since the first two are
+    // the path to the node executable and the path to the js file
+    let runs = process.argv.slice(2)
     await processAnnotations({ token, runs });
     await exportStepSummary({ token, runs });
   } catch (error) {
