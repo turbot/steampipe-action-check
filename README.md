@@ -7,13 +7,9 @@
 [![OCI Terraform Compliance](https://img.shields.io/badge/terraform-OCI_Compliance-red)](https://hub.steampipe.io/mods/turbot/terraform_oci_compliance) &nbsp;
 ![License](https://img.shields.io/badge/license-Apache-blue)  &nbsp;
 
-## Integrate Steampipe IaC action into your GitHub workflows
+## Integrate Steampipe IaC to your GitHub workflows
 
-The Steampipe IaC action enables scanning your Infrastructure as Code (IaC) configuration files directly from the repository using your GitHub workflow pipeline. This enables you to proactively identify potential security vulnerabilities, compliance issues, and infrastructure misconfigurations.
-
-### Pre-requisite
-
-Enable and [configure GitHub Action](https://help.github.com/en/actions/configuring-and-managing-workflows/configuring-a-workflow) in your repository.
+The Steampipe IaC action enables scanning your Terraform Infrastructure as Code (IaC) files directly from the repository using your GitHub workflow pipeline. This allows you to proactively identify potential security vulnerabilities, compliance issues, and infrastructure misconfigurations early in the cycle.
 
 ## Getting started
 
@@ -28,11 +24,11 @@ steps:
       mod_url: https://github.com/turbot/steampipe-mod-terraform-aws-compliance.git
 ```
 
-This uses the `turbot/steampipe-iac-action` action and scans all Terraform files in your repository containing AWS resources.
+This uses the `turbot/steampipe-iac-action` action to all Terraform files in your repository containing AWS resources and looks for potential vulnerabilities.
 
 ## Supported cloud providers
 
-You can adjust the **`mod_url`** parameter to perform a scan on Terraform resources of other supported cloud providers.
+You can change the **`mod_url`** parameter to perform a scan on Terraform resources of other supported cloud providers.
 
 | Provider  | `mod_url` |
 | -----------| ------------------------------------------------------------- |
@@ -48,10 +44,10 @@ You can provide additional parameters to customize the action.
 | Parameter  | Description | Required | Default |
 | -----------| -------------------------------------------------------------------------------------------------------- | ------------- | ------------- |
 | mod_url | URL of the [terraform compliance mod]((https://hub.steampipe.io/mods?q=terraform)) to be installed. This will be passed on to `git clone` | Yes | - |
-| github-token | Token is used to generate annotations. <br> `Note`: The GitHub token must have permissions to create annotations. | No | `GITHUB_TOKEN` |
 | paths | List of globs to search for Terraform configuration files (comma-separated). | No | Repository root |
 | checks | List of benchmarks and controls to run (space-separated or multi-line). | No | all |
 | steampipe_version | Steampipe version to install. For available versions refer to [Steampipe Releases](https://github.com/turbot/steampipe/releases) | No | latest |
+| github_token | Token used to generate annotations and job summary and as such must have the necessary permissions. | No | `GITHUB_TOKEN` |
 
 ## Optional input examples
 
@@ -68,7 +64,7 @@ with:
     benchmark.ebs
 ```
 
-> Refer to the benchmarks/controls available for your cloud provider [here](#supported-cloud-providers)
+> Refer to the benchmarks/controls available for your cloud provider [here](#helpful-links)
 
 <img src="images/input-checks-param.png"  width="60%" height="30%"> <br>
 
@@ -97,11 +93,14 @@ with:
 
 Samples with customized parameters can be found in the `examples/workflow` folder, which you can refer to.
 
-## Annotations
+## Annotations and summary
 
-On successful scans, checks configured to run against changed files in a pull request provide annotations showing details about the code with errors and alarms.
+The action annotates your repository files with any `alarms` or `errors` encountered in the scan if the action is triggered by a Pull Request.
 
-<img src="images/annotations_sample.png"  width="60%" height="30%">
+The action also produces an easy-to-read summary of the scan and pushes it to the **Job Summary**.
+
+<img src="images/annotations_sample.png"  width="60%">
+<img src="images/summary-output.png"  width="60%">
 
 ### Helpful links
 - [Terraform AWS Compliance benchmarks](https://hub.steampipe.io/mods/turbot/terraform_aws_compliance/controls#benchmarks)
