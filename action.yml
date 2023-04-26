@@ -8,38 +8,39 @@ branding:
 
 inputs:
   mod_url:
-    description: "Git URL of specific terraform compliance mod that will be installed. This will be passed on to `git clone`"
+    description: "Git URL of specific terraform compliance mod that will be installed. This will be passed verbatim to `git clone`"
     required: true
   steampipe_version:
     description: "The version number of Steampipe that will be installed"
     required: false
     default: ""
   checks:
-    description: "A list of benchmarks and controls to run (space-separated). If no value is specified, it runs `check all`"
+    description: "A list of benchmarks and controls to run (space-separated). If unspecified, it runs `check all`"
     required: false
     default: "all"
   paths:
-    description: "Directory with infrastructure code to scan explicitly, if not specified, it considers root of the repository as default"
+    description: "Paths to terraform files to scan, if unspecified, it scans all `.tf` files in the repository"
     required: false
     default: "./**/*.tf"
-  github-token:
-    description: "The token is used for fetching patch of a pull request to show only new issues"
+  github_token:
+    description: "Token used to generate annotations if this action is triggered by a Pull Request and as such this token must have the necessary permissions to create annotations."
     required: false
     default: ${{ github.token }}
 
 runs:
   using: composite
   steps:
-    - name: Setup NodeJS
+    - name: Setup Node
       uses: actions/setup-node@v3
     - name: Install Steampipe
       shell: bash
       run: |
         # Install Steampipe
         curl https://raw.githubusercontent.com/turbot/steampipe/main/install.sh | sudo bash -s ${{ inputs.steampipe_version }}
+        steampipe --version
         mkdir -p /tmp/sp_install_dir
         steampipe query "select 1" --install-dir /tmp/sp_install_dir
-    - name: Install and configure Terraform Plugin
+    - name: Install and configure Terraform plugin
       shell: bash
       run: |
         # Setup plugin and connection
@@ -53,10 +54,10 @@ runs:
         "
         # Write the config file
         printf '%s\n' "$connection_data" > "/tmp/sp_install_dir/config/terraform.spc"
-    - name: Get Mod
+    - name: Get mod
       shell: bash
       run: |
-        # Clone and setup Mod
+        # Clone and setup mod
         mkdir /tmp/mod
         git clone --depth 1 "${{ inputs.mod_url }}" /tmp/mod
         cd /tmp/mod
@@ -80,7 +81,7 @@ runs:
         EOF
         fi
         echo "run_list=$RunList" >> $GITHUB_OUTPUT
-    - name: Run Check
+    - name: Run checks
       id: run-checks
       shell: bash
       run: |
@@ -90,12 +91,12 @@ runs:
         # ignore the 1 exit code which gets set if there are only alarms
         echo "exit_code=$(echo $?)" >> $GITHUB_OUTPUT
         exit 0
-    - name: Annotate and Summarize
+    - name: Annotate and summarize
       shell: bash
       run: |
         node ${{ github.action_path }}/dist/index.js ${{ steps.get-checks.outputs.run_list }}
       env:
-        INPUT_GITHUB-TOKEN: ${{ inputs.github-token }}
+        INPUT_GITHUB-TOKEN: ${{ inputs.github_token }}
     - name: Exit
       shell: bash
       run: |
