@@ -47,7 +47,7 @@ runs:
     - name: Install Steampipe
       shell: bash
       run: |
-        VER=${inputs.steampipe_version}
+        VER=${{ inputs.steampipe_version }}
         if [ "$VER" = "latest" ];then
           VER=""
         fi
