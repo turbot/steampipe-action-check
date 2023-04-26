@@ -28,6 +28,26 @@ steps:
 
 This uses the `turbot/steampipe-iac-action` action to scan all Terraform files containing AWS resources in your repository and runs checks as defined by the mod.
 
+## Supported cloud providers
+
+You can use compliance mods published by the Steampipe team to scan Terraform resources for all supported cloud providers. Update the `mod_url` input to one of the given `git` repositories.
+
+| Provider                                                                 | `mod_url`                                                              |
+| ------------------------------------------------------------------------ | ---------------------------------------------------------------------- |
+| [Azure](https://hub.steampipe.io/mods/turbot/terraform_azure_compliance) | https://github.com/turbot/steampipe-mod-terraform-azure-compliance.git |
+| [GCP](https://hub.steampipe.io/mods/turbot/terraform_gcp_compliance)     | https://github.com/turbot/steampipe-mod-terraform-gcp-compliance.git   |
+| [OCI](https://hub.steampipe.io/mods/turbot/terraform_oci_compliance)     | https://github.com/turbot/steampipe-mod-terraform-oci-compliance.git   |
+| [AWS](https://hub.steampipe.io/mods/turbot/terraform_aws_compliance)     | https://github.com/turbot/steampipe-mod-terraform-aws-compliance.git   |
+
+## Annotations and summary
+
+The action annotates your repository files with any `alarms` encountered in the scan if the action is triggered by a Pull Request.
+
+The action also produces an easy-to-read summary of the scan and pushes it to the **Job Summary**.
+
+<img src="images/annotations_sample.png" />
+<img src="images/summary-output.png" />
+
 ## Usage
 
 ```yaml
@@ -78,17 +98,6 @@ This uses the `turbot/steampipe-iac-action` action to scan all Terraform files c
     # Default: ${{ github.token }}
     github_token: ${{ secrets.ANNOTATION_GH_TOKEN }}
 ```
-
-## Supported cloud providers
-
-You can use compliance mods published by the Steampipe team to scan Terraform resources for all supported cloud providers. Update the `mod_url` input to one of the given `git` repositories.
-
-| Provider                                                                 | `mod_url`                                                              |
-| ------------------------------------------------------------------------ | ---------------------------------------------------------------------- |
-| [Azure](https://hub.steampipe.io/mods/turbot/terraform_azure_compliance) | https://github.com/turbot/steampipe-mod-terraform-azure-compliance.git |
-| [GCP](https://hub.steampipe.io/mods/turbot/terraform_gcp_compliance)     | https://github.com/turbot/steampipe-mod-terraform-gcp-compliance.git   |
-| [OCI](https://hub.steampipe.io/mods/turbot/terraform_oci_compliance)     | https://github.com/turbot/steampipe-mod-terraform-oci-compliance.git   |
-| [AWS](https://hub.steampipe.io/mods/turbot/terraform_aws_compliance)     | https://github.com/turbot/steampipe-mod-terraform-aws-compliance.git   |
 
 ## Scenarios
 
@@ -187,15 +196,6 @@ steps:
 ```
 
 For more examples refer to the [`examples/workflow`](https://github.com/turbot/steampipe-iac-action/tree/infra-scan/examples/workflow) directory.
-
-## Annotations and summary
-
-The action annotates your repository files with any `alarms` encountered in the scan if the action is triggered by a Pull Request.
-
-The action also produces an easy-to-read summary of the scan and pushes it to the **Job Summary**.
-
-<img src="images/annotations_sample.png" />
-<img src="images/summary-output.png" />
 
 ### Helpful links
 
