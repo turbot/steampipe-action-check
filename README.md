@@ -9,7 +9,7 @@
 
 ## Integrate Steampipe IaC to your GitHub workflows
 
-The Steampipe IaC action enables scanning your Terraform Infrastructure as Code (IaC) files directly from the repository using your GitHub workflow pipeline. This helps to identify potential security vulnerabilities, compliance issues, and infrastructure misconfigurations early in the development cycle.
+The Steampipe IaC action allows you to scan your Infrastructure as Code (IaC) files written in Terraform directly from your GitHub repository using your workflow pipeline. This helps to identify potential security vulnerabilities, compliance issues, and infrastructure misconfigurations early in the development cycle.
 
 ## Getting started
 
@@ -55,7 +55,7 @@ The action also produces an easy-to-read summary of the scan and pushes it to th
 - name: Scan Terraform AWS resources
   uses: turbot/steampipe-iac-action
   with:
-    # Git URL of the terraform compliance mod that runs. This is passed verbatim to `git clone`.
+    # Git URL of the Terraform compliance mod that runs. This is passed verbatim to `git clone`.
     #
     # required
     mod_url: https://github.com/turbot/steampipe-mod-terraform-aws-compliance.git
@@ -107,7 +107,7 @@ The action also produces an easy-to-read summary of the scan and pushes it to th
 - [Pin the Steampipe version to be installed with the `steampipe_version` input.](#pin-the-steampipe-version-to-be-installed-with-the-steampipe_version-input)
 - [Specify the path to locate Terraform files to scan, with the `paths` input.](#specify-the-path-to-locate-terraform-files-to-scan-with-the-paths-input)
 - [Specify multiple paths to locate Terraform files to scan, with the `paths` input.](#specify-multiple-paths-to-locate-terraform-files-to-scan-with-the-paths-input)
-- [Use the action multiple times to scan multi-cloud terraform resources in the same job](#use-the-action-multiple-times-to-scan-multi-cloud-terraform-resources-in-the-same-job)
+- [Use the action multiple times to scan multi-cloud Terraform resources in the same job](#use-the-action-multiple-times-to-scan-multi-cloud-terraform-resources-in-the-same-job)
 
 ### Run a specific benchmark or control with the `checks` input.
 
@@ -172,7 +172,7 @@ with:
 
 For more examples refer to the [`examples/workflow`](https://github.com/turbot/steampipe-iac-action/tree/infra-scan/examples/workflow) directory.
 
-### Use the action multiple times to scan multi-cloud terraform resources in the same job
+### Use the action multiple times to scan multi-cloud Terraform resources in the same job
 
 ```yaml
 steps:
