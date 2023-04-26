@@ -15,7 +15,7 @@ inputs:
     required: false
     default: ""
   checks:
-    description: "A list of benchmarks and controls to run (multi-line). If unspecified, it runs `check all`"
+    description: "A list of benchmarks and controls to run (multi-line). If unspecified, it runs all benchmarks and controls in the mod"
     required: false
     default: "all"
   paths:
