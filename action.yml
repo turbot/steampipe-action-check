@@ -8,7 +8,7 @@ branding:
 
 inputs:
   mod_url:
-    description: "Git URL of specific terraform compliance mod that will be installed. This will be passed verbatim to `git clone`"
+    description: "Git URL of the terraform compliance mod that runs. This is passed verbatim to `git clone`"
     required: true
   steampipe_version:
     description: "The version number of Steampipe that will be installed"
@@ -23,7 +23,7 @@ inputs:
     required: false
     default: "./**/*.tf"
   github_token:
-    description: "Token used to generate annotations if this action is triggered by a Pull Request and as such this token must have the necessary permissions to create annotations."
+    description: "GitHub Token used to generate annotations if this action is triggered by a Pull Request and Job Summary."
     required: false
     default: ${{ github.token }}
 
@@ -32,32 +32,37 @@ runs:
   steps:
     - name: Setup Node
       uses: actions/setup-node@v3
-  
+
     - name: Create temporary directories
       shell: bash
       id: make-temp-dir
       run: |
-        # Create temporary directories for installation and mod
+        # Create temporary directories for steampipe and mod installation
         tmp=$(mktemp -d)
+
         tmp_install_dir=$tmp/sp_install_dir
         tmp_mod_dir=$tmp/mod_dir
+
         mkdir -p $tmp_install_dir
         mkdir -p $tmp_mod_dir
+
         echo "tmp-install-dir=$tmp_install_dir" >> $GITHUB_OUTPUT
         echo "tmp-mod-dir=$tmp_mod_dir" >> $GITHUB_OUTPUT
-   
+
     - name: Install Steampipe
       shell: bash
       run: |
+        # Install Steampipe
         VER=${{ inputs.steampipe_version }}
         if [ "$VER" = "latest" ];then
+          # set to an empty string so that the installer picks up the latest version (default behavior)
           VER=""
         fi
-        # Install Steampipe
+
         curl https://raw.githubusercontent.com/turbot/steampipe/main/install.sh | sudo bash -s $VER
         steampipe --version
-        steampipe query "select 1" --install-dir ${{ steps.make-temp-dir.outputs.tmp-install-dir }}
-   
+        steampipe query "select 1" --install-dir=${{ steps.make-temp-dir.outputs.tmp-install-dir }}
+
     - name: Get paths
       id: get-paths
       shell: bash
@@ -79,32 +84,33 @@ runs:
         ${{ inputs.paths }}
         EOF
         fi
+
         echo "quoted_paths_list=$Paths" >> $GITHUB_OUTPUT
- 
+
     - name: Install and configure Terraform plugin
       shell: bash
       run: |
         # Setup plugin and connection
-        steampipe plugin install terraform --install-dir ${{ steps.make-temp-dir.outputs.tmp-install-dir }} > /dev/null
-        # write config
-        connection_data="
-        connection \"terraform\" {
-          plugin = \"terraform\"
+        steampipe plugin install terraform --install-dir=${{ steps.make-temp-dir.outputs.tmp-install-dir }} > /dev/null
+
+        connection_data='
+        connection "terraform" {
+          plugin = "terraform"
           paths = [ ${{ steps.get-paths.outputs.quoted_paths_list }} ]
         }
-        "
-        # Write the config file
-        printf '%s\n' "$connection_data" > "${{ steps.make-temp-dir.outputs.tmp-install-dir }}/config/terraform.spc"
-  
+        '
+
+        echo "${connection_data}" > "${{ steps.make-temp-dir.outputs.tmp-install-dir }}/config/terraform.spc"
+
     - name: Get mod
       shell: bash
       run: |
         # Clone and setup mod
         git clone --depth 1 "${{ inputs.mod_url }}" ${{ steps.make-temp-dir.outputs.tmp-mod-dir }}
         cd ${{ steps.make-temp-dir.outputs.tmp-mod-dir }}
-        steampipe mod install
+        steampipe mod install --install-dir=${{ steps.make-temp-dir.outputs.tmp-install-dir }}
         cd -
- 
+
     - name: Get checks
       id: get-checks
       shell: bash
@@ -123,24 +129,25 @@ runs:
         EOF
         fi
         echo "run_list=$RunList" >> $GITHUB_OUTPUT
-   
+
     - name: Run checks
       id: run-checks
       shell: bash
       run: |
         # Run Steampipe Check
         set +e
-        STEAMPIPE_CHECK_DISPLAY_WIDTH=120 steampipe check ${{ steps.get-checks.outputs.run_list }} --output=brief --export=json,md --mod-location="${{ steps.make-temp-dir.outputs.tmp-mod-dir }}" --install-dir=${{ steps.make-temp-dir.outputs.tmp-install-dir }}
+        STEAMPIPE_CHECK_DISPLAY_WIDTH=120 steampipe check ${{ steps.get-checks.outputs.run_list }} --output=brief --export=json,md --mod-location=${{ steps.make-temp-dir.outputs.tmp-mod-dir }} --install-dir=${{ steps.make-temp-dir.outputs.tmp-install-dir }}
         # ignore the 1 exit code which gets set if there are only alarms
         echo "exit_code=$(echo $?)" >> $GITHUB_OUTPUT
         exit 0
-  
+
     - name: Annotate and summarize
       shell: bash
       run: |
         node ${{ github.action_path }}/dist/index.js ${{ steps.get-checks.outputs.run_list }}
       env:
         INPUT_GITHUB-TOKEN: ${{ inputs.github_token }}
+
     - name: Exit
       shell: bash
       run: |
