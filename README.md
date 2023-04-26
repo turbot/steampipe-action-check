@@ -43,11 +43,11 @@ You can use compliance mods published by the Steampipe team to scan Terraform re
 
 The action annotates your repository files with any `alarms` encountered in the scan if the action is triggered by a Pull Request.
 
-<img src="images/annotations_sample.png" width="60%" />
+<img src="images/annotations_sample.png" width="80%" />
 
 The action also produces an easy-to-read summary of the scan and pushes it to the **Job Summary**.
 
-<img src="images/summary-output.png" width="60%" />
+<img src="images/summary-output.png" width="80%" />
 
 ## Usage
 
