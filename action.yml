@@ -32,6 +32,7 @@ runs:
   steps:
     - name: Setup Node
       uses: actions/setup-node@v3
+  
     - name: Create temporary directories
       shell: bash
       id: make-temp-dir
@@ -44,6 +45,7 @@ runs:
         mkdir -p $tmp_mod_dir
         echo "tmp-install-dir=$tmp_install_dir" >> $GITHUB_OUTPUT
         echo "tmp-mod-dir=$tmp_mod_dir" >> $GITHUB_OUTPUT
+   
     - name: Install Steampipe
       shell: bash
       run: |
@@ -55,6 +57,7 @@ runs:
         curl https://raw.githubusercontent.com/turbot/steampipe/main/install.sh | sudo bash -s $VER
         steampipe --version
         steampipe query "select 1" --install-dir ${{ steps.make-temp-dir.outputs.tmp-install-dir }}
+   
     - name: Get paths
       id: get-paths
       shell: bash
@@ -77,6 +80,7 @@ runs:
         EOF
         fi
         echo "quoted_paths_list=$Paths" >> $GITHUB_OUTPUT
+ 
     - name: Install and configure Terraform plugin
       shell: bash
       run: |
@@ -91,6 +95,7 @@ runs:
         "
         # Write the config file
         printf '%s\n' "$connection_data" > "${{ steps.make-temp-dir.outputs.tmp-install-dir }}/config/terraform.spc"
+  
     - name: Get mod
       shell: bash
       run: |
@@ -99,6 +104,7 @@ runs:
         cd ${{ steps.make-temp-dir.outputs.tmp-mod-dir }}
         steampipe mod install
         cd -
+ 
     - name: Get checks
       id: get-checks
       shell: bash
@@ -117,6 +123,7 @@ runs:
         EOF
         fi
         echo "run_list=$RunList" >> $GITHUB_OUTPUT
+   
     - name: Run checks
       id: run-checks
       shell: bash
@@ -127,6 +134,7 @@ runs:
         # ignore the 1 exit code which gets set if there are only alarms
         echo "exit_code=$(echo $?)" >> $GITHUB_OUTPUT
         exit 0
+  
     - name: Annotate and summarize
       shell: bash
       run: |
