@@ -81,7 +81,7 @@ This uses the `turbot/steampipe-iac-action` action to scan all Terraform files c
 
 ## Supported cloud providers
 
-You can use compliance mods published by the Steampipe team to scan Terraform resources for all supported cloud providers.
+You can use compliance mods published by the Steampipe team to scan Terraform resources for all supported cloud providers. Update the `mod_url` input to one of the given `git` repositories.
 
 | Provider                                                                 | `mod_url`                                                              |
 | ------------------------------------------------------------------------ | ---------------------------------------------------------------------- |
@@ -146,7 +146,7 @@ name: Run Steampipe Terraform Compliance
 uses: turbot/steampipe-iac-action
 with:
   mod_url: https://github.com/turbot/steampipe-mod-terraform-aws-compliance.git
-  paths: examples/terraform/**/*.tf # Relative to repository root
+  paths: terraform/**/*.tf # Relative to repository root
 ```
 
 > Refer to https://hub.steampipe.io/plugins/turbot/terraform#configuring-local-file-paths for local file path configuration.
@@ -159,9 +159,31 @@ uses: turbot/steampipe-iac-action
 with:
   mod_url: https://github.com/turbot/steampipe-mod-terraform-aws-compliance.git
   paths: |
-    terraform/**/*.tf
-    service_provider/gcp/scan.tf
-    azure/compliance/*.tf
+    cloud_infra/service_billing/aws/**/*.tf
+    cloud_infra/service_orders/aws/**/*.tf
+```
+
+For more examples refer to the [`examples/workflow`](https://github.com/turbot/steampipe-iac-action/tree/infra-scan/examples/workflow) directory.
+
+### Use the action multiple times to scan multi-cloud terraform resources in the same job
+
+```yaml
+steps:
+  name: Run Steampipe Terraform Compliance on AWS
+  uses: turbot/steampipe-iac-action
+  with:
+    mod_url: https://github.com/turbot/steampipe-mod-terraform-aws-compliance.git
+    paths: |
+      cloud_infra/service_billing/aws/**/*.tf
+      cloud_infra/service_orders/aws/**/*.tf
+
+  name: Run Steampipe Terraform Compliance on GCP
+  uses: turbot/steampipe-iac-action
+  with:
+    mod_url: https://github.com/turbot/steampipe-mod-terraform-gcp-compliance.git
+    paths: |
+      cloud_infra/service_billing/gcp/**/*.tf
+      cloud_infra/service_orders/gcp/**/*.tf
 ```
 
 For more examples refer to the [`examples/workflow`](https://github.com/turbot/steampipe-iac-action/tree/infra-scan/examples/workflow) directory.
