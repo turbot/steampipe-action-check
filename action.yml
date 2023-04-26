@@ -148,7 +148,6 @@ runs:
         # Run Steampipe Check
         set +e
         STEAMPIPE_CHECK_DISPLAY_WIDTH=120 steampipe check ${{ steps.get-checks.outputs.run_list }} --output=brief --export=json,md --mod-location=${{ steps.make-temp-dir.outputs.tmp-mod-dir }} --install-dir=${{ steps.make-temp-dir.outputs.tmp-install-dir }}
-        # ignore the 1 exit code which gets set if there are only alarms
         echo "exit_code=$(echo $?)" >> $GITHUB_OUTPUT
         exit 0
 
@@ -162,7 +161,7 @@ runs:
     - name: Exit
       shell: bash
       run: |
-        # Exit normally if there were no errors in the checks
+        # Exit normally if there were no errors in the checks (no errors will exit with code of 1 or 0)
         if [[ ${{ steps.run-checks.outputs.exit_code }} -le 1 ]];then
           exit 0
         else
