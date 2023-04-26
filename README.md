@@ -102,20 +102,12 @@ The action also produces an easy-to-read summary of the scan and pushes it to th
 
 ## Scenarios
 
-- [Steampipe IaC Action](#steampipe-iac-action)
-  - [Integrate Steampipe IaC to your GitHub workflows](#integrate-steampipe-iac-to-your-github-workflows)
-  - [Getting started](#getting-started)
-  - [Supported cloud providers](#supported-cloud-providers)
-  - [Annotations and summary](#annotations-and-summary)
-  - [Usage](#usage)
-  - [Scenarios](#scenarios)
-    - [Run a specific benchmark or control with the `checks` input.](#run-a-specific-benchmark-or-control-with-the-checks-input)
-    - [Run multiple benchmarks and controls with the `checks` input.](#run-multiple-benchmarks-and-controls-with-the-checks-input)
-    - [Pin the Steampipe version to be installed with the `steampipe_version` input.](#pin-the-steampipe-version-to-be-installed-with-the-steampipe_version-input)
-    - [Specify the path to locate Terraform files to scan, with the `paths` input.](#specify-the-path-to-locate-terraform-files-to-scan-with-the-paths-input)
-    - [Specify multiple paths to locate Terraform files to scan, with the `paths` input.](#specify-multiple-paths-to-locate-terraform-files-to-scan-with-the-paths-input)
-    - [Use the action multiple times to scan multi-cloud terraform resources in the same job](#use-the-action-multiple-times-to-scan-multi-cloud-terraform-resources-in-the-same-job)
-    - [Helpful links](#helpful-links)
+- [Run a specific benchmark or control with the `checks` input.](#run-a-specific-benchmark-or-control-with-the-checks-input)
+- [Run multiple benchmarks and controls with the `checks` input.](#run-multiple-benchmarks-and-controls-with-the-checks-input)
+- [Pin the Steampipe version to be installed with the `steampipe_version` input.](#pin-the-steampipe-version-to-be-installed-with-the-steampipe_version-input)
+- [Specify the path to locate Terraform files to scan, with the `paths` input.](#specify-the-path-to-locate-terraform-files-to-scan-with-the-paths-input)
+- [Specify multiple paths to locate Terraform files to scan, with the `paths` input.](#specify-multiple-paths-to-locate-terraform-files-to-scan-with-the-paths-input)
+- [Use the action multiple times to scan multi-cloud terraform resources in the same job](#use-the-action-multiple-times-to-scan-multi-cloud-terraform-resources-in-the-same-job)
 
 ### Run a specific benchmark or control with the `checks` input.
 
