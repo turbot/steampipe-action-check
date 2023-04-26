@@ -8,7 +8,7 @@ branding:
 
 inputs:
   mod_url:
-    description: Git URL of the terraform compliance mod that runs. This is passed verbatim to `git clone`.
+    description: Git URL of the Terraform compliance mod that runs. This is passed verbatim to `git clone`.
     required: true
   steampipe_version:
     description: >
@@ -85,7 +85,7 @@ runs:
         # Convert multiline 'paths' input to single line with quotes in to configure the plugin connection
         if [ -z "${{ inputs.paths }}" ]
         then
-          # default to all terraform files in the repository
+          # default to all Terraform files in the repository
           Paths="./**/*.tf"
         else
           Paths=""
