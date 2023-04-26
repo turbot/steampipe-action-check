@@ -15,11 +15,11 @@ inputs:
     required: false
     default: ""
   checks:
-    description: "A list of benchmarks and controls to run (space-separated). If unspecified, it runs `check all`"
+    description: "A list of benchmarks and controls to run (multi-line). If unspecified, it runs `check all`"
     required: false
     default: "all"
   paths:
-    description: "Paths to terraform files to scan, if unspecified, it scans all `.tf` files in the repository"
+    description: "Paths to terraform files to scan (multi-line). If unspecified, it scans all `.tf` files in the repository"
     required: false
     default: "./**/*.tf"
   github_token:
@@ -40,6 +40,28 @@ runs:
         steampipe --version
         mkdir -p /tmp/sp_install_dir
         steampipe query "select 1" --install-dir /tmp/sp_install_dir
+    - name: Get paths
+      id: get-paths
+      shell: bash
+      run: |
+        # Convert multiline 'paths' input to single line with quotes in to configure the plugin connection
+        if [ -z "${{ inputs.paths }}" ]
+        then
+          # default to all terraform files in the repository
+          Paths="./**/*.tf"
+        else
+          Paths=""
+          while read line; do
+            if [ -z "$Paths" ];then
+              Paths="\"$line\""
+            else
+              Paths="$Paths,\"$line\""
+            fi
+          done <<EOF
+        ${{ inputs.paths }}
+        EOF
+        fi
+        echo "quoted_paths_list=$Paths" >> $GITHUB_OUTPUT
     - name: Install and configure Terraform plugin
       shell: bash
       run: |
@@ -49,7 +71,7 @@ runs:
         connection_data="
         connection \"terraform\" {
           plugin = \"terraform\"
-          paths = [ ${{inputs.paths}} ]
+          paths = [ ${{ steps.get-paths.outputs.quoted_paths_list }} ]
         }
         "
         # Write the config file
