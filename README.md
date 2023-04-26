@@ -30,28 +30,33 @@ This uses the `turbot/steampipe-iac-action` action to all Terraform files in you
 
 You can change the **`mod_url`** parameter to perform a scan on Terraform resources of other supported cloud providers.
 
-| Provider  | `mod_url` |
-| -----------| ------------------------------------------------------------- |
+| Provider                                                                 | `mod_url`                                                              |
+| ------------------------------------------------------------------------ | ---------------------------------------------------------------------- |
 | [Azure](https://hub.steampipe.io/mods/turbot/terraform_azure_compliance) | https://github.com/turbot/steampipe-mod-terraform-azure-compliance.git |
-| [GCP](https://hub.steampipe.io/mods/turbot/terraform_gcp_compliance) | https://github.com/turbot/steampipe-mod-terraform-gcp-compliance.git |
-| [OCI](https://hub.steampipe.io/mods/turbot/terraform_oci_compliance ) | https://github.com/turbot/steampipe-mod-terraform-oci-compliance.git |
-| [AWS](https://hub.steampipe.io/mods/turbot/terraform_aws_compliance ) | https://github.com/turbot/steampipe-mod-terraform-aws-compliance.git |
+| [GCP](https://hub.steampipe.io/mods/turbot/terraform_gcp_compliance)     | https://github.com/turbot/steampipe-mod-terraform-gcp-compliance.git   |
+| [OCI](https://hub.steampipe.io/mods/turbot/terraform_oci_compliance )    | https://github.com/turbot/steampipe-mod-terraform-oci-compliance.git   |
+| [AWS](https://hub.steampipe.io/mods/turbot/terraform_aws_compliance )    | https://github.com/turbot/steampipe-mod-terraform-aws-compliance.git   |
 
 ## Optional inputs
 
 You can provide additional parameters to customize the action.
 
-| Parameter  | Description | Required | Default |
-| -----------| -------------------------------------------------------------------------------------------------------- | ------------- | ------------- |
-| mod_url | URL of the [terraform compliance mod]((https://hub.steampipe.io/mods?q=terraform)) to be installed. This will be passed on to `git clone` | Yes | - |
-| paths | List of globs to search for Terraform configuration files (comma-separated). | No | Repository root |
-| checks | List of benchmarks and controls to run (space-separated or multi-line). | No | all |
-| steampipe_version | Steampipe version to install. For available versions refer to [Steampipe Releases](https://github.com/turbot/steampipe/releases) | No | latest |
-| github_token | Token used to generate annotations and job summary and as such must have the necessary permissions. | No | `GITHUB_TOKEN` |
+| Parameter         | Description                                                                                                                               | Required | Default         |
+| ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | -------- | --------------- |
+| mod_url           | URL of the [terraform compliance mod]((https://hub.steampipe.io/mods?q=terraform)) to be installed. This will be passed on to `git clone` | Yes      | -               |
+| paths             | List of globs to search for Terraform configuration files (comma-separated).                                                              | No       | Repository root |
+| checks            | List of benchmarks and controls to run (space-separated or multi-line).                                                                   | No       | all             |
+| steampipe_version | Steampipe version to install. For available versions refer to [Steampipe Releases](https://github.com/turbot/steampipe/releases)          | No       | latest          |
+| github_token      | Token used to generate annotations and job summary and as such must have the necessary permissions.                                       | No       | `GITHUB_TOKEN`  |
 
-## Optional input examples
+## Scenarios
 
-1. To run specific benchmarks and controls, include the `checks` input.
+  - [To run specific benchmarks and controls](#to-run-specific-benchmarks-and-controls-include-the-checks-input)
+  - [Pin the Steampipe version to be installed](#pin-the-steampipe-version-to-be-installed-with-the-steampipe_version-input)
+  - [Specify the Terraform files to scan](#specify-the-terraform-files-to-scan-with-the-paths-input)
+  - [Specify multiple paths](#specify-multiple-paths-to-locate-terraform-files-to-scan-with-the-paths-input)
+
+### To run specific benchmarks and controls, include the `checks` input.
 
 ```yaml
 name: Run Steampipe Terraform AWS Compliance
@@ -66,9 +71,9 @@ with:
 
 > Refer to the benchmarks/controls available for your cloud provider [here](#helpful-links)
 
-<img src="images/input-checks-param.png"  width="60%" height="30%"> <br>
+<img src="images/input-checks-param.png"  width="60%" height="30%">
 
-2. Pin the Steampipe version to be installed with the `steampipe_version` input.
+### Pin the Steampipe version to be installed with the `steampipe_version` input.
 
 ```yaml
 name: Run Steampipe Terraform Compliance
@@ -79,17 +84,30 @@ with:
 ```
 <img src="images/input-steampipe-version-param.png"  width="60%" height="50%">
 
-3. Specify the Terraform files to scan with the `paths` input.
+### Specify the Terraform files to scan with the `paths` input.
 
 ```yaml
 name: Run Steampipe Terraform Compliance
 uses: turbot/steampipe-iac-action
 with:
   mod_url: https://github.com/turbot/steampipe-mod-terraform-aws-compliance.git
-  path: examples/terraform//**.tf # Relative to repository root
+  paths: examples/terraform//**.tf # Relative to repository root
 ```
 
 > Refer to https://hub.steampipe.io/plugins/turbot/terraform#configuring-local-file-paths for local file path configuration.
+
+### Specify multiple paths to locate Terraform files to scan with the `paths` input.
+
+```yaml
+name: Run Steampipe Terraform Compliance
+uses: turbot/steampipe-iac-action
+with:
+  mod_url: https://github.com/turbot/steampipe-mod-terraform-aws-compliance.git
+  paths: |
+    examples/terraform//*.tf
+    service_provider/gcp/scan.tf
+    /azure/compliance//*.tf
+```
 
 Samples with customized parameters can be found in the `examples/workflow` folder, which you can refer to.
 
