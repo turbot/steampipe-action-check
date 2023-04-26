@@ -1,6 +1,6 @@
-name: "Steampipe GitHub Action"
-author: "Turbot.com"
-description: "Run Steampipe against Terraform infrastructure code, as a pre-packaged GitHub Action"
+name: "Steampipe IaC GitHub Action"
+author: "Steampipe.io"
+description: "Run Steampipe against Terraform infrastructure code in your Actions workflow"
 
 branding:
   color: "red"
@@ -21,7 +21,7 @@ inputs:
   paths:
     description: "Directory with infrastructure code to scan explicitly, if not specified, it considers root of the repository as default"
     required: false
-    default: "."
+    default: "./**/*.tf"
   github-token:
     description: "The token is used for fetching patch of a pull request to show only new issues"
     required: false
@@ -45,22 +45,12 @@ runs:
         # Setup plugin and connection
         steampipe plugin install terraform --install-dir /tmp/sp_install_dir > /dev/null
         # write config
-        if [ "${{inputs.paths}}" = "." ];then
-          connection_data="
-          connection \"terraform\" {
-            plugin = \"terraform\"
-            paths = [ \"./**/*.tf\" ]
-          }
-          "
-        else
-          connection_data="
-          connection \"terraform\" {
-            plugin = \"terraform\"
-            paths = [ \"${{inputs.paths}}\" ]
-          }
-          "
-        fi
-
+        connection_data="
+        connection \"terraform\" {
+          plugin = \"terraform\"
+          paths = [ ${{inputs.paths}} ]
+        }
+        "
         # Write the config file
         printf '%s\n' "$connection_data" > "/tmp/sp_install_dir/config/terraform.spc"
     - name: Get Mod
