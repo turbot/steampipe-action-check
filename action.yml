@@ -146,7 +146,7 @@ runs:
       run: |
         node ${{ github.action_path }}/dist/index.js ${{ steps.get-checks.outputs.run_list }}
       env:
-        INPUT_GITHUB-TOKEN: ${{ inputs.github_token }}
+        GITHUB_TOKEN: ${{ inputs.github_token }}
 
     - name: Exit
       shell: bash
