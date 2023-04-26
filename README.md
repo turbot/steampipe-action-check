@@ -59,7 +59,7 @@ You can provide additional parameters to customize the action.
 - [Specify the path to locate Terraform files to scan](#specify-the-terraform-files-to-scan-with-the-paths-input)
 - [Specify multiple paths](#specify-multiple-paths-to-locate-terraform-files-to-scan-with-the-paths-input)
 
-### Run specific benchmarks and controls - use the `checks` input.
+### Run a specific benchmark - use the `checks` input.
 
 ```yaml
 name: Run Steampipe Terraform AWS Compliance
@@ -84,6 +84,8 @@ with:
     benchmark.kms
     benchmark.ebs
     benchmark.apigateway
+    control.ecs_cluster_container_insights_enabled
+    control.ecs_task_definition_encryption_in_transit_enabled
 ```
 
 ### Pin the Steampipe version to be installed with the `steampipe_version` input.
@@ -98,7 +100,7 @@ with:
 
 <img src="images/input-steampipe-version-param.png" />
 
-### Specify the path to locate Terraform files to scan with the `paths` input.
+### Specify the path to locate Terraform files to scan, with the `paths` input.
 
 ```yaml
 name: Run Steampipe Terraform Compliance
@@ -110,7 +112,7 @@ with:
 
 > Refer to https://hub.steampipe.io/plugins/turbot/terraform#configuring-local-file-paths for local file path configuration.
 
-### Specify multiple paths to locate Terraform files to scan with the `paths` input.
+### Specify multiple paths to locate Terraform files to scan, with the `paths` input.
 
 ```yaml
 name: Run Steampipe Terraform Compliance
@@ -127,7 +129,7 @@ For more examples refer to the [`examples/workflow`](https://github.com/turbot/s
 
 ## Annotations and summary
 
-The action annotates your repository files with any `alarms` or `errors` encountered in the scan if the action is triggered by a Pull Request.
+The action annotates your repository files with any `alarms` encountered in the scan if the action is triggered by a Pull Request.
 
 The action also produces an easy-to-read summary of the scan and pushes it to the **Job Summary**.
 
