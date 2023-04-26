@@ -1,6 +1,6 @@
 name: "Steampipe IaC GitHub Action"
 author: "Steampipe.io"
-description: "Run Steampipe against Terraform infrastructure code in your Actions workflow"
+description: "Scan for vulnerabilities in your Terraform infrastructure as code in your Actions workflow using Steampipe"
 
 branding:
   color: "red"
@@ -11,7 +11,7 @@ inputs:
     description: "Git URL of the terraform compliance mod that runs. This is passed verbatim to `git clone`"
     required: true
   steampipe_version:
-    description: "The version number of Steampipe that will be installed"
+    description: "The version of Steampipe that will be installed"
     required: false
     default: ""
   checks:
@@ -23,7 +23,7 @@ inputs:
     required: false
     default: "./**/*.tf"
   github_token:
-    description: "GitHub Token used to generate annotations if this action is triggered by a Pull Request and Job Summary."
+    description: "GitHub Token used to generate job summary and annotations. Note that annotations are generated only if this action is triggered by a Pull Request"
     required: false
     default: ${{ github.token }}
 
