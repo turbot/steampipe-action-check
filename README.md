@@ -17,26 +17,24 @@ Enable and [configure GitHub Action](https://help.github.com/en/actions/configur
 
 ## Getting started
 
-To get started with scanning your AWS terraform resources, add this code into your GitHub actions workflow file.
+To get started with scanning your AWS Terraform resources, add the following step to your workflow file.
 
 ```yaml
-jobs:
-  terraform-compliance:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@v3
-      - name: Scan terraform aws resources
-        uses: turbot/steampipe-iac-action
-        with:
-          mod_url: https://github.com/turbot/steampipe-mod-terraform-aws-compliance.git
+steps:
+  ...
+  - name: Scan Terraform aws resources
+    uses: turbot/steampipe-iac-action
+    with:
+      mod_url: https://github.com/turbot/steampipe-mod-terraform-aws-compliance.git
 ```
 
-This uses the `turbot/steampipe-iac-action` action and scans the terraform AWS resources in your repository.
+This uses the `turbot/steampipe-iac-action` action and scans all Terraform files in your repository containing AWS resources.
 
-You can adjust the **`mod_url`** parameter to perform a scan on Terraform resources available on the below supported cloud providers.
+## Supported cloud providers
 
-| Provider  | mod_url |
+You can adjust the **`mod_url`** parameter to perform a scan on Terraform resources of other supported cloud providers.
+
+| Provider  | `mod_url` |
 | -----------| ------------------------------------------------------------- |
 | [Azure](https://hub.steampipe.io/mods/turbot/terraform_azure_compliance) | https://github.com/turbot/steampipe-mod-terraform-azure-compliance.git |
 | [GCP](https://hub.steampipe.io/mods/turbot/terraform_gcp_compliance) | https://github.com/turbot/steampipe-mod-terraform-gcp-compliance.git |
@@ -49,27 +47,32 @@ You can provide additional parameters to customize the action.
 
 | Parameter  | Description | Required | Default |
 | -----------| -------------------------------------------------------------------------------------------------------- | ------------- | ------------- |
-| github-token | Token is used to generate annotations. <br> `Note`: The GitHub token must have permissions to create annotations. | No | GITHUB_TOKEN |
 | mod_url | URL of the [terraform compliance mod]((https://hub.steampipe.io/mods?q=terraform)) to be installed. This will be passed on to `git clone` | Yes | - |
+| github-token | Token is used to generate annotations. <br> `Note`: The GitHub token must have permissions to create annotations. | No | `GITHUB_TOKEN` |
 | paths | List of globs to search for Terraform configuration files (comma-separated). | No | Repository root |
 | checks | List of benchmarks and controls to run (space-separated or multi-line). | No | all |
-| steampipe_version | Steampipe version to install | No | latest |
+| steampipe_version | Steampipe version to install. For available versions refer to [Steampipe Releases](https://github.com/turbot/steampipe/releases) | No | latest |
 
 ## Optional input examples
 
-1. To limit the number of benchmarks and controls, include the `Checks` parameter.
+1. To run specific benchmarks and controls, include the `checks` input.
 
 ```yaml
 name: Run Steampipe Terraform AWS Compliance
 uses: turbot/steampipe-iac-action
 with:
   mod_url: 'https://github.com/turbot/steampipe-mod-terraform-aws-compliance.git'
-  checks: benchmark.kms
+  checks: |
+    benchmark.kms
+    benchmark.apigateway
+    benchmark.ebs
 ```
+
+> Refer to the benchmarks/controls available for your cloud provider [here](#supported-cloud-providers)
 
 <img src="images/input-checks-param.png"  width="60%" height="30%"> <br>
 
-2. Change the version of Steampipe to be installed by including the `steampipe_version` parameter.
+2. Pin the Steampipe version to be installed with the `steampipe_version` input.
 
 ```yaml
 name: Run Steampipe Terraform Compliance
@@ -80,7 +83,7 @@ with:
 ```
 <img src="images/input-steampipe-version-param.png"  width="60%" height="50%">
 
-3. Specify the location to locate the Terraform configuration file by including the `paths` parameter.
+3. Specify the Terraform files to scan with the `paths` input.
 
 ```yaml
 name: Run Steampipe Terraform Compliance
@@ -105,4 +108,4 @@ On successful scans, checks configured to run against changed files in a pull re
 - [Terraform Azure Compliance benchmarks](https://hub.steampipe.io/mods/turbot/terraform_azure_compliance/controls#benchmarks)
 - [Terraform GCP Compliance benchmarks](https://hub.steampipe.io/mods/turbot/terraform_gcp_compliance/controls#benchmarks)
 - [Terraform OCI Compliance benchmarks](https://hub.steampipe.io/mods/turbot/terraform_oci_compliance/controls#benchmarks)
-- [Supported terraform path formats](https://hub.steampipe.io/plugins/turbot/terraform#supported-path-formats)
+- [Supported Terraform path formats](https://hub.steampipe.io/plugins/turbot/terraform#supported-path-formats)
