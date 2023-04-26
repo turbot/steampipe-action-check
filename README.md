@@ -43,20 +43,35 @@ You can provide additional parameters to customize the action.
 
 | Parameter         | Description                                                                                                                               | Required | Default         |
 | ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | -------- | --------------- |
-| mod_url           | URL of the [terraform compliance mod]((https://hub.steampipe.io/mods?q=terraform)) to be installed. This will be passed on to `git clone` | Yes      | -               |
-| paths             | List of globs to search for Terraform configuration files (comma-separated).                                                              | No       | Repository root |
-| checks            | List of benchmarks and controls to run (space-separated or multi-line).                                                                   | No       | all             |
-| steampipe_version | Steampipe version to install. For available versions refer to [Steampipe Releases](https://github.com/turbot/steampipe/releases)          | No       | latest          |
-| github_token      | Token used to generate annotations and job summary and as such must have the necessary permissions.                                       | No       | `GITHUB_TOKEN`  |
+| mod_url           | Git URL of the terraform compliance mod that runs. This is passed verbatim to `git clone` | Yes      | -               |
+| paths             | Paths to terraform files to scan (multi-line). If unspecified, it scans all `.tf` files in the repository.                                                              | No       | ./**/*.tf |
+| checks            | A list of benchmarks and controls to run (multi-line). If not specified it runs all benchmarks and controls in the mod.                                                                   | No       | all             |
+| steampipe_version | The version of Steampipe that will be installed. If unspecified, installs the latest version. For available versions refer to [Steampipe Releases](https://github.com/turbot/steampipe/releases)          | No       | latest          |
+| github_token      | GitHub Token used to generate job summary and annotations. Note that annotations are generated only if this action is triggered by a Pull Request.                                       | No       | `GITHUB_TOKEN`  |
 
 ## Scenarios
 
-  - [To run specific benchmarks and controls](#to-run-specific-benchmarks-and-controls-include-the-checks-input)
+  - [Run specific benchmarks and controls](#run-specific-benchmarks-and-controls-include-the-checks-input)
+  - [Run multiple benchmarks and controls](#run-multiple-benchmarks-and-controls-with-the-checks-input)
   - [Pin the Steampipe version to be installed](#pin-the-steampipe-version-to-be-installed-with-the-steampipe_version-input)
-  - [Specify the Terraform files to scan](#specify-the-terraform-files-to-scan-with-the-paths-input)
+  - [Specify path to locate Terraform files to scan](#specify-the-terraform-files-to-scan-with-the-paths-input)
   - [Specify multiple paths](#specify-multiple-paths-to-locate-terraform-files-to-scan-with-the-paths-input)
 
-### To run specific benchmarks and controls, include the `checks` input.
+### Run specific benchmarks and controls, include the `checks` input.
+
+```yaml
+name: Run Steampipe Terraform AWS Compliance
+uses: turbot/steampipe-iac-action
+with:
+  mod_url: 'https://github.com/turbot/steampipe-mod-terraform-aws-compliance.git'
+  checks: benchmark.kms
+```
+
+> Refer to the benchmarks/controls available for your cloud provider [here](#helpful-links)
+
+<img src="images/input-checks-param.png"  width="60%" height="30%">
+
+### Run multiple benchmarks and controls, with the `checks` input.
 
 ```yaml
 name: Run Steampipe Terraform AWS Compliance
@@ -65,13 +80,9 @@ with:
   mod_url: 'https://github.com/turbot/steampipe-mod-terraform-aws-compliance.git'
   checks: |
     benchmark.kms
-    benchmark.apigateway
     benchmark.ebs
+    benchmark.apigateway
 ```
-
-> Refer to the benchmarks/controls available for your cloud provider [here](#helpful-links)
-
-<img src="images/input-checks-param.png"  width="60%" height="30%">
 
 ### Pin the Steampipe version to be installed with the `steampipe_version` input.
 
@@ -84,7 +95,7 @@ with:
 ```
 <img src="images/input-steampipe-version-param.png"  width="60%" height="50%">
 
-### Specify the Terraform files to scan with the `paths` input.
+### Specify the path to locate Terraform files to scan with the `paths` input.
 
 ```yaml
 name: Run Steampipe Terraform Compliance
