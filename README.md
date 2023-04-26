@@ -43,13 +43,13 @@ You can change the **`mod_url`** parameter to scan Terraform resources of other 
 
 You can provide additional parameters to customize the action.
 
-| Parameter         | Description                                                                                                                                                                                      | Required | Default        |
-| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------- | -------------- |
-| mod_url           | Git URL of the terraform compliance mod that runs. This is passed verbatim to `git clone`                                                                                                        | Yes      | -              |
-| paths             | Paths to terraform files to scan (multi-line). If unspecified, it scans all `.tf` files in the repository.                                                                                       | No       | ./\*_/_.tf     |
-| checks            | A list of benchmarks and controls to run (multi-line). If not specified it runs all benchmarks and controls in the mod.                                                                          | No       | all            |
-| steampipe_version | The version of Steampipe that will be installed. If unspecified, installs the latest version. For available versions refer to [Steampipe Releases](https://github.com/turbot/steampipe/releases) | No       | latest         |
-| github_token      | GitHub Token used to generate job summary and annotations. Note that annotations are generated only if this action is triggered by a Pull Request.                                               | No       | `GITHUB_TOKEN` |
+| Parameter         | Description                                                                                                                                                                                       | Required | Default        |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | -------------- |
+| mod_url           | Git URL of the terraform compliance mod that runs. This is passed verbatim to `git clone`.                                                                                                        | Yes      | -              |
+| paths             | Paths to terraform files to scan (multi-line). If unspecified, it scans all `.tf` files in the repository.                                                                                        | No       | ./\*_/_.tf     |
+| checks            | A list of benchmarks and controls to run (multi-line). If not specified it runs all benchmarks and controls in the mod.                                                                           | No       | all            |
+| steampipe_version | The version of Steampipe that will be installed. If unspecified, installs the latest version. For available versions refer to [Steampipe Releases](https://github.com/turbot/steampipe/releases). | No       | latest         |
+| github_token      | GitHub Token used to generate job summary and annotations. Note that annotations are generated only if this action is triggered by a Pull Request.                                                | No       | `GITHUB_TOKEN` |
 
 ## Scenarios
 
