@@ -11,19 +11,30 @@ inputs:
     description: "Git URL of the terraform compliance mod that runs. This is passed verbatim to `git clone`"
     required: true
   steampipe_version:
-    description: "The version of Steampipe that will be installed. If unspecified, installs the latest version"
+    description: >
+      Pin to a specific Steampipe CLI version
+      For available versions refer to [Steampipe Releases](https://github.com/turbot/steampipe/releases).
     required: false
     default: "latest"
   checks:
-    description: "A list of benchmarks and controls to run (multi-line). If unspecified, it runs all benchmarks and controls in the mod"
+    description: >
+      A list of benchmarks and controls to run (multi-line).
+      If not specified it runs all benchmarks and controls in the mod.
     required: false
     default: "all"
   paths:
-    description: "Paths to terraform files to scan (multi-line). If unspecified, it scans all `.tf` files in the repository"
+    description: >
+      The list of paths to scan, relative to the repository root.
+      These must be valid filesystem glob patterns.
+      Each glob pattern must be given in a newline.
     required: false
     default: "./**/*.tf"
   github_token:
-    description: "GitHub Token used to generate job summary and annotations. Note that annotations are generated only if this action is triggered by a Pull Request"
+    description: >
+      Personal access token (PAT) used to push annotations and job summary
+
+      We recommend using a service account with the least permissions necessary. Also
+      when generating a new PAT, select the least scopes necessary.
     required: false
     default: ${{ github.token }}
 
