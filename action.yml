@@ -52,7 +52,7 @@ runs:
       shell: bash
       id: make-temp-dir
       run: |
-        # Create temporary directories for steampipe and mod installation
+        # Create temporary directories for Steampipe and mod installation
         tmp=$(mktemp -d)
 
         tmp_install_dir=$tmp/sp_install_dir
