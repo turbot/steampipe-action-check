@@ -28,9 +28,60 @@ steps:
 
 This uses the `turbot/steampipe-iac-action` action to scan all Terraform files containing AWS resources in your repository and runs checks as defined by the mod.
 
+## Usage
+
+```yaml
+- name: Scan Terraform AWS resources
+  uses: turbot/steampipe-iac-action
+  with:
+    # Git URL of the terraform compliance mod that runs. This is passed verbatim to `git clone`.
+    #
+    # required
+    mod_url: https://github.com/turbot/steampipe-mod-terraform-aws-compliance.git
+
+    # Pin to a specific Steampipe CLI version
+    #
+    # For available versions refer to [Steampipe Releases](https://github.com/turbot/steampipe/releases).
+    #
+    # default: latest
+    steampipe_version: v0.19.2
+
+    # A list of benchmarks and controls to run (multi-line).
+    # If not specified it runs all benchmarks and controls in the mod.
+    #
+    # default: all
+    checks: |
+      benchmark.kms
+      benchmark.ebs
+      benchmark.apigateway
+      control.ecs_cluster_container_insights_enabled
+      control.ecs_task_definition_encryption_in_transit_enabled
+
+    # The list of paths to scan, relative to the repository root.
+    #
+    # These must be valid filesystem glob patterns.
+    #
+    # Each glob pattern must be given in a newline.
+    #
+    # default: ./**/*.tf
+    paths: |
+      cloud_infra/service_billing/aws/**/*.tf
+      cloud_infra/service_orders/aws/**/*.tf
+
+    # Personal access token (PAT) used to push annotations and job summary
+    #
+    # We recommend using a service account with the least permissions necessary. Also
+    # when generating a new PAT, select the least scopes necessary.
+    #
+    # [Learn more about creating and using encrypted secrets](https://help.github.com/en/actions/automating-your-workflow-with-github-actions/creating-and-using-encrypted-secrets)
+    #
+    # Default: ${{ github.token }}
+    github_token: ${{ secrets.ANNOTATION_GH_TOKEN }}
+```
+
 ## Supported cloud providers
 
-You can change the **`mod_url`** parameter to scan Terraform resources of other supported cloud providers.
+You can use compliance mods published by the Steampipe team to scan Terraform resources for all supported cloud providers.
 
 | Provider                                                                 | `mod_url`                                                              |
 | ------------------------------------------------------------------------ | ---------------------------------------------------------------------- |
@@ -39,27 +90,15 @@ You can change the **`mod_url`** parameter to scan Terraform resources of other 
 | [OCI](https://hub.steampipe.io/mods/turbot/terraform_oci_compliance)     | https://github.com/turbot/steampipe-mod-terraform-oci-compliance.git   |
 | [AWS](https://hub.steampipe.io/mods/turbot/terraform_aws_compliance)     | https://github.com/turbot/steampipe-mod-terraform-aws-compliance.git   |
 
-## Optional inputs
-
-You can provide additional parameters to customize the action.
-
-| Parameter         | Description                                                                                                                                                                                       | Required | Default        |
-| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- | -------------- |
-| mod_url           | Git URL of the terraform compliance mod that runs. This is passed verbatim to `git clone`.                                                                                                        | Yes      | -              |
-| paths             | Paths to terraform files to scan (multi-line). If unspecified, it scans all `.tf` files in the repository.                                                                                        | No       | ./\*\*/*.tf     |
-| checks            | A list of benchmarks and controls to run (multi-line). If not specified it runs all benchmarks and controls in the mod.                                                                           | No       | all            |
-| steampipe_version | The version of Steampipe that will be installed. If unspecified, installs the latest version. For available versions refer to [Steampipe Releases](https://github.com/turbot/steampipe/releases). | No       | latest         |
-| github_token      | GitHub Token used to generate job summary and annotations. Note that annotations are generated only if this action is triggered by a Pull Request.                                                | No       | `GITHUB_TOKEN` |
-
 ## Scenarios
 
-- [Run specific benchmarks and controls](#run-specific-benchmarks-and-controls-include-the-checks-input)
+- [Run a specific benchmark or control](#run-a-specific-benchmark-or-control---use-the-checks-input)
 - [Run multiple benchmarks and controls](#run-multiple-benchmarks-and-controls-with-the-checks-input)
-- [Pin the Steampipe version to be installed](#pin-the-steampipe-version-to-be-installed-with-the-steampipe_version-input)
-- [Specify the path to locate Terraform files to scan](#specify-the-terraform-files-to-scan-with-the-paths-input)
+- [Pin the Steampipe version](#pin-the-steampipe-version-to-be-installed-with-the-steampipe_version-input)
+- [Specify the path to locate Terraform files to scan](#specify-the-path-to-locate-terraform-files-to-scan-with-the-paths-input)
 - [Specify multiple paths](#specify-multiple-paths-to-locate-terraform-files-to-scan-with-the-paths-input)
 
-### Run a specific benchmark - use the `checks` input.
+### Run a specific benchmark or control with the `checks` input.
 
 ```yaml
 name: Run Steampipe Terraform AWS Compliance
@@ -73,7 +112,7 @@ with:
 
 <img src="images/input-checks-param.png" />
 
-### Run multiple benchmarks and controls, with the `checks` input.
+### Run multiple benchmarks and controls with the `checks` input.
 
 ```yaml
 name: Run Steampipe Terraform AWS Compliance
