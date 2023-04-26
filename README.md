@@ -101,11 +101,20 @@ The action also produces an easy-to-read summary of the scan and pushes it to th
 
 ## Scenarios
 
-- [Run a specific benchmark or control](#run-a-specific-benchmark-or-control---use-the-checks-input)
-- [Run multiple benchmarks and controls](#run-multiple-benchmarks-and-controls-with-the-checks-input)
-- [Pin the Steampipe version](#pin-the-steampipe-version-to-be-installed-with-the-steampipe_version-input)
-- [Specify the path to locate Terraform files to scan](#specify-the-path-to-locate-terraform-files-to-scan-with-the-paths-input)
-- [Specify multiple paths](#specify-multiple-paths-to-locate-terraform-files-to-scan-with-the-paths-input)
+- [Steampipe IaC Action](#steampipe-iac-action)
+  - [Integrate Steampipe IaC to your GitHub workflows](#integrate-steampipe-iac-to-your-github-workflows)
+  - [Getting started](#getting-started)
+  - [Supported cloud providers](#supported-cloud-providers)
+  - [Annotations and summary](#annotations-and-summary)
+  - [Usage](#usage)
+  - [Scenarios](#scenarios)
+    - [Run a specific benchmark or control with the `checks` input.](#run-a-specific-benchmark-or-control-with-the-checks-input)
+    - [Run multiple benchmarks and controls with the `checks` input.](#run-multiple-benchmarks-and-controls-with-the-checks-input)
+    - [Pin the Steampipe version to be installed with the `steampipe_version` input.](#pin-the-steampipe-version-to-be-installed-with-the-steampipe_version-input)
+    - [Specify the path to locate Terraform files to scan, with the `paths` input.](#specify-the-path-to-locate-terraform-files-to-scan-with-the-paths-input)
+    - [Specify multiple paths to locate Terraform files to scan, with the `paths` input.](#specify-multiple-paths-to-locate-terraform-files-to-scan-with-the-paths-input)
+    - [Use the action multiple times to scan multi-cloud terraform resources in the same job](#use-the-action-multiple-times-to-scan-multi-cloud-terraform-resources-in-the-same-job)
+    - [Helpful links](#helpful-links)
 
 ### Run a specific benchmark or control with the `checks` input.
 
@@ -118,8 +127,6 @@ with:
 ```
 
 > Refer to the benchmarks/controls available for your cloud provider [here](#helpful-links)
-
-<img src="images/input-checks-param.png" />
 
 ### Run multiple benchmarks and controls with the `checks` input.
 
@@ -145,8 +152,6 @@ with:
   mod_url: "https://github.com/turbot/steampipe-mod-terraform-aws-compliance.git"
   steampipe_version: v0.19.4
 ```
-
-<img src="images/input-steampipe-version-param.png" />
 
 ### Specify the path to locate Terraform files to scan, with the `paths` input.
 
