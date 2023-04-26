@@ -11,9 +11,9 @@ inputs:
     description: "Git URL of the terraform compliance mod that runs. This is passed verbatim to `git clone`"
     required: true
   steampipe_version:
-    description: "The version of Steampipe that will be installed"
+    description: "The version of Steampipe that will be installed. If unspecified, installs the latest version"
     required: false
-    default: ""
+    default: "latest"
   checks:
     description: "A list of benchmarks and controls to run (multi-line). If unspecified, it runs all benchmarks and controls in the mod"
     required: false
