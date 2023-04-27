@@ -23,7 +23,9 @@ inputs:
     description: >
       A search path prefix which is applied to the steampipe service before running check.
       
-      Steampipe sets up search path in alphabetical order.
+      Steampipe sets up connections in alphabetical order.
+      
+      If you want to give preference to a connection which appears later in your search path, you can use search_path_prefix.
     required: false
     default: ""
 
