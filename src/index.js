@@ -15,7 +15,7 @@ async function run() {
       throw new Error("Error: github token is required but was not supplied");
     }
     // start from the third element in the argument vector, since the first two are
-    // the path to the node executable and the path to the js file
+    // the path to the node executable and the path to this js file
     let runs = process.argv.slice(2);
     await processAnnotations({ token, runs });
     await exportStepSummary({ token, runs });
