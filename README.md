@@ -18,6 +18,15 @@ To get started with scanning your AWS Terraform resources, add the following ste
 ```yaml
 steps:
   ...
+  - name: Setup steampipe
+    uses: turbot/setup-steampipe
+    with:
+      plugins: |
+        terraform
+      connections: |
+        connection "terraform" {
+          paths = [ "./**/*.tf" ]
+        }
   - name: Scan Terraform aws resources
     uses: turbot/steampipe-iac-action
     with:
