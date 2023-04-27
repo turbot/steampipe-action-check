@@ -10,13 +10,7 @@ inputs:
   mod_url:
     description: Git URL of the Terraform compliance mod that runs. This is passed verbatim to `git clone`.
     required: true
-  steampipe_version:
-    description: >
-      Pin to a specific Steampipe CLI version.
 
-      For available versions refer to [Steampipe Releases](https://github.com/turbot/steampipe/releases).
-    required: false
-    default: "latest"
   checks:
     description: >
       A list of benchmarks and controls to run (multi-line).
@@ -54,68 +48,9 @@ runs:
       run: |
         # Create temporary directories for Steampipe and mod installation
         tmp=$(mktemp -d)
-
-        tmp_install_dir=$tmp/sp_install_dir
         tmp_mod_dir=$tmp/mod_dir
-
-        mkdir -p $tmp_install_dir
         mkdir -p $tmp_mod_dir
-
-        echo "tmp-install-dir=$tmp_install_dir" >> $GITHUB_OUTPUT
         echo "tmp-mod-dir=$tmp_mod_dir" >> $GITHUB_OUTPUT
-
-    - name: Install Steampipe
-      shell: bash
-      run: |
-        # Install Steampipe
-        VER=${{ inputs.steampipe_version }}
-        if [ "$VER" = "latest" ];then
-          # set to an empty string so that the installer picks up the latest version (default behavior)
-          VER=""
-        fi
-
-        curl https://raw.githubusercontent.com/turbot/steampipe/main/install.sh | sudo bash -s $VER
-        steampipe --version
-        steampipe query "select 1" --install-dir=${{ steps.make-temp-dir.outputs.tmp-install-dir }}
-
-    - name: Get paths
-      id: get-paths
-      shell: bash
-      run: |
-        # Convert multiline 'paths' input to single line with quotes in to configure the plugin connection
-        if [ -z "${{ inputs.paths }}" ]
-        then
-          # default to all Terraform files in the repository
-          Paths="./**/*.tf"
-        else
-          Paths=""
-          while read line; do
-            if [ -z "$Paths" ];then
-              Paths="\"$line\""
-            else
-              Paths="$Paths,\"$line\""
-            fi
-          done <<EOF
-        ${{ inputs.paths }}
-        EOF
-        fi
-
-        echo "quoted_paths_list=$Paths" >> $GITHUB_OUTPUT
-
-    - name: Install and configure Terraform plugin
-      shell: bash
-      run: |
-        # Setup plugin and connection
-        steampipe plugin install terraform --install-dir=${{ steps.make-temp-dir.outputs.tmp-install-dir }} > /dev/null
-
-        connection_data='
-        connection "terraform" {
-          plugin = "terraform"
-          paths = [ ${{ steps.get-paths.outputs.quoted_paths_list }} ]
-        }
-        '
-
-        echo "${connection_data}" > "${{ steps.make-temp-dir.outputs.tmp-install-dir }}/config/terraform.spc"
 
     - name: Get mod
       shell: bash
@@ -123,7 +58,7 @@ runs:
         # Clone and setup mod
         git clone --depth 1 "${{ inputs.mod_url }}" ${{ steps.make-temp-dir.outputs.tmp-mod-dir }}
         cd ${{ steps.make-temp-dir.outputs.tmp-mod-dir }}
-        steampipe mod install --install-dir=${{ steps.make-temp-dir.outputs.tmp-install-dir }}
+        steampipe mod install
         cd -
 
     - name: Get checks
@@ -153,6 +88,9 @@ runs:
         set +e
         STEAMPIPE_CHECK_DISPLAY_WIDTH=120 steampipe check ${{ steps.get-checks.outputs.run_list }} --output=brief --export=json,md --mod-location=${{ steps.make-temp-dir.outputs.tmp-mod-dir }} --install-dir=${{ steps.make-temp-dir.outputs.tmp-install-dir }}
         echo "exit_code=$(echo $?)" >> $GITHUB_OUTPUT
+        # ignore exit code now
+        # this is so that the action does not fail if there's a non-zero exit code
+        # we will take care of the exit code after we annotate
         exit 0
 
     - name: Annotate and summarize
