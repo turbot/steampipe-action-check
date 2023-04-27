@@ -18,15 +18,15 @@ inputs:
       If not specified it runs all benchmarks and controls in the mod.
     required: false
     default: "all"
-  paths:
+
+  search_path_prefix:
     description: >
-      The list of paths to scan, relative to the repository root.
-
-      These must be valid filesystem glob patterns.
-
-      Each glob pattern must be given in a newline.
+      A search path prefix which is applied to the steampipe service before running check.
+      
+      Steampipe sets up search path in alphabetical order.
     required: false
-    default: "./**/*.tf"
+    default: ""
+
   github_token:
     description: >
       Personal access token (PAT) used to push annotations and job summary.
@@ -86,7 +86,11 @@ runs:
       run: |
         # Run Steampipe Check
         set +e
-        STEAMPIPE_CHECK_DISPLAY_WIDTH=120 steampipe check ${{ steps.get-checks.outputs.run_list }} --output=brief --export=json,md --mod-location=${{ steps.make-temp-dir.outputs.tmp-mod-dir }} --install-dir=${{ steps.make-temp-dir.outputs.tmp-install-dir }}
+        if [ -z "${{ inputs.search_path_prefix }}" ];then
+          STEAMPIPE_CHECK_DISPLAY_WIDTH=120 steampipe check ${{ steps.get-checks.outputs.run_list }} --output=brief --export=json,md --mod-location=${{ steps.make-temp-dir.outputs.tmp-mod-dir }}
+        else 
+          STEAMPIPE_CHECK_DISPLAY_WIDTH=120 steampipe check ${{ steps.get-checks.outputs.run_list }} --output=brief --export=json,md --mod-location=${{ steps.make-temp-dir.outputs.tmp-mod-dir }} --search-path-prefix "${{ inputs.search_path_prefix }}"
+        fi
         echo "exit_code=$(echo $?)" >> $GITHUB_OUTPUT
         # ignore exit code now
         # this is so that the action does not fail if there's a non-zero exit code
