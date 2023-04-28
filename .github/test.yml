@@ -1,8 +1,5 @@
 name: Run Steampipe awscfn compliance
-on:
-  push:
-  pull_request:
-  workflow_dispatch:
+on: [pull_request,push]
 
 jobs:
   steampipe-awscfn-compliance:
