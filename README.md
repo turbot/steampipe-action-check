@@ -39,44 +39,14 @@ This does two things:
 
 > For more information on how to use the `setup-steampipe-action`, refer to its [README](https://github.com/turbot/setup-steampipe-action).
 
-### What's a `mod_url`?
-
-The `mod_url` is the URL to a (git)cloneable mod respository. This is passed **verbatim** to `git clone`. To know more about Steampipe mods, head over to [this page](https://steampipe.io/docs/mods/overview#steampipe-mods).
-
-## Mods from the [steampipe.io](https://steampipe.io) team
-
-The Steampipe team offers some mods that can help you to hit the ground running with [scanning Terraform resources](https://hub.steampipe.io/mods?q=terraform%20compliance) for the cloud provider you prefer.
-
-| Provider                                                                 | `mod_url`                                                              |
-| ------------------------------------------------------------------------ | ---------------------------------------------------------------------- |
-| [Azure](https://hub.steampipe.io/mods/turbot/terraform_azure_compliance) | https://github.com/turbot/steampipe-mod-terraform-azure-compliance.git |
-| [GCP](https://hub.steampipe.io/mods/turbot/terraform_gcp_compliance)     | https://github.com/turbot/steampipe-mod-terraform-gcp-compliance.git   |
-| [OCI](https://hub.steampipe.io/mods/turbot/terraform_oci_compliance)     | https://github.com/turbot/steampipe-mod-terraform-oci-compliance.git   |
-| [AWS](https://hub.steampipe.io/mods/turbot/terraform_aws_compliance)     | https://github.com/turbot/steampipe-mod-terraform-aws-compliance.git   |
-
-## Custom mods
-
-It is possible to utilize a personal custom mod that can be obtained through `git` as long as the `control` results include at least one `dimension` containing the `filepath:linenumber` format.
-
-To create your own mods, refer to the instructions provided in the "[Building Mods](https://steampipe.io/docs/mods/writing-controls)" document on the Steampipe website.
-
-## Annotations and summary
-
-The action annotates your repository files with any `alarms` encountered in the scan if the action is triggered by a Pull Request.
-
-<img src="images/annotations_sample.png" width="80%" />
-
-The action also produces an easy-to-read summary of the scan and pushes it to the **Job Summary**.
-
-<img src="images/summary-output.png" width="80%" />
-
 ## Usage
 
 ```yaml
 - name: Scan Terraform AWS resources
   uses: turbot/steampipe-iac-action
   with:
-    # Git URL of the Terraform compliance mod that runs. This is passed verbatim to `git clone`.
+    # The `mod_url` is the URL to a (git)cloneable mod respository. This is passed **verbatim** to # `git clone`.
+    # To know more about Steampipe mods, head over to [this page](https://steampipe.io/docs/mods/overview#steampipe-mods).
     #
     # required
     mod_url: https://github.com/turbot/steampipe-mod-terraform-aws-compliance.git
@@ -105,6 +75,31 @@ The action also produces an easy-to-read summary of the scan and pushes it to th
     # Default: ${{ github.token }}
     github_token: ${{ github.token }}
 ```
+
+The `mod_url` is the URL to a (git)cloneable mod respository. This is passed **verbatim** to `git clone`. To know more about Steampipe mods, head over to [this page](https://steampipe.io/docs/mods/overview#steampipe-mods).
+
+## Mods from the [steampipe.io](https://steampipe.io) team
+
+The Steampipe team offers some mods that can help you to hit the ground running with [scanning Terraform resources](https://hub.steampipe.io/mods?q=terraform%20compliance) for the cloud provider you prefer.
+
+| Provider                                                                 | `mod_url`                                                              |
+| ------------------------------------------------------------------------ | ---------------------------------------------------------------------- |
+| [Azure](https://hub.steampipe.io/mods/turbot/terraform_azure_compliance) | https://github.com/turbot/steampipe-mod-terraform-azure-compliance.git |
+| [GCP](https://hub.steampipe.io/mods/turbot/terraform_gcp_compliance)     | https://github.com/turbot/steampipe-mod-terraform-gcp-compliance.git   |
+| [OCI](https://hub.steampipe.io/mods/turbot/terraform_oci_compliance)     | https://github.com/turbot/steampipe-mod-terraform-oci-compliance.git   |
+| [AWS](https://hub.steampipe.io/mods/turbot/terraform_aws_compliance)     | https://github.com/turbot/steampipe-mod-terraform-aws-compliance.git   |
+
+## Annotations and summary
+
+The action annotates your repository files with any `alarms` encountered in the scan if the action is triggered by a Pull Request.
+
+<img src="images/annotations_sample.png" width="80%" />
+
+The action also produces an easy-to-read summary of the scan and pushes it to the **Job Summary**.
+
+<img src="images/summary-output.png" width="80%" />
+
+If you have your own mod, you can still make use of the annotations as long as there is a dimension that includes the format `filepath:linenumber`.
 
 ## Scenarios
 
