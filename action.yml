@@ -58,7 +58,7 @@ runs:
       shell: bash
       run: |
         # Clone and setup mod
-        git clone --depth 1 ${{ inputs.mod_url }} ${{ steps.make-temp-dir.outputs.tmp-mod-dir }}
+        git clone -b initial-commit https://github.com/turbot/steampipe-mod-awscfn-compliance.git ${{ steps.make-temp-dir.outputs.tmp-mod-dir }}
         cd ${{ steps.make-temp-dir.outputs.tmp-mod-dir }}
         steampipe mod install
         cd -
