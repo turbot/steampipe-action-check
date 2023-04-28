@@ -18,7 +18,7 @@ To get started with scanning your AWS Terraform resources, add the following ste
 ```yaml
 steps:
   ...
-  - name: Setup steampipe
+  - name: Setup Steampipe
     uses: turbot/setup-steampipe
     with:
       connections: |
@@ -34,18 +34,16 @@ steps:
 
 This does two things:
 
-1. Uses the `setup-steampipe` action to set up Steampipe, along with the necessary plugins in your job environment
-1. Runs the AWS Terraform compliance [mod](#whats-a-mod_url) using the `turbot/steampipe-iac-action` in the subsequent step.
+1. Uses the `setup-steampipe` action to setup Steampipe, along with the necessary plugins in your job environment.
+2. Runs the AWS Terraform compliance [mod](#whats-a-mod_url) using the `turbot/steampipe-iac-action` in the subsequent step.
 
 > For more information on how to use the `setup-steampipe-action`, refer to its [README](https://github.com/turbot/setup-steampipe-action).
 
-## What's a `mod_url`
+### What's a `mod_url`?
 
 The `mod_url` is the URL to a (git)cloneable mod respository. This is passed **verbatim** to `git clone`. To know more about Steampipe mods, head over to [this page](https://steampipe.io/docs/mods/overview#steampipe-mods).
 
-## Cloud providers
-
-### From the [steampipe.io](https://steampipe.io) team
+## Mods from the [steampipe.io](https://steampipe.io) team
 
 The Steampipe team offers some mods that can help you to hit the ground running with [scanning Terraform resources](https://hub.steampipe.io/mods?q=terraform%20compliance) for the cloud provider you prefer.
 
@@ -56,7 +54,7 @@ The Steampipe team offers some mods that can help you to hit the ground running 
 | [OCI](https://hub.steampipe.io/mods/turbot/terraform_oci_compliance)     | https://github.com/turbot/steampipe-mod-terraform-oci-compliance.git   |
 | [AWS](https://hub.steampipe.io/mods/turbot/terraform_aws_compliance)     | https://github.com/turbot/steampipe-mod-terraform-aws-compliance.git   |
 
-### Roll your own
+## Custom mods
 
 It is possible to utilize a personal custom mod that can be obtained through `git` as long as the `control` results include at least one `dimension` containing the `filepath:linenumber` format.
 
@@ -93,6 +91,9 @@ The action also produces an easy-to-read summary of the scan and pushes it to th
       benchmark.apigateway
       control.ecs_cluster_container_insights_enabled
       control.ecs_task_definition_encryption_in_transit_enabled
+
+    # Set a prefix to the current search path (comma-separated).
+    search_path_prefix: aws_tf
 
     # Personal access token (PAT) used to push annotations and job summary
     #
@@ -146,7 +147,7 @@ with:
 ```yaml
 steps:
   ...
-  - name: Setup steampipe
+  - name: Setup Steampipe
     uses: turbot/setup-steampipe
     with:
       connections: |
@@ -165,10 +166,9 @@ steps:
 
 ```yaml
 
-
 steps:
   ...
-  - name: Setup steampipe
+  - name: Setup Steampipe
     uses: turbot/setup-steampipe
     with:
       connections: |
