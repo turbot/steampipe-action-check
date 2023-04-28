@@ -35,7 +35,7 @@ steps:
 This does two things:
 
 1. Uses the `setup-steampipe` action to set up Steampipe, along with the necessary plugins in your job environment
-1. Runs the AWS Terraform compliance mod using the `turbot/steampipe-iac-action` in the subsequent step.
+1. Runs the AWS Terraform compliance [mod](#whats-a-mod_url) using the `turbot/steampipe-iac-action` in the subsequent step.
 
 > For more information on how to use the `setup-steampipe-action`, refer to its [README](https://github.com/turbot/setup-steampipe-action).
 
