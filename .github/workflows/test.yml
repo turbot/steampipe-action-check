@@ -20,4 +20,4 @@ jobs:
       - name: Steampipe awscfn scan action - Checks input multiline
         uses: turbot/steampipe-iac-action@infra-scan-docker
         with:
-          mod_url: initial-commit https://github.com/turbot/steampipe-mod-awscfn-aws-compliance.git
+          mod_url: -b initial-commit https://github.com/turbot/steampipe-mod-awscfn-aws-compliance.git
