@@ -1,0 +1,28 @@
+name: Run Steampipe awscfn compliance
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  steampipe-awscfn-compliance:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v3
+
+      - name: Setup steampipe
+        id: setup-steampipe
+        uses: turbot/setup-steampipe-action@setup-steampipe-js
+        with:
+          connections: |
+            connection "awscfn" {
+              plugin = "awscfn"
+              paths  = [ "./**/*.yml", "./**/*.json" ]
+            }
+      - name: Steampipe awscfn scan action - Checks input multiline
+        uses: turbot/steampipe-iac-action@infra-scan-docker
+        with:
+          mod_url: https://github.com/turbot/steampipe-mod-awscfn-aws-compliance.git@initial-commit
