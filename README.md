@@ -26,7 +26,7 @@ steps:
           paths = [ "./**/*.tf" ]
         }
 
-  - name: Scan Terraform aws resources
+  - name: Run AWS compliance on Terraform resources
     uses: turbot/steampipe-iac-action
     with:
       mod_url: https://github.com/turbot/steampipe-mod-terraform-aws-compliance.git
