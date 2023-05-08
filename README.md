@@ -45,11 +45,18 @@ This does two things:
 - name: Scan Terraform AWS resources
   uses: turbot/steampipe-iac-action
   with:
-    # The `mod_url` is the URL to a (git)cloneable mod respository. This is passed **verbatim** to # `git clone`.
+    # The `mod_repository` is the URL to a (git)cloneable mod respository. This is passed **verbatim** to # `git clone`.
     # To know more about Steampipe mods, head over to [this page](https://steampipe.io/docs/mods/overview#steampipe-mods).
     #
     # required
-    mod_url: https://github.com/turbot/steampipe-mod-terraform-aws-compliance.git
+    mod_repository: https://github.com/turbot/steampipe-mod-terraform-aws-compliance.git
+    
+    # The branch in `mod_repository` to checkout after cloning.
+    #
+    # If not specified, this defaults to the active branch in `mod_repository`
+    #
+    # default: `remote active branch`
+    mod_branch: 
 
     # A list of benchmarks and controls to run (multi-line).
     # If not specified it runs all benchmarks and controls in the mod.
@@ -99,13 +106,12 @@ The action also produces an easy-to-read summary of the scan and pushes it to th
 
 <img src="images/summary-output.png" width="80%" />
 
-If you have your own mod, you can still make use of the annotations as long as there is a dimension that includes the format `filepath:linenumber`.
+If you have created your own `mod`, you can still benefit from `annotations`, as long as a `control` has a `dimension` valuw with a `filepath:linenumber` pattern, where `filepath` resolves to a file in the repository.
 
 ## Scenarios
 
 - [Run a specific benchmark or control with the `checks` input.](#run-a-specific-benchmark-or-control-with-the-checks-input)
 - [Run multiple benchmarks and controls with the `checks` input.](#run-multiple-benchmarks-and-controls-with-the-checks-input)
-- [Pin the Steampipe version to be installed with the `steampipe_version` input.](#pin-the-steampipe-version-to-be-installed-with-the-steampipe_version-input)
 - [Specify the path to locate Terraform files to scan, with the `paths` input.](#specify-the-path-to-locate-terraform-files-to-scan-with-the-paths-input)
 - [Specify multiple paths to locate Terraform files to scan, with the `paths` input.](#specify-multiple-paths-to-locate-terraform-files-to-scan-with-the-paths-input)
 - [Use the action multiple times to scan multi-cloud Terraform resources in the same job](#use-the-action-multiple-times-to-scan-multi-cloud-terraform-resources-in-the-same-job)

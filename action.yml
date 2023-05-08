@@ -1,15 +1,23 @@
-name: "Steampipe IaC GitHub Action"
+name: "Steampipe Check GitHub Action"
 author: "Steampipe.io"
-description: "Scan for vulnerabilities in your Terraform infrastructure as code in your Actions workflow using Steampipe"
+description: "Run steampipe mods in your Actions workflow using Steampipe"
 
 branding:
   color: "red"
   icon: "shield"
 
 inputs:
-  mod_url:
-    description: Git URL of the Terraform compliance mod that runs. This is passed verbatim to `git clone`.
+  mod_repository:
+    description: >
+      Git URL of the mod that runs. This is passed verbatim to `git clone`.
     required: true
+
+  mod_branch:
+    description: >
+      The action will clone this branch from `mod_repository`.
+
+      If unspecified, the default branch will be cloned.
+    required: false
 
   checks:
     description: >
@@ -22,9 +30,9 @@ inputs:
   search_path_prefix:
     description: >
       A search path prefix which is applied to the steampipe service before running check.
-      
-      Steampipe sets up connections in alphabetical order.
-      
+
+      Steampipe sets up connections in alphabetical order by default.
+
       If you want to give preference to a connection which appears later in your search path, you can use search_path_prefix.
     required: false
     default: ""
@@ -41,9 +49,6 @@ inputs:
 runs:
   using: composite
   steps:
-    - name: Setup Node
-      uses: actions/setup-node@v3
-
     - name: Create temporary directories
       shell: bash
       id: make-temp-dir
@@ -58,7 +63,11 @@ runs:
       shell: bash
       run: |
         # Clone and setup mod
-        git clone -b initial-commit https://github.com/turbot/steampipe-mod-awscfn-compliance.git ${{ steps.make-temp-dir.outputs.tmp-mod-dir }}
+        if [ -z "${{inputs.mod_branch}}" ]; then
+          git clone --depth 1 "${{ inputs.mod_repository }}" "${{ steps.make-temp-dir.outputs.tmp-mod-dir }}"
+        else
+          git clone --depth 1 -b "${{ inputs.mod_branch }}" --single-branch "${{ inputs.mod_repository }}" "${{ steps.make-temp-dir.outputs.tmp-mod-dir }}"
+        fi
         cd ${{ steps.make-temp-dir.outputs.tmp-mod-dir }}
         steampipe mod install
         cd -
@@ -98,6 +107,9 @@ runs:
         # this is so that the action does not fail if there's a non-zero exit code
         # we will take care of the exit code after we annotate
         exit 0
+
+    - name: Setup Node
+      uses: actions/setup-node@v3
 
     - name: Annotate and summarize
       shell: bash
