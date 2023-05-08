@@ -34,10 +34,10 @@ steps:
 
 This does two things:
 
-1. Uses the `setup-steampipe` action to setup Steampipe, along with the necessary plugins in your job environment.
-2. Runs the AWS Terraform compliance [mod](#whats-a-mod_url) using the `turbot/steampipe-iac-action` in the subsequent step.
+1. Uses the [`setup-steampipe` action](https://github.com/turbot/steampipe-action-setup) to setup Steampipe, along with the necessary plugins in your job environment.
+2. Runs the AWS Terraform compliance [mod](#whats-a-mod_url) using this action in the subsequent step.
 
-> For more information on how to use the `setup-steampipe-action`, refer to its [README](https://github.com/turbot/setup-steampipe-action).
+> For more information on how to use the `steampipe-action-setup` action, refer to its [README](https://github.com/turbot/steampipe-action-setup).
 
 ## Usage
 
@@ -83,7 +83,7 @@ This does two things:
     github_token: ${{ github.token }}
 ```
 
-The `mod_url` is the URL to a (git)cloneable mod respository. This is passed **verbatim** to `git clone`. To know more about Steampipe mods, head over to [this page](https://steampipe.io/docs/mods/overview#steampipe-mods).
+The `mod_repository` is the URL to a (git)cloneable mod respository. This is passed **verbatim** to `git clone`. To know more about Steampipe mods, head over to [Steampipe Mods documentations](https://steampipe.io/docs/mods/overview#steampipe-mods).
 
 ## Mods from the [steampipe.io](https://steampipe.io) team
 
@@ -106,7 +106,7 @@ The action also produces an easy-to-read summary of the scan and pushes it to th
 
 <img src="images/summary-output.png" width="80%" />
 
-If you have created your own `mod`, you can still benefit from `annotations`, as long as a `control` has a `dimension` valuw with a `filepath:linenumber` pattern, where `filepath` resolves to a file in the repository.
+If you have created your own `mod`, you can still benefit from `annotations`, as long as a `control` has a `dimension` value with a `filepath:linenumber` pattern, where `filepath` resolves to a file in the repository.
 
 ## Scenarios
 
@@ -193,7 +193,7 @@ steps:
       search_path_prefix: gcp_tf # gives preference to the gcp terraform files
 ```
 
-For more examples refer to the [`examples/workflow`](https://github.com/turbot/steampipe-iac-action/tree/infra-scan/examples/workflow) directory.
+For more examples refer to the [`examples/workflow`](/examples/workflow) directory.
 
 ### Helpful links
 
