@@ -50,13 +50,13 @@ This does two things:
     #
     # required
     mod_repository: https://github.com/turbot/steampipe-mod-terraform-aws-compliance.git
-    
+
     # The branch in `mod_repository` to checkout after cloning.
     #
     # If not specified, this defaults to the active branch in `mod_repository`
     #
     # default: `remote active branch`
-    mod_branch: 
+    mod_branch:
 
     # A list of benchmarks and controls to run (multi-line).
     # If not specified it runs all benchmarks and controls in the mod.
@@ -82,8 +82,6 @@ This does two things:
     # Default: ${{ github.token }}
     github_token: ${{ github.token }}
 ```
-
-The `mod_repository` is the URL to a (git)cloneable mod respository. This is passed **verbatim** to `git clone`. To know more about Steampipe mods, head over to [Steampipe Mods documentations](https://steampipe.io/docs/mods/overview#steampipe-mods).
 
 ## Mods from the [steampipe.io](https://steampipe.io) team
 
