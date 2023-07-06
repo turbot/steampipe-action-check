@@ -114,6 +114,23 @@ If you have created your own `mod`, you can still benefit from `annotations`, as
 - [Specify multiple paths to locate Terraform files to scan, with the `paths` input.](#specify-multiple-paths-to-locate-terraform-files-to-scan-with-the-paths-input)
 - [Use the action multiple times to scan multi-cloud Terraform resources in the same job](#use-the-action-multiple-times-to-scan-multi-cloud-terraform-resources-in-the-same-job)
 
+## Utilize OIDC to access authenticate with short lived creds in AWS and GCP
+
+### Prerequisites
+
+The projects and roles you enable these changes for in your public clouds, should have read only access to the resources you intend to interrogate with steampipe. A prevalidation step of setting your OIDC connection up with your own provider is encouraged, to ensure no miss configuration occurs on the client side.
+
+#### GCP
+All you need is a configured connection with the project id and service account, with landing repo where you an allowed client. Just pass these in as inputs to our workflows!
+
+#### AWS
+
+Just specify the full aws account role  
+
+##### Future work
+
+Fully deploying the OIDC connection into one or more clouds is in future scope but not currently supported.
+
 ### Run a specific benchmark or control with the `checks` input.
 
 ```yaml
