@@ -1,48 +1,26 @@
-name: "Steampipe Check GitHub Action"
-author: "Steampipe.io"
-description: "Run steampipe mods in your Actions workflow using Steampipe"
-
+---
+name: Steampipe Check
+author: Turbot
+description: Run Steampipe mod controls and create annotations for Infrastructure as Code controls.
 branding:
-  color: "red"
-  icon: "shield"
-
+  color: red
+  icon: shield
 inputs:
   mod_repository:
-    description: >
-      Git URL of the mod that runs. This is passed verbatim to `git clone`.
+    description: Git URL of the mod that runs. This is passed verbatim to `git clone`.
     required: true
-
   mod_branch:
-    description: >
-      The action will clone this branch from `mod_repository`.
-
-      If unspecified, the default branch will be cloned.
+    description: The action will clone this branch from `mod_repository`. Defaults to the default branch.
     required: false
-
   checks:
-    description: >
-      A list of benchmarks and controls to run (multi-line).
-
-      If not specified it runs all benchmarks and controls in the mod.
+    description: A list of benchmarks and controls to run (multi-line). Defaults to "all".
     required: false
     default: "all"
-
   search_path_prefix:
-    description: >
-      A search path prefix which is applied to the steampipe service before running check.
-
-      Steampipe sets up connections in alphabetical order by default.
-
-      If you want to give preference to a connection which appears later in your search path, you can use search_path_prefix.
+    description: Comma-separated list of prefixes to add to the beginning of the search path.
     required: false
-    default: ""
-
   github_token:
-    description: >
-      Personal access token (PAT) used to push annotations and job summary.
-
-      We recommend using a service account with the least permissions necessary. Also
-      when generating a new PAT, select the least scopes necessary.
+    description: Personal access token (PAT) used to push annotations and job summary.
     required: false
     default: ${{ github.token }}
 
@@ -99,7 +77,7 @@ runs:
         set +e
         if [ -z "${{ inputs.search_path_prefix }}" ];then
           STEAMPIPE_CHECK_DISPLAY_WIDTH=120 steampipe check ${{ steps.get-checks.outputs.run_list }} --output=brief --export=json,md --mod-location=${{ steps.make-temp-dir.outputs.tmp-mod-dir }}
-        else 
+        else
           STEAMPIPE_CHECK_DISPLAY_WIDTH=120 steampipe check ${{ steps.get-checks.outputs.run_list }} --output=brief --export=json,md --mod-location=${{ steps.make-temp-dir.outputs.tmp-mod-dir }} --search-path-prefix "${{ inputs.search_path_prefix }}"
         fi
         echo "exit_code=$(echo $?)" >> $GITHUB_OUTPUT
