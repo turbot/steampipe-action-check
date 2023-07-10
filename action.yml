@@ -6,20 +6,24 @@ branding:
   color: red
   icon: shield
 inputs:
-  mod_repository:
+  mod-repository:
     description: Git URL of the mod that runs. This is passed verbatim to `git clone`.
     required: true
-  mod_branch:
-    description: The action will clone this branch from `mod_repository`. Defaults to the default branch.
+  mod-branch:
+    description: 'Mod branch or tag to clone. Defaults to "main". Examples: main, 0.5, 1.0.'
     required: false
+    default: main
   checks:
     description: A list of benchmarks and controls to run (multi-line). Defaults to "all".
     required: false
     default: "all"
-  search_path_prefix:
+  additional-args:
+    description: Space separated args to add. ExamplesComma-separated list of prefixes to add to the beginning of the search path.
+    required: false
+  search-path-prefix:
     description: Comma-separated list of prefixes to add to the beginning of the search path.
     required: false
-  github_token:
+  github-token:
     description: Personal access token (PAT) used to push annotations and job summary.
     required: false
     default: ${{ github.token }}
@@ -41,10 +45,10 @@ runs:
       shell: bash
       run: |
         # Clone and setup mod
-        if [ -z "${{inputs.mod_branch}}" ]; then
-          git clone --depth 1 "${{ inputs.mod_repository }}" "${{ steps.make-temp-dir.outputs.tmp-mod-dir }}"
+        if [ -z "${{inputs.mod-branch}}" ]; then
+          git clone --depth 1 "${{ inputs.mod-repository }}" "${{ steps.make-temp-dir.outputs.tmp-mod-dir }}"
         else
-          git clone --depth 1 -b "${{ inputs.mod_branch }}" --single-branch "${{ inputs.mod_repository }}" "${{ steps.make-temp-dir.outputs.tmp-mod-dir }}"
+          git clone --depth 1 -b "${{ inputs.mod-branch }}" --single-branch "${{ inputs.mod-repository }}" "${{ steps.make-temp-dir.outputs.tmp-mod-dir }}"
         fi
         cd ${{ steps.make-temp-dir.outputs.tmp-mod-dir }}
         steampipe mod install
@@ -75,10 +79,10 @@ runs:
       run: |
         # Run Steampipe Check
         set +e
-        if [ -z "${{ inputs.search_path_prefix }}" ];then
+        if [ -z "${{ inputs.search-path-prefix }}" ];then
           STEAMPIPE_CHECK_DISPLAY_WIDTH=120 steampipe check ${{ steps.get-checks.outputs.run_list }} --output=brief --export=json,md --mod-location=${{ steps.make-temp-dir.outputs.tmp-mod-dir }}
         else
-          STEAMPIPE_CHECK_DISPLAY_WIDTH=120 steampipe check ${{ steps.get-checks.outputs.run_list }} --output=brief --export=json,md --mod-location=${{ steps.make-temp-dir.outputs.tmp-mod-dir }} --search-path-prefix "${{ inputs.search_path_prefix }}"
+          STEAMPIPE_CHECK_DISPLAY_WIDTH=120 steampipe check ${{ steps.get-checks.outputs.run_list }} --output=brief --export=json,md --mod-location=${{ steps.make-temp-dir.outputs.tmp-mod-dir }} --search-path-prefix "${{ inputs.search-path-prefix }}"
         fi
         echo "exit_code=$(echo $?)" >> $GITHUB_OUTPUT
         # ignore exit code now
@@ -94,7 +98,7 @@ runs:
       run: |
         node ${{ github.action_path }}/dist/index.js ${{ steps.get-checks.outputs.run_list }}
       env:
-        GITHUB_TOKEN: ${{ inputs.github_token }}
+        GITHUB_TOKEN: ${{ inputs.github-token }}
 
     - name: Exit
       shell: bash
