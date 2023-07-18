@@ -27,20 +27,19 @@ See [action.yml](action.yml).
 ### Basic
 
 ```yaml
-steps:
-  ...
   - name: Setup Steampipe
     uses: turbot/steampipe-action-setup
     with:
       connections: |
         connection "terraform" {
-          paths = [ "./**/*.tf" ]
+          plugin = "terraform"
+          paths  = [ "./**/*.tf" ]
         }
 
   - name: Run AWS compliance on Terraform resources
     uses: turbot/steampipe-action-check
     with:
-      mod_url: https://github.com/turbot/steampipe-mod-terraform-aws-compliance.git
+      mod-url: https://github.com/turbot/steampipe-mod-terraform-aws-compliance
 ```
 
 ### Run a specific benchmark or control with the `checks` input.
@@ -49,7 +48,7 @@ steps:
 name: Run Steampipe Terraform AWS Compliance
 uses: turbot/steampipe-action-check
 with:
-  mod_url: "https://github.com/turbot/steampipe-mod-terraform-aws-compliance.git"
+  mod-url: "https://github.com/turbot/steampipe-mod-terraform-aws-compliance"
   checks: benchmark.kms
 ```
 
@@ -61,7 +60,7 @@ with:
 name: Run Steampipe Terraform AWS Compliance
 uses: turbot/steampipe-action-check
 with:
-  mod_url: "https://github.com/turbot/steampipe-mod-terraform-aws-compliance.git"
+  mod-url: "https://github.com/turbot/steampipe-mod-terraform-aws-compliance"
   checks: |
     benchmark.kms
     benchmark.ebs
@@ -73,19 +72,18 @@ with:
 ### Specify multiple paths to locate Terraform files to scan, with the `paths` input.
 
 ```yaml
-steps:
-  ...
   - name: Setup Steampipe
     uses: turbot/steampipe-action-setup
     with:
       connections: |
         connection "terraform" {
-          paths = [ "cloud_infra/service_billing/aws/**/*.tf", "cloud_infra/service_orders/aws/**/*.tf" ]
+          plugin = "terraform"
+          paths  = [ "cloud_infra/service_billing/aws/**/*.tf", "cloud_infra/service_orders/aws/**/*.tf" ]
         }
   - name: Scan Terraform aws resources
     uses: turbot/steampipe-action-check
     with:
-      mod_url: https://github.com/turbot/steampipe-mod-terraform-aws-compliance.git
+      mod-url: https://github.com/turbot/steampipe-mod-terraform-aws-compliance
 ```
 
 > Refer to https://hub.steampipe.io/plugins/turbot/terraform#configuring-local-file-paths for local file path configuration.
@@ -93,31 +91,29 @@ steps:
 ### Use the action multiple times to scan multi-cloud Terraform resources in the same job
 
 ```yaml
-
-steps:
-  ...
   - name: Setup Steampipe
     uses: turbot/steampipe-action-setup
     with:
       connections: |
         connection "aws_tf" {
-          paths = [ "cloud_infra/service_billing/aws/**/*.tf", "cloud_infra/service_orders/aws/**/*.tf" ]
+          plugin = "terraform"
+          paths  = [ "cloud_infra/service_billing/aws/**/*.tf", "cloud_infra/service_orders/aws/**/*.tf" ]
         }
 
         connection "gcp_tf" {
-          paths = [ "cloud_infra/service_billing/gcp/**/*.tf", "cloud_infra/service_orders/gcp/**/*.tf" ]
+          plugin = "terraform"
+          paths  = [ "cloud_infra/service_billing/gcp/**/*.tf", "cloud_infra/service_orders/gcp/**/*.tf" ]
         }
-
   - name: Run Steampipe Terraform Compliance on AWS
     uses: turbot/steampipe-action-check
     with:
-      mod_url: https://github.com/turbot/steampipe-mod-terraform-aws-compliance.git
+      mod-url: https://github.com/turbot/steampipe-mod-terraform-aws-compliance
 
   - name: Run Steampipe Terraform Compliance on GCP
     uses: turbot/steampipe-action-check
     with:
-      mod_url: https://github.com/turbot/steampipe-mod-terraform-gcp-compliance.git
-      search_path_prefix: gcp_tf # gives preference to the gcp terraform files
+      mod-url: https://github.com/turbot/steampipe-mod-terraform-gcp-compliance
+      additional-args: '--search-path-prefix=gcp_tf'
 ```
 
 ### Helpful links

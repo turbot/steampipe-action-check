@@ -6,25 +6,26 @@ branding:
   color: red
   icon: shield
 inputs:
-  mod-repository:
-    description: Git URL of the mod that runs. This is passed verbatim to `git clone`.
+  mod-url:
+    description: "Mod URL to clone. Examples: https://github.com/turbot/steampipe-mod-aws-compliance."
     required: true
   mod-branch:
-    description: 'Mod branch or tag to clone. Defaults to "main". Examples: main, 0.5, 1.0.'
+    description: 'Mod branch or tag to clone. Defaults to "main". Examples: main, release/v0.7, 0.5, 1.0.'
     required: false
     default: main
   checks:
-    description: A list of benchmarks and controls to run (multi-line). Defaults to "all".
+    description: 'Space separated list of benchmarks and controls to run. Can also pass in as a multi-line string. Defaults to "all".'
+    required: true
+    default: all
+  create-annotations:
+    description: If true, create annotations in pull requests for controls that have a "path" additional dimension with the format `filename:linenumber`.
     required: false
-    default: "all"
+    default: false
   additional-args:
-    description: Space separated args to add. ExamplesComma-separated list of prefixes to add to the beginning of the search path.
-    required: false
-  search-path-prefix:
-    description: Comma-separated list of prefixes to add to the beginning of the search path.
+    description: 'Space separated args to add to the "steampipe check" command.'
     required: false
   github-token:
-    description: Personal access token (PAT) used to push annotations and job summary.
+    description: GitHub token used to push annotations and job summaries.
     required: false
     default: ${{ github.token }}
 

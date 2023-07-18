@@ -68,18 +68,19 @@ export async function pushAnnotations(input, annotations) {
     chunks[chunks.length - 1].push(ann);
   }
 
+  // TODO: Are all of these values correct and standard?
   for (let chunk of chunks) {
     await octokit.rest.checks.create({
       ...context.repo,
       pull_number: context.payload.pull_request.number,
       head_sha: context.payload.pull_request["head"]["sha"],
       check_run_id: context.runId,
-      name: "steampipe-iac-scan",
+      name: "steampipe-check",
       status: "completed",
       conclusion: "action_required",
       output: {
-        title: "Steampipe IAC Scan",
-        summary: "Terraform Validation Failed",
+        title: "Steampipe Check",
+        summary: "Control check failed",
         annotations: chunk,
       },
     });
