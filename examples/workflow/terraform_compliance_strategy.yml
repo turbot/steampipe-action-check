@@ -17,7 +17,6 @@ jobs:
             search_path: "azure_tf"
           - cloud: "gcp"
             search_path: "gcp_tf"
-        # folder: [aws, azure, gcp]
     runs-on: ubuntu-latest
 
     steps:

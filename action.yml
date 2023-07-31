@@ -7,7 +7,7 @@ branding:
   icon: shield
 inputs:
   mod-url:
-    description: "Mod URL to clone. Examples: https://github.com/turbot/steampipe-mod-aws-compliance."
+    description: "Mod URL to clone. Examples: https://github.com/turbot/steampipe-mod-aws-compliance"
     required: true
   mod-branch:
     description: 'Mod branch or tag to clone. Defaults to "main". Examples: main, release/v0.7, 0.5, 1.0.'
@@ -92,14 +92,14 @@ runs:
         exit 0
 
     - name: Setup Node
+      if: inputs.create-annotations == true
       uses: actions/setup-node@v3
 
     - name: Annotate and summarize
+      if: inputs.create-annotations == true
       shell: bash
       run: |
-        if [ "${{ inputs.create-annotations }}" = "true" ]; then
-          node ${{ github.action_path }}/dist/index.js ${{ steps.get-checks.outputs.run_list }}
-        fi
+        node ${{ github.action_path }}/dist/index.js ${{ steps.get-checks.outputs.run_list }}
       env:
         GITHUB_TOKEN: ${{ inputs.github-token }}
 
