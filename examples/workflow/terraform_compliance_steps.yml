@@ -14,16 +14,30 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v3
 
-      - name: Run Steampipe Terraform AWS Compliance
-        uses: turbot/steampipe-iac-action
+      - name: Setup Steampipe
+        uses: turbot/steampipe-action-setup
         with:
-          mod_url: 'https://github.com/turbot/steampipe-mod-terraform-aws-compliance.git'
+          connections: |
+            connection "aws_tf" {
+              plugin = "terraform"
+              paths  = ["examples/terraform/aws/**/*.tf"]
+            }
+
+            connection "gcp_tf" {
+              plugin = "terraform"
+              paths  = ["examples/terraform/gcp/**/*.tf"]
+            }
+
+      - name: Run Steampipe Terraform AWS Compliance
+        uses: turbot/steampipe-action-check
+        with:
+          mod-url: 'https://github.com/turbot/steampipe-mod-terraform-aws-compliance'
           checks: |
-                  benchmark.ec2
-                  benchmark.ecs
+            benchmark.ec2
+            benchmark.ecs
 
       - name: Run Steampipe Terraform GCP Compliance
-        uses: turbot/steampipe-iac-action
+        uses: turbot/steampipe-action-check
         with:
-          mod_url: 'https://github.com/turbot/steampipe-mod-terraform-gcp-compliance.git'
-          checks: benchmark.kms
+          mod-url: 'https://github.com/turbot/steampipe-mod-terraform-gcp-compliance'
+          checks: benchmark.compute

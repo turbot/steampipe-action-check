@@ -47,9 +47,9 @@ runs:
       run: |
         # Clone and setup mod
         if [ -z "${{inputs.mod-branch}}" ]; then
-          git clone --depth 1 "${{ inputs.mod-repository }}" "${{ steps.make-temp-dir.outputs.tmp-mod-dir }}"
+          git clone --depth 1 "${{ inputs.mod-url }}" "${{ steps.make-temp-dir.outputs.tmp-mod-dir }}"
         else
-          git clone --depth 1 -b "${{ inputs.mod-branch }}" --single-branch "${{ inputs.mod-repository }}" "${{ steps.make-temp-dir.outputs.tmp-mod-dir }}"
+          git clone --depth 1 -b "${{ inputs.mod-branch }}" --single-branch "${{ inputs.mod-url }}" "${{ steps.make-temp-dir.outputs.tmp-mod-dir }}"
         fi
         cd ${{ steps.make-temp-dir.outputs.tmp-mod-dir }}
         steampipe mod install
@@ -80,10 +80,10 @@ runs:
       run: |
         # Run Steampipe Check
         set +e
-        if [ -z "${{ inputs.search-path-prefix }}" ];then
+        if [ -z "${{ inputs.additional-args }}" ];then
           STEAMPIPE_CHECK_DISPLAY_WIDTH=120 steampipe check ${{ steps.get-checks.outputs.run_list }} --output=brief --export=json,md --mod-location=${{ steps.make-temp-dir.outputs.tmp-mod-dir }}
         else
-          STEAMPIPE_CHECK_DISPLAY_WIDTH=120 steampipe check ${{ steps.get-checks.outputs.run_list }} --output=brief --export=json,md --mod-location=${{ steps.make-temp-dir.outputs.tmp-mod-dir }} --search-path-prefix "${{ inputs.search-path-prefix }}"
+          STEAMPIPE_CHECK_DISPLAY_WIDTH=120 steampipe check ${{ steps.get-checks.outputs.run_list }} --output=brief --export=json,md --mod-location=${{ steps.make-temp-dir.outputs.tmp-mod-dir }} ${{ inputs.additional-args }}
         fi
         echo "exit_code=$(echo $?)" >> $GITHUB_OUTPUT
         # ignore exit code now
@@ -97,7 +97,9 @@ runs:
     - name: Annotate and summarize
       shell: bash
       run: |
-        node ${{ github.action_path }}/dist/index.js ${{ steps.get-checks.outputs.run_list }}
+        if [ "${{ inputs.create-annotations }}" = "true" ]; then
+          node ${{ github.action_path }}/dist/index.js ${{ steps.get-checks.outputs.run_list }}
+        fi
       env:
         GITHUB_TOKEN: ${{ inputs.github-token }}
 

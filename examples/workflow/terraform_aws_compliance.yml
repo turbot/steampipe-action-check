@@ -14,8 +14,16 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v3
 
-      - name: Steampipe terraform scan action - with mod_url & default check all
-        uses: turbot/steampipe-iac-action
+      - name: Setup Steampipe
+        uses: turbot/steampipe-action-setup
         with:
-          mod_url: https://github.com/turbot/steampipe-mod-terraform-aws-compliance.git
-          path: examples/terraform/aws/
+          connections: |
+            connection "aws_tf" {
+              plugin = "terraform"
+              paths  = ["examples/terraform/aws/**/*.tf"]
+            }
+
+      - name: Steampipe terraform scan action - with mod-url & default check all
+        uses: turbot/steampipe-action-check
+        with:
+          mod-url: https://github.com/turbot/steampipe-mod-terraform-aws-compliance
