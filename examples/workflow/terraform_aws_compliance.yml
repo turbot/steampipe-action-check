@@ -15,9 +15,9 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Setup Steampipe
-        uses: turbot/steampipe-action-setup
+        uses: turbot/steampipe-action-setup@v1.4.0
         with:
-          connections: |
+          plugin-connections: |
             connection "aws_tf" {
               plugin = "terraform"
               paths  = ["examples/terraform/aws/**/*.tf"]

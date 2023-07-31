@@ -1,8 +1,8 @@
-name: Run Steampipe awscfn compliance
+name: Run Steampipe awstf compliance
 on: [pull_request,push]
 
 jobs:
-  steampipe-awscfn-compliance:
+  steampipe-awstf-compliance:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
@@ -10,9 +10,9 @@ jobs:
 
       - name: Setup steampipe
         id: setup-steampipe
-        uses: turbot/steampipe-action-setup
+        uses: turbot/steampipe-action-setup@v1.4.0
         with:
-          connections: |
+          plugin-connections: |
             connection "aws_tf" {
               plugin = "terraform"
               paths  = [ "./examples/terraform/aws/**/*.tf" ]

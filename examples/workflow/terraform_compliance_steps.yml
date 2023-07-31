@@ -17,7 +17,7 @@ jobs:
       - name: Setup Steampipe
         uses: turbot/steampipe-action-setup
         with:
-          connections: |
+          plugin-connections: |
             connection "aws_tf" {
               plugin = "terraform"
               paths  = ["examples/terraform/aws/**/*.tf"]
@@ -29,7 +29,7 @@ jobs:
             }
 
       - name: Run Steampipe Terraform AWS Compliance
-        uses: turbot/steampipe-action-check
+        uses: turbot/steampipe-action-check@v1.4.0
         with:
           mod-url: 'https://github.com/turbot/steampipe-mod-terraform-aws-compliance'
           checks: |
