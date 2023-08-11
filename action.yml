@@ -28,6 +28,17 @@ inputs:
     description: GitHub token used to push annotations and job summaries.
     required: false
     default: ${{ github.token }}
+  create-snapshot:
+    description: If true, will create a snapshot on Turbot Pipes.
+    required: false
+    default: false
+  cloud-host:
+    description: The host of your Turbot Pipes instance, defaults to https://pipes.turbot.com/
+    required: false
+    default: https://pipes.turbot.com/
+  cloud-token:
+    description: The Turbot Pipes token used to save snapshots, required if 'create-snapshot' is true.
+    required: false
 
 runs:
   using: composite
@@ -76,6 +87,7 @@ runs:
 
     - name: Run checks
       id: run-checks
+      if: inputs.create-snapshot == false
       shell: bash
       run: |
         # Run Steampipe Check
@@ -84,6 +96,27 @@ runs:
           STEAMPIPE_DISPLAY_WIDTH=120 steampipe check ${{ steps.get-checks.outputs.run_list }} --output=brief --export=json,md --mod-location=${{ steps.make-temp-dir.outputs.tmp-mod-dir }}
         else
           STEAMPIPE_DISPLAY_WIDTH=120 steampipe check ${{ steps.get-checks.outputs.run_list }} --output=brief --export=json,md --mod-location=${{ steps.make-temp-dir.outputs.tmp-mod-dir }} ${{ inputs.additional-args }}
+        fi
+        echo "exit_code=$(echo $?)" >> $GITHUB_OUTPUT
+        # ignore exit code now
+        # this is so that the action does not fail if there's a non-zero exit code
+        # we will take care of the exit code after we annotate
+        exit 0
+
+    - name: Run checks with snapshot
+      id: run-checks-snapshot
+      if: inputs.create-snapshot == true
+      shell: bash
+      env:
+        STEAMPIPE_CLOUD_HOST: ${{ inputs.cloud-host }}
+        STEAMPIPE_CLOUD_TOKEN: ${{ inputs.cloud-token }}
+      run: |
+        # Run Steampipe Check
+        set +e
+        if [ -z "${{ inputs.additional-args }}" ];then
+          STEAMPIPE_DISPLAY_WIDTH=120 steampipe check ${{ steps.get-checks.outputs.run_list }} --share --output=brief --export=json,md --mod-location=${{ steps.make-temp-dir.outputs.tmp-mod-dir }}
+        else
+          STEAMPIPE_DISPLAY_WIDTH=120 steampipe check ${{ steps.get-checks.outputs.run_list }} --share --output=brief --export=json,md --mod-location=${{ steps.make-temp-dir.outputs.tmp-mod-dir }} ${{ inputs.additional-args }}
         fi
         echo "exit_code=$(echo $?)" >> $GITHUB_OUTPUT
         # ignore exit code now
