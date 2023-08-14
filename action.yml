@@ -24,21 +24,21 @@ inputs:
   additional-args:
     description: 'Space separated args to add to the "steampipe check" command.'
     required: false
-  github-token:
-    description: GitHub token used to push annotations and job summaries.
-    required: false
-    default: ${{ github.token }}
   create-snapshot:
     description: If true, will create a snapshot on Turbot Pipes.
     required: false
     default: false
   cloud-host:
-    description: The host of your Turbot Pipes instance, defaults to https://pipes.turbot.com/
+    description: The host of your Turbot Pipes instance, defaults to pipes.turbot.com
     required: false
-    default: https://pipes.turbot.com/
+    default: pipes.turbot.com
   cloud-token:
     description: The Turbot Pipes token used to save snapshots, required if 'create-snapshot' is true.
     required: false
+  github-token:
+    description: GitHub token used to push annotations and job summaries.
+    required: false
+    default: ${{ github.token }}
 
 runs:
   using: composite
@@ -87,15 +87,18 @@ runs:
 
     - name: Run checks
       id: run-checks
-      if: inputs.create-snapshot == false
+      if: inputs.create-snapshot == 'false'
       shell: bash
+      env:
+        STEAMPIPE_CHECK_DISPLAY_WIDTH: 120
+        STEAMPIPE_DISPLAY_WIDTH: 120
       run: |
         # Run Steampipe Check
         set +e
         if [ -z "${{ inputs.additional-args }}" ];then
-          STEAMPIPE_DISPLAY_WIDTH=120 steampipe check ${{ steps.get-checks.outputs.run_list }} --output=brief --export=json,md --mod-location=${{ steps.make-temp-dir.outputs.tmp-mod-dir }}
+          steampipe check ${{ steps.get-checks.outputs.run_list }} --output=brief --export=json,md --mod-location=${{ steps.make-temp-dir.outputs.tmp-mod-dir }}
         else
-          STEAMPIPE_DISPLAY_WIDTH=120 steampipe check ${{ steps.get-checks.outputs.run_list }} --output=brief --export=json,md --mod-location=${{ steps.make-temp-dir.outputs.tmp-mod-dir }} ${{ inputs.additional-args }}
+          steampipe check ${{ steps.get-checks.outputs.run_list }} --output=brief --export=json,md --mod-location=${{ steps.make-temp-dir.outputs.tmp-mod-dir }} ${{ inputs.additional-args }}
         fi
         echo "exit_code=$(echo $?)" >> $GITHUB_OUTPUT
         # ignore exit code now
@@ -105,18 +108,20 @@ runs:
 
     - name: Run checks with snapshot
       id: run-checks-snapshot
-      if: inputs.create-snapshot == true
+      if: inputs.create-snapshot == 'true'
       shell: bash
       env:
         STEAMPIPE_CLOUD_HOST: ${{ inputs.cloud-host }}
         STEAMPIPE_CLOUD_TOKEN: ${{ inputs.cloud-token }}
+        STEAMPIPE_CHECK_DISPLAY_WIDTH: 120
+        STEAMPIPE_DISPLAY_WIDTH: 120
       run: |
         # Run Steampipe Check
         set +e
         if [ -z "${{ inputs.additional-args }}" ];then
-          STEAMPIPE_DISPLAY_WIDTH=120 steampipe check ${{ steps.get-checks.outputs.run_list }} --share --output=brief --export=json,md --mod-location=${{ steps.make-temp-dir.outputs.tmp-mod-dir }}
+          steampipe check ${{ steps.get-checks.outputs.run_list }} --share --output=brief --export=json,md --mod-location=${{ steps.make-temp-dir.outputs.tmp-mod-dir }}
         else
-          STEAMPIPE_DISPLAY_WIDTH=120 steampipe check ${{ steps.get-checks.outputs.run_list }} --share --output=brief --export=json,md --mod-location=${{ steps.make-temp-dir.outputs.tmp-mod-dir }} ${{ inputs.additional-args }}
+          steampipe check ${{ steps.get-checks.outputs.run_list }} --share --output=brief --export=json,md --mod-location=${{ steps.make-temp-dir.outputs.tmp-mod-dir }} ${{ inputs.additional-args }}
         fi
         echo "exit_code=$(echo $?)" >> $GITHUB_OUTPUT
         # ignore exit code now
@@ -125,11 +130,11 @@ runs:
         exit 0
 
     - name: Setup Node
-      if: inputs.create-annotations == true
+      if: inputs.create-annotations == 'true'
       uses: actions/setup-node@v3
 
     - name: Annotate and summarize
-      if: inputs.create-annotations == true
+      if: inputs.create-annotations == 'true'
       shell: bash
       run: |
         node ${{ github.action_path }}/dist/index.js ${{ steps.get-checks.outputs.run_list }}
@@ -137,11 +142,17 @@ runs:
         GITHUB_TOKEN: ${{ inputs.github-token }}
 
     - name: Exit
+      id: exit-step
       shell: bash
       run: |
+        # Grab outputs from potential run-check steps
+        RCE=${{ steps.run-checks.outputs.exit_code }}
+        RCSE=${{ steps.run-checks-snapshot.outputs.exit_code }}
+        # Coalesce the exit code
+        EC=${RCE:-${RCSE:-0}}
         # Exit normally if there were no errors in the checks (no errors will exit with code of 1 or 0)
-        if [[ ${{ steps.run-checks.outputs.exit_code }} -le 1 ]];then
+        if [[ $EC -le 1 ]];then
           exit 0
         else
-          exit ${{ steps.run-checks.outputs.exit_code }}
+          exit $EC
         fi
