@@ -24,16 +24,11 @@ inputs:
   additional-args:
     description: 'Space separated args to add to the "steampipe check" command.'
     required: false
-  create-snapshot:
-    description: If true, will create a snapshot on Turbot Pipes.
+  snapshot-type:
+    description: If set to 'public' or 'private' will create a snapshot on Turbot Pipes _requires input 'pipes-token'_, other values or not being set will not.
     required: false
-    default: false
-  cloud-host:
-    description: The host of your Turbot Pipes instance, defaults to pipes.turbot.com
-    required: false
-    default: pipes.turbot.com
-  cloud-token:
-    description: The Turbot Pipes token used to save snapshots, required if 'create-snapshot' is true.
+  pipes-token:
+    description: The Turbot Pipes token used to save snapshots, required if 'snapshot-type' is set.
     required: false
   github-token:
     description: GitHub token used to push annotations and job summaries.
@@ -87,47 +82,30 @@ runs:
 
     - name: Run checks
       id: run-checks
-      if: inputs.create-snapshot == 'false'
       shell: bash
       env:
+        STEAMPIPE_CLOUD_HOST: pipes.turbot.com
+        STEAMPIPE_CLOUD_TOKEN: ${{ inputs.pipes-token }}
         STEAMPIPE_CHECK_DISPLAY_WIDTH: 120
         STEAMPIPE_DISPLAY_WIDTH: 120
       run: |
         # Run Steampipe Check
         set +e
-        if [ -z "${{ inputs.additional-args }}" ];then
-          steampipe check ${{ steps.get-checks.outputs.run_list }} --output=brief --export=json,md --mod-location=${{ steps.make-temp-dir.outputs.tmp-mod-dir }}
-        else
-          steampipe check ${{ steps.get-checks.outputs.run_list }} --output=brief --export=json,md --mod-location=${{ steps.make-temp-dir.outputs.tmp-mod-dir }} ${{ inputs.additional-args }}
+        SS=""
+        if [ "${{ inputs.snapshot-type }}" == "public" ];then
+          SS="--share"
+        elif [ "${{ inputs.snapshot-type }}" == "private" ];then
+          SS="--snapshot"
         fi
-        echo "exit_code=$(echo $?)" >> $GITHUB_OUTPUT
-        # ignore exit code now
-        # this is so that the action does not fail if there's a non-zero exit code
-        # we will take care of the exit code after we annotate
-        exit 0
-
-    - name: Run checks with snapshot
-      id: run-checks-snapshot
-      if: inputs.create-snapshot == 'true'
-      shell: bash
-      env:
-        STEAMPIPE_CLOUD_HOST: ${{ inputs.cloud-host }}
-        STEAMPIPE_CLOUD_TOKEN: ${{ inputs.cloud-token }}
-        STEAMPIPE_CHECK_DISPLAY_WIDTH: 120
-        STEAMPIPE_DISPLAY_WIDTH: 120
-      run: |
-        # Run Steampipe Check
-        set +e
-        if [ -z "${{ inputs.additional-args }}" ];then
-          steampipe check ${{ steps.get-checks.outputs.run_list }} --share --output=brief --export=json,md --mod-location=${{ steps.make-temp-dir.outputs.tmp-mod-dir }}
+        steampipe check ${{ steps.get-checks.outputs.run_list }} --output=brief --export=json,md --mod-location=${{ steps.make-temp-dir.outputs.tmp-mod-dir }} $SS ${{ inputs.additional-args }}
+        EC=$?
+        echo "exit_code=$EC" >> $GITHUB_OUTPUT
+        # 0 ok, 1 alarms, 2 errors, these should exit ok - other codes should exit out with error code
+        if [[ $EC -le 2 ]];then
+          exit 0
         else
-          steampipe check ${{ steps.get-checks.outputs.run_list }} --share --output=brief --export=json,md --mod-location=${{ steps.make-temp-dir.outputs.tmp-mod-dir }} ${{ inputs.additional-args }}
+          exit $EC
         fi
-        echo "exit_code=$(echo $?)" >> $GITHUB_OUTPUT
-        # ignore exit code now
-        # this is so that the action does not fail if there's a non-zero exit code
-        # we will take care of the exit code after we annotate
-        exit 0
 
     - name: Setup Node
       if: inputs.create-annotations == 'true'
@@ -140,19 +118,3 @@ runs:
         node ${{ github.action_path }}/dist/index.js ${{ steps.get-checks.outputs.run_list }}
       env:
         GITHUB_TOKEN: ${{ inputs.github-token }}
-
-    - name: Exit
-      id: exit-step
-      shell: bash
-      run: |
-        # Grab outputs from potential run-check steps
-        RCE=${{ steps.run-checks.outputs.exit_code }}
-        RCSE=${{ steps.run-checks-snapshot.outputs.exit_code }}
-        # Coalesce the exit code
-        EC=${RCE:-${RCSE:-0}}
-        # Exit normally if there were no errors in the checks (no errors will exit with code of 1 or 0)
-        if [[ $EC -le 1 ]];then
-          exit 0
-        else
-          exit $EC
-        fi
