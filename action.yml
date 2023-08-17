@@ -97,9 +97,11 @@ runs:
         elif [ "${{ inputs.snapshot-type }}" == "private" ];then
           SS="--snapshot"
         fi
-        steampipe check ${{ steps.get-checks.outputs.run_list }} --output=brief --export=json,md --mod-location=${{ steps.make-temp-dir.outputs.tmp-mod-dir }} $SS ${{ inputs.additional-args }}
+        steampipe check ${{ steps.get-checks.outputs.run_list }} --output=brief --export=json,md --mod-location=${{ steps.make-temp-dir.outputs.tmp-mod-dir }} $SS ${{ inputs.additional-args }} | tee /tmp/output.log
         EC=$?
         echo "exit_code=$EC" >> $GITHUB_OUTPUT
+        echo "snapshot_url=$(cat /tmp/output.log | grep "Snapshot uploaded" | sed -e "s/^Snapshot uploaded to //")" >> $GITHUB_OUTPUT
+
         # 0 ok, 1 alarms, 2 errors, these should exit ok - other codes should exit out with error code
         if [[ $EC -le 2 ]];then
           exit 0
