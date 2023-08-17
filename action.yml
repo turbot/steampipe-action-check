@@ -34,6 +34,9 @@ inputs:
     description: GitHub token used to push annotations and job summaries.
     required: false
     default: ${{ github.token }}
+outputs:
+  snapshot_url:
+    description: The Turbot Pipes url of the snapshot if created.
 
 runs:
   using: composite

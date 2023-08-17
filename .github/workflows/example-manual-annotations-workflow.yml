@@ -23,6 +23,9 @@ on:
 
 jobs:
   aws_tf_compliance:
+    permissions:
+      pull-requests: write
+      checks: write
     runs-on: ubuntu-latest
     steps:
       - name: Repository Checkout
