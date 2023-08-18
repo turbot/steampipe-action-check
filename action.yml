@@ -95,15 +95,22 @@ runs:
         # Run Steampipe Check
         set +e
         SS=""
+        CONTROL_OUTPUT="--output=brief"
+        CONTROL_EXPORTS="--export=check-output.json --export=check-output.md --export=check-output.csv"
+
+        # TODO: omit CONTROL_OUTPUT if --output in additional-args
+        # TODO: remove --share / --snapshot / --mod-location from additional-args ...
+
         if [ "${{ inputs.snapshot-type }}" == "public" ];then
           SS="--share"
         elif [ "${{ inputs.snapshot-type }}" == "private" ];then
           SS="--snapshot"
         fi
-        steampipe check ${{ steps.get-checks.outputs.run_list }} --output=brief --export=json,md --mod-location=${{ steps.make-temp-dir.outputs.tmp-mod-dir }} $SS ${{ inputs.additional-args }} | tee /tmp/output.log
+        steampipe check ${{ steps.get-checks.outputs.run_list }} $CONTROL_OUTPUT $CONTROL_EXPORTS --mod-location=${{ steps.make-temp-dir.outputs.tmp-mod-dir }} $SS ${{ inputs.additional-args }} | tee /tmp/output.log
         EC=$?
         echo "exit_code=$EC" >> $GITHUB_OUTPUT
         echo "snapshot_url=$(cat /tmp/output.log | grep "Snapshot uploaded" | sed -e "s/^Snapshot uploaded to //")" >> $GITHUB_OUTPUT
+        echo "$(cat check-output.md)" >> $GITHUB_STEP_SUMMARY
 
         # 0 ok, 1 alarms, 2 errors, these should exit ok - other codes should exit out with error code
         if [[ $EC -le 2 ]];then
@@ -111,6 +118,20 @@ runs:
         else
           exit $EC
         fi
+
+    - name: Snapshot Url
+      id: output-snapshot-url
+      if: steps.run-checks.outputs.snapshot_url != ''
+      run: |
+        echo "${{ steps.run-checks.outputs.snapshot_url }}" >> $GITHUB_STEP_SUMMARY
+
+    - name: Upload Artifacts
+      id: upload-artifacts
+      continue-on-error: true
+      uses: actions/upload-artifact@v3
+      with:
+        name: exported-results
+        path: ./check-output.*
 
     - name: Setup Node
       if: inputs.create-annotations == 'true'
