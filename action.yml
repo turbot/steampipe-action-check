@@ -72,16 +72,16 @@ runs:
         if [ -z "${{ inputs.checks }}" ]
         then
           # default to all
-          RunList="all"
+          run_list="all"
         else
-          RunList=
+          run_list=
           while read line; do
-            RunList="$RunList $line"
+            run_list="$run_list $line"
           done <<EOF
         ${{ inputs.checks }}
         EOF
         fi
-        echo "run_list=$RunList" >> $GITHUB_OUTPUT
+        echo "run_list=$run_list" >> $GITHUB_OUTPUT
 
     - name: Run checks
       id: run-checks
@@ -92,38 +92,40 @@ runs:
         STEAMPIPE_CHECK_DISPLAY_WIDTH: 120
         STEAMPIPE_DISPLAY_WIDTH: 120
       run: |
+        # TODO: Adjust vars to lower case with underscores (full words)
         set +e
-        CONTROL_OUTPUT="--output=brief"
-        CONTROL_EXPORTS="--export=check-output.json --export=check-output.md --export=check-output.csv"
+        control_output="--output=brief"
+        control_exports="--export=check-output.json --export=check-output.md --export=check-output.csv"
         if [[ "${{ inputs.additional-args }}" == *"--output"* ]]; then
-          CONTROL_OUTPUT=""
+          control_output=""
         fi
 
-        AA=$(echo "${{ inputs.additional-args }}" | sed -e "s/--share//g" | sed -e "s/--snapshot//g")
+        additional_args=$(echo "${{ inputs.additional-args }}" | sed -e "s/--share//g" | sed -e "s/--snapshot//g")
 
-        # TODO: Handle --mod-location in the additional-args
-
-        SS=""
+        snapshot_type=""
         if [ "${{ inputs.snapshot-type }}" == "public" ];then
-          SS="--share"
+          snapshot_type="--share"
         elif [ "${{ inputs.snapshot-type }}" == "private" ];then
-          SS="--snapshot"
+          snapshot_type="--snapshot"
+        elif [[ -n "${{ inputs.snapshot-type }}" ]];then
+          echo "invalid value for input 'snapshot-type' provided: ${{ inputs.snapshot-type }} - valid values are 'public' and 'private'"
+          exit 3
         fi
 
-        steampipe check ${{ steps.get-checks.outputs.run_list }} $CONTROL_OUTPUT $CONTROL_EXPORTS --mod-location=${{ steps.make-temp-dir.outputs.tmp-mod-dir }} $SS $AA | tee /tmp/output.log
+        steampipe check ${{ steps.get-checks.outputs.run_list }} $control_output $control_exports --mod-location=${{ steps.make-temp-dir.outputs.tmp-mod-dir }} $snapshot_type $additional_args | tee /tmp/output.log
         
-        EC=$?
-        SU=$(cat /tmp/output.log | grep "Snapshot uploaded" | sed -e "s/^Snapshot uploaded to //")
-        if [ -n "$SU" ];then
-          echo "# Turbot Pipes Snapshot" >> $GITHUB_STEP_SUMMARY
-          echo "- ${{ inputs.snapshot-type }} snapshot: $SU" >> $GITHUB_STEP_SUMMARY
+        exit_code=$?
+        snapshot_url=$(cat /tmp/output.log | grep "Snapshot uploaded" | sed -e "s/^Snapshot uploaded to //")
+        if [ -n "$snapshot_url" ];then
+          echo "> Turbot Pipes Snapshot" >> $GITHUB_STEP_SUMMARY
+          echo "> ${{ inputs.snapshot-type }} snapshot: $snapshot_url" >> $GITHUB_STEP_SUMMARY
         fi
         echo "$(cat check-output.md)" >> $GITHUB_STEP_SUMMARY
         # 0 ok, 1 alarms, 2 errors, these should exit ok - other codes should exit out with error code
-        if [[ $EC -le 2 ]];then
+        if [[ $exit_code -le 2 ]];then
           exit 0
         else
-          exit $EC
+          exit $exit_code
         fi
 
     - name: Upload Artifacts
