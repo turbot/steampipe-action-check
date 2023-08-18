@@ -21,5 +21,6 @@ jobs:
         uses: ./
         with:
           mod-url: https://github.com/turbot/steampipe-mod-terraform-aws-compliance
-          #snapshot-type: public
-          #pipes-token: tpt_CHANGE_ME_IF_USING_SNAPSHOT
+          # additional-args: --output=text
+          # snapshot-type: public
+          # pipes-token: tpt_CHANGE_ME_IF_USING_SNAPSHOT

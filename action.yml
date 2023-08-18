@@ -92,26 +92,29 @@ runs:
         STEAMPIPE_CHECK_DISPLAY_WIDTH: 120
         STEAMPIPE_DISPLAY_WIDTH: 120
       run: |
-        # Run Steampipe Check
         set +e
-        SS=""
         CONTROL_OUTPUT="--output=brief"
         CONTROL_EXPORTS="--export=check-output.json --export=check-output.md --export=check-output.csv"
+        if [[ "${{ inputs.additional-args }}" == *"--output="* ]]; then
+          CONTROL_OUTPUT=""
+        fi
 
-        # TODO: omit CONTROL_OUTPUT if --output in additional-args
-        # TODO: remove --share / --snapshot / --mod-location from additional-args ...
+        AA=$(echo "${{ inputs.additional-args }}" | sed -e "s/--share//g" | sed -e "s/--snapshot//g")
 
+        # TODO: Handle --mod-location in the additional-args
+
+        SS=""
         if [ "${{ inputs.snapshot-type }}" == "public" ];then
           SS="--share"
         elif [ "${{ inputs.snapshot-type }}" == "private" ];then
           SS="--snapshot"
         fi
-        steampipe check ${{ steps.get-checks.outputs.run_list }} $CONTROL_OUTPUT $CONTROL_EXPORTS --mod-location=${{ steps.make-temp-dir.outputs.tmp-mod-dir }} $SS ${{ inputs.additional-args }} | tee /tmp/output.log
+
+        steampipe check ${{ steps.get-checks.outputs.run_list }} $CONTROL_OUTPUT $CONTROL_EXPORTS --mod-location=${{ steps.make-temp-dir.outputs.tmp-mod-dir }} $SS $AA | tee /tmp/output.log
+        
         EC=$?
-        echo "exit_code=$EC" >> $GITHUB_OUTPUT
         echo "snapshot_url=$(cat /tmp/output.log | grep "Snapshot uploaded" | sed -e "s/^Snapshot uploaded to //")" >> $GITHUB_OUTPUT
         echo "$(cat check-output.md)" >> $GITHUB_STEP_SUMMARY
-
         # 0 ok, 1 alarms, 2 errors, these should exit ok - other codes should exit out with error code
         if [[ $EC -le 2 ]];then
           exit 0
