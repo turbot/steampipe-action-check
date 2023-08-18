@@ -125,6 +125,7 @@ runs:
     - name: Snapshot Url
       id: output-snapshot-url
       if: steps.run-checks.outputs.snapshot_url != ''
+      shell: bash
       run: |
         echo "${{ steps.run-checks.outputs.snapshot_url }}" >> $GITHUB_STEP_SUMMARY
 
