@@ -91,7 +91,7 @@ runs:
       run: |
         set +e
         control_output="--output=brief"
-        control_exports="--export=json,md,csv"
+        control_exports="--export=json,md,csv --export=check-output.md"
         if [[ "${{ inputs.additional-args }}" == *"--output"* ]]; then
           control_output=""
         fi
