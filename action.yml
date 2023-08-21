@@ -99,7 +99,8 @@ runs:
         additional_args=$(echo "${{ inputs.additional-args }}" | sed -e "s/--share//g" | sed -e "s/--snapshot//g")
 
         snapshot_type=""
-        snapshot_tags="--snapshot-tag \"repo=$GITHUB_REPO\" --snapshot-tag \"run_id=$GITHUB_RUN_ID\" --snapshot-tag \"workflow=$GITHUB_WORKFLOW_REF\""
+        workflow_id=$(echo $GITHUB_WORKFLOW | sed -e "s/ /_/g")
+        snapshot_tags="--snapshot-tag repo=$GITHUB_REPOSITORY --snapshot-tag run_id=$GITHUB_RUN_ID --snapshot-tag workflow=$workflow_id"
         if [ "${{ inputs.snapshot-type }}" == "public" ];then
           snapshot_type="--share $snapshot_tags"
         elif [ "${{ inputs.snapshot-type }}" == "private" ];then
