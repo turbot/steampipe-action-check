@@ -99,12 +99,13 @@ runs:
         additional_args=$(echo "${{ inputs.additional-args }}" | sed -e "s/--share//g" | sed -e "s/--snapshot//g")
 
         snapshot_type=""
+        snapshot_tags="--snapshot-tag repo=$GITHUB_REPO --snapshot-tag run_id=$GITHUB_RUN_ID --snapshot-tag workflow=$GITHUB_WORKFLOW"
         if [ "${{ inputs.snapshot-type }}" == "public" ];then
-          snapshot_type="--share"
+          snapshot_type="--share $snapshot_tags"
         elif [ "${{ inputs.snapshot-type }}" == "private" ];then
-          snapshot_type="--snapshot"
+          snapshot_type="--snapshot $snapshot_tags"
         elif [[ -n "${{ inputs.snapshot-type }}" ]];then
-          echo "[ERROR] invalid value for input 'snapshot-type' provided: ${{ inputs.snapshot-type }} - valid values are 'public' and 'private'"
+          echo "Error: invalid value for input 'snapshot-type' provided: ${{ inputs.snapshot-type }} - valid values are 'public' and 'private'"
           exit 3
         fi
 
