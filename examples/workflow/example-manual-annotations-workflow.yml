@@ -9,10 +9,9 @@ on:
       snapshot:
         description: Upload a snapshot to Turbot Pipes, if set to a value other than 'none', secrets.PIPES_TOKEN must be configured on the repository.
         required: false
-        default: 'none'
+        default: 'public'
         type: choice
         options:
-          - none
           - public
           - private
       annotations:
