@@ -25,7 +25,7 @@ inputs:
     description: 'Space separated args to add to the "steampipe check" command.'
     required: false
   snapshot-type:
-    description: If set to 'public' or 'private' will create a snapshot on Turbot Pipes _requires input 'pipes-token'_, other values or not being set will not.
+    description: If set to 'public' or 'private' will create a snapshot on Turbot Pipes *requires input 'pipes-token'*, other values or not being set will not.
     required: false
   pipes-token:
     description: The Turbot Pipes token used to save snapshots, required if 'snapshot-type' is set.
@@ -34,9 +34,6 @@ inputs:
     description: GitHub token used to push annotations and job summaries.
     required: false
     default: ${{ github.token }}
-outputs:
-  snapshot_url:
-    description: The Turbot Pipes url of the snapshot if created.
 
 runs:
   using: composite
@@ -92,7 +89,6 @@ runs:
         STEAMPIPE_CHECK_DISPLAY_WIDTH: 120
         STEAMPIPE_DISPLAY_WIDTH: 120
       run: |
-        # TODO: Adjust vars to lower case with underscores (full words)
         set +e
         control_output="--output=brief"
         control_exports="--export=check-output.json --export=check-output.md --export=check-output.csv"
@@ -108,13 +104,13 @@ runs:
         elif [ "${{ inputs.snapshot-type }}" == "private" ];then
           snapshot_type="--snapshot"
         elif [[ -n "${{ inputs.snapshot-type }}" ]];then
-          echo "invalid value for input 'snapshot-type' provided: ${{ inputs.snapshot-type }} - valid values are 'public' and 'private'"
+          echo "[ERROR] invalid value for input 'snapshot-type' provided: ${{ inputs.snapshot-type }} - valid values are 'public' and 'private'"
           exit 3
         fi
 
         steampipe check ${{ steps.get-checks.outputs.run_list }} $control_output $control_exports --mod-location=${{ steps.make-temp-dir.outputs.tmp-mod-dir }} $snapshot_type $additional_args | tee /tmp/output.log
-        
         exit_code=$?
+
         snapshot_url=$(cat /tmp/output.log | grep "Snapshot uploaded" | sed -e "s/^Snapshot uploaded to //")
         if [ -n "$snapshot_url" ];then
           echo "> Turbot Pipes Snapshot" >> $GITHUB_STEP_SUMMARY
