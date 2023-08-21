@@ -10,15 +10,13 @@ export async function processAnnotations(input) {
   }
   startGroup("Processing output");
   info("Fetching output");
-  const jsonFiles = await utils.getExportedJSONFiles(input);
   const annotations = [];
-  for (let j of jsonFiles) {
-    const result = await parseResultFile(j);
-    annotations.push(...getAnnotations(result));
-  }
+  const result = await parseResultFile("./check-output.json");
+  annotations.push(...getAnnotations(result));
+
   info(`Pushing Annotations`);
   await pushAnnotations(input, annotations);
-  utils.removeFiles(jsonFiles);
+  utils.removeFiles(["./check-output.json"]);
   endGroup();
 }
 
