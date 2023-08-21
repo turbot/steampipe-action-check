@@ -132,12 +132,7 @@ runs:
       uses: actions/upload-artifact@v3
       with:
         name: exported-results
-        path: |
-          ./*.md
-          ./*.json
-          ./*.csv
-          !./package*.json
-          !./README.md
+        path: ./check-output.*
 
     - name: Setup Node
       if: inputs.create-annotations == 'true'
