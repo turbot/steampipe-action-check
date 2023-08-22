@@ -11,12 +11,12 @@ export async function processAnnotations(input) {
   startGroup("Processing output");
   info("Fetching output");
   const annotations = [];
-  const result = await parseResultFile("./check-output.json");
+  const result = await parseResultFile("check-output.json");
   annotations.push(...getAnnotations(result));
 
   info(`Pushing Annotations`);
   await pushAnnotations(input, annotations);
-  utils.removeFiles(["./check-output.json"]);
+  utils.removeFiles(["check-output.json"]);
   endGroup();
 }
 
