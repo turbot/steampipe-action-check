@@ -25,7 +25,7 @@ inputs:
     description: 'Space separated args to add to the "steampipe check" command.'
     required: false
   snapshot-type:
-    description: If set to 'public' or 'private' will create a snapshot on Turbot Pipes *requires input 'pipes-token'*, other values or not being set will not.
+    description: If set to 'public' or 'private' will create a snapshot on Turbot Pipes *requires input 'pipes-token'*.
     required: false
   pipes-token:
     description: The Turbot Pipes token used to save snapshots, required if 'snapshot-type' is set.

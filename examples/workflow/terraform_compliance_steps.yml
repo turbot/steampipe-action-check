@@ -37,7 +37,7 @@ jobs:
             benchmark.ecs
 
       - name: Run Steampipe Terraform GCP Compliance
-        uses: turbot/steampipe-action-check
+        uses: turbot/steampipe-action-check@v0.0.1
         with:
           mod-url: 'https://github.com/turbot/steampipe-mod-terraform-gcp-compliance'
           checks: benchmark.compute

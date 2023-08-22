@@ -14,17 +14,9 @@ on:
         options:
           - public
           - private
-      annotations:
-        description: Apply annotations
-        required: false
-        default: false
-        type: boolean
 
 jobs:
   aws_tf_compliance:
-    permissions:
-      pull-requests: write
-      checks: write
     runs-on: ubuntu-latest
     steps:
       - name: Repository Checkout
@@ -38,10 +30,9 @@ jobs:
               paths  = [ "./examples/terraform/aws/**/*.tf" ]
             }
       - name: Steampipe Checks
-        uses: ./
+        uses: turbot/steampipe-action-setup@v0.0.1
         with:
           mod-url: https://github.com/turbot/steampipe-mod-terraform-aws-compliance
           mod-branch: ${{ inputs.mod_branch }}
           snapshot-type: ${{ inputs.snapshot }}
           pipes-token: ${{ secrets.PIPES_TOKEN }}
-          create-annotations: ${{ inputs.annotations }}
