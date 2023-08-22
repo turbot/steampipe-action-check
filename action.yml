@@ -91,6 +91,8 @@ runs:
       run: |
         set +e
         echo "uuid=$(echo $RANDOM | md5sum | head -c 20)" >> $GITHUB_OUTPUT
+        echo "mod=$(echo ${{ inputs.mod-url }} | rev | cut -d '/' -f 1 | rev)" >> $GITHUB_OUTPUT
+
         control_output="--output=brief"
         control_exports="--export=check-output.json --export=check-output.md --export=check-output.csv"
         if [[ "${{ inputs.additional-args }}" == *"--output"* ]]; then
@@ -133,7 +135,7 @@ runs:
       continue-on-error: true
       uses: actions/upload-artifact@v3
       with:
-        name: check-output-${{ steps.run-checks.outputs.uuid }}
+        name: ${{ steps.run-checks.outputs.mod }}-${{ steps.run-checks.outputs.uuid }}
         path: ./check-output.*
 
     - name: Setup Node
