@@ -165,7 +165,11 @@ _Refer to [terraform plugin docs](https://hub.steampipe.io/plugins/turbot/terraf
       additional-args: '--search-path-prefix=gcp_tf'
 ```
 
-### Helpful links
+### More examples
+
+For more examples, check out the [example workflows](https://github.com/turbot/steampipe-action-check/tree/main/examples/workflow).
+
+## Helpful links
 
 - [Steampipe docs](https://steampipe.io/docs)
 - [Steampipe plugins](https://hub.steampipe.io/plugins)
