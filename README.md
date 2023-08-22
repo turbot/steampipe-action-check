@@ -2,25 +2,50 @@
 
 Run a Steampipe check for mod benchmarks and controls.
 
-## IaC Checks
+## Usage
+
+> This action requires you set-up Steampipe in your workflow in advance of using it, the recommend approach would be to utilise the [turbot/steampipe-action-setup](https://github.com/turbot/steampipe-action-setup) action, however you can set this up manually if you prefer.
+
+When using this action, you will be required to provide a `mod-url` for the [Steampipe Mod](https://hub.steampipe.io/mods) containing the checks/benchmarks you wish to use.
+
+```yaml
+- name: Steampipe Checks
+  uses: turbot/steampipe-action-setup@main
+  with:
+    mod-url: https://github.com/turbot/steampipe-mod-terraform-aws-compliance
+```
+
+For a full list of configuration options and descriptions see [action.yml](action.yml).
+
+This action will produce an easy to read **Job Summary** as well as provide the results in `json`, `markdown` and `csv` within the job artifacts.
+
+<img src="images/example_summary.png" width="80%">
+
+## IaC Checks & Annotations
 
 This action also allows you to scan your Infrastructure as Code (IaC) files directly from your GitHub repository using your workflow pipeline. This helps to identify potential security vulnerabilities, compliance issues, and infrastructure misconfigurations early in the development cycle.
 
-For controls that scan local files, like those in the [Terraform AWS Compliance mod](https://github.com/turbot/steampipe-mod-terraform-aws-compliance), annotations will be created for any controls in `alarm` in the pull request that triggered this action run.
+For controls that scan local files, like those in the [Terraform AWS Compliance mod](https://github.com/turbot/steampipe-mod-terraform-aws-compliance), annotations can be created for any controls in `alarm` in the pull request that triggered this action run by setting the `create-annotations` option to `true`.
 
-<img src="images/annotations_sample.png" width="80%" />
+```yaml
+- name: Steampipe Checks
+  uses: turbot/steampipe-action-setup@main
+  with:
+    mod-url: https://github.com/turbot/steampipe-mod-terraform-aws-compliance
+    create-annotations: true
+```
 
-The action also produces an easy-to-read summary of the scan and pushes it to the **Job Summary**.
-
-<img src="images/summary-output.png" width="80%" />
+<img src="images/example_annotations.png" width="80%" />
 
 For a list of IaC mods offered by Turbot, please see [IaC mods](https://hub.steampipe.io/mods?categories=iac).
 
-If you have created your own IaC `mod`, you can still benefit from `annotations`, as long as each `control` has a `path` column as an [additional dimension](https://steampipe.io/docs/reference/mod-resources/control#additional-control-columns--dimensions) with values in the format of `filepath:linenumber`, e.g., `my_tf_files/aws/cloudtrail.tf:23`.
+If you have created your own IaC `mod`, you can still benefit from `annotations`, as long as each `control` has a `path` column as an [additional dimension](https://steampipe.io/docs/reference/mod-resources/control#additional-control-columns--dimensions) with values in the format of `filepath:linenumber` for example `my_tf_files/aws/cloudtrail.tf:23`.
 
-## Usage
+> NOTE: In order to create the annotations, you may need to ensure that the GitHub token provided has the permissions to write under `Settings -> Actions -> Workflow Permissions`, alternatively you can pass the `pull-requests: write` and `checks: write` permissions to the `job` see [job permissions](https://docs.github.com/en/actions/using-jobs/assigning-permissions-to-jobs).
 
-See [action.yml](action.yml).
+Examples:
+- [Basic Example](examples/workflow/pull_request_with_annotations.yml)
+- [Permissions Example](examples/workflow/pull_request_with_annotations_with_permissions.yml)
 
 ## Examples
 
@@ -28,7 +53,7 @@ See [action.yml](action.yml).
 
 ```yaml
   - name: Setup Steampipe
-    uses: turbot/steampipe-action-setup
+    uses: turbot/steampipe-action-setup@v.1.4.0
     with:
       connections: |
         connection "terraform" {
@@ -37,7 +62,7 @@ See [action.yml](action.yml).
         }
 
   - name: Run AWS compliance on Terraform resources
-    uses: turbot/steampipe-action-check
+    uses: turbot/steampipe-action-check@main
     with:
       mod-url: https://github.com/turbot/steampipe-mod-terraform-aws-compliance
 ```
@@ -46,19 +71,19 @@ See [action.yml](action.yml).
 
 ```yaml
 name: Run Steampipe Terraform AWS Compliance
-uses: turbot/steampipe-action-check
+uses: turbot/steampipe-action-check@main
 with:
   mod-url: "https://github.com/turbot/steampipe-mod-terraform-aws-compliance"
   checks: benchmark.kms
 ```
 
-> Refer to the benchmarks/controls available for your cloud provider [here](#helpful-links)
+_Refer to the benchmarks/controls available for your cloud provider [here](#helpful-links)._
 
 ### Run multiple benchmarks and controls with the `checks` input.
 
 ```yaml
 name: Run Steampipe Terraform AWS Compliance
-uses: turbot/steampipe-action-check
+uses: turbot/steampipe-action-check@main
 with:
   mod-url: "https://github.com/turbot/steampipe-mod-terraform-aws-compliance"
   checks: |
@@ -69,16 +94,34 @@ with:
     control.ecs_task_definition_encryption_in_transit_enabled
 ```
 
-### Specify multiple paths to locate Terraform files to scan, with the `paths` input.
+### Create a public snapshot on Turbot Pipes
+
+> Note: This example assumes you have a [Turbot Pipes](https://turbot.com/pipes) account and have [generated an API token](https://turbot.com/pipes/docs/profile#tokens) stored as a secret `PIPES_TOKEN` available to your repository.
+
+```yaml
+name: Steampipe Checks
+uses: turbot/steampipe-action-setup@main
+with:
+  mod-url: https://github.com/turbot/steampipe-mod-terraform-aws-compliance
+  snapshot-type: public
+  pipes-token: ${{ secrets.PIPES_TOKEN }}
+```
+
+### Specify multiple paths to locate Terraform files to scan.
+
+> Note: This is done in the Steampipe Setup
 
 ```yaml
   - name: Setup Steampipe
-    uses: turbot/steampipe-action-setup
+    uses: turbot/steampipe-action-setup@main
     with:
       connections: |
         connection "terraform" {
           plugin = "terraform"
-          paths  = [ "cloud_infra/service_billing/aws/**/*.tf", "cloud_infra/service_orders/aws/**/*.tf" ]
+          paths  = [ 
+            "cloud_infra/service_billing/aws/**/*.tf", 
+            "cloud_infra/service_orders/aws/**/*.tf" 
+          ]
         }
   - name: Scan Terraform aws resources
     uses: turbot/steampipe-action-check
@@ -86,23 +129,29 @@ with:
       mod-url: https://github.com/turbot/steampipe-mod-terraform-aws-compliance
 ```
 
-> Refer to https://hub.steampipe.io/plugins/turbot/terraform#configuring-local-file-paths for local file path configuration.
+_Refer to [terraform plugin docs](https://hub.steampipe.io/plugins/turbot/terraform#configuring-local-file-paths) for local file path configuration._
 
 ### Use the action multiple times to scan multi-cloud Terraform resources in the same job
 
 ```yaml
   - name: Setup Steampipe
-    uses: turbot/steampipe-action-setup
+    uses: turbot/steampipe-action-setup@main
     with:
       connections: |
         connection "aws_tf" {
           plugin = "terraform"
-          paths  = [ "cloud_infra/service_billing/aws/**/*.tf", "cloud_infra/service_orders/aws/**/*.tf" ]
+          paths  = [ 
+            "cloud_infra/service_billing/aws/**/*.tf", 
+            "cloud_infra/service_orders/aws/**/*.tf" 
+          ]
         }
 
         connection "gcp_tf" {
           plugin = "terraform"
-          paths  = [ "cloud_infra/service_billing/gcp/**/*.tf", "cloud_infra/service_orders/gcp/**/*.tf" ]
+          paths  = [ 
+            "cloud_infra/service_billing/gcp/**/*.tf", 
+            "cloud_infra/service_orders/gcp/**/*.tf"
+          ]
         }
   - name: Run Steampipe Terraform Compliance on AWS
     uses: turbot/steampipe-action-check

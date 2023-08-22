@@ -1,4 +1,4 @@
-name: Pull Request Annotation Example
+name: Pull Request Annotation With Permissions Example
 on:
   pull_request:
     types:
@@ -9,6 +9,9 @@ on:
 jobs:
   compliance_with_annotations:
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      checks: write
     steps:
       - name: Repository Checkout
         uses: actions/checkout@v3
@@ -25,3 +28,4 @@ jobs:
         with:
           mod-url: https://github.com/turbot/steampipe-mod-terraform-aws-compliance
           create-annotations: true
+          github-token: ${{ secrets.GITHUB_TOKEN }}
