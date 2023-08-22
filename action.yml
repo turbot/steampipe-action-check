@@ -90,6 +90,7 @@ runs:
         STEAMPIPE_DISPLAY_WIDTH: 120
       run: |
         set +e
+        echo "uuid=$(echo $RANDOM | md5sum | head -c 20)" >> $GITHUB_OUTPUT
         control_output="--output=brief"
         control_exports="--export=check-output.json --export=check-output.md --export=check-output.csv"
         if [[ "${{ inputs.additional-args }}" == *"--output"* ]]; then
@@ -132,14 +133,14 @@ runs:
       continue-on-error: true
       uses: actions/upload-artifact@v3
       with:
-        name: exported-results
+        name: check-output-${{ steps.run-checks.outputs.uuid }}
         path: ./check-output.*
 
     - name: Setup Node
       if: inputs.create-annotations == 'true'
       uses: actions/setup-node@v3
 
-    - name: Annotate and summarize
+    - name: Annotate
       if: inputs.create-annotations == 'true'
       shell: bash
       run: |
