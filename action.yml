@@ -95,10 +95,15 @@ runs:
           if [ "$i" != "json" ] && [ "$i" != "md" ];then
             exports="$exports --export=check-output.$i"
           fi
-          paths=$(echo "${paths}./check-output.${i}\n")
+          if [[ "$paths" == "" ]];then
+            paths="./check-output.${i}"
+          else
+            paths=$(echo "\n${paths}./check-output.${i}")
+          fi
+          
         done
         echo "control_exports=$exports" >> $GITHUB_OUTPUT
-        echo -e "artifact_paths=$paths" >> $GITHUB_OUTPUT
+        echo "artifact_paths=$paths" >> $GITHUB_OUTPUT
 
     - name: Run checks
       id: run-checks
