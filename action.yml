@@ -132,7 +132,7 @@ runs:
         fi
 
         # Set required json/md exports for annotations/summary
-        control_exports="${{ steps.export-paths.control_exports }}"
+        control_exports="${{ steps.export-paths.outputs.control_exports }}"
 
         # Snapshot setup
         snapshot_type=""
@@ -172,7 +172,7 @@ runs:
 
     - name: Upload Artifacts
       id: upload-artifacts
-      if: steps.export-paths.artifact_paths != ''
+      if: steps.export-paths.outputs.artifact_paths != ''
       continue-on-error: true
       uses: actions/upload-artifact@v3
       env:
@@ -180,7 +180,7 @@ runs:
       with:
         name: ${{ steps.run-checks.outputs.mod }}-${{ steps.run-checks.outputs.uuid }}
         path: |
-          ${{ steps.export-paths.artifact_paths }}
+          ${{ steps.export-paths.outputs.artifact_paths }}
 
     - name: Setup Node
       uses: actions/setup-node@v3
