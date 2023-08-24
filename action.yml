@@ -105,7 +105,9 @@ runs:
         fi
 
         echo "control_exports=$exports" >> $GITHUB_OUTPUT
-        echo "artifact_paths=$paths" >> $GITHUB_OUTPUT
+        echo "artifact_paths<<EOF" >> $GITHUB_OUTPUT
+        echo "$paths" >> $GITHUB_OUTPUT
+        echo "EOF" >> $GITHUB_OUTPUT
 
     - name: Run checks
       id: run-checks
