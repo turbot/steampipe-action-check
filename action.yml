@@ -104,7 +104,7 @@ runs:
         snapshot_type=""
         workflow_id=$(echo $GITHUB_WORKFLOW | sed -e "s/ /_/g")
         run_url="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
-        snapshot_tags="--snapshot-tag repo=$GITHUB_REPOSITORY --snapshot-tag run_url=$run_url --snapshot-tag workflow=$workflow_id"
+        snapshot_tags="--snapshot-tag github_repo=$GITHUB_REPOSITORY --snapshot-tag github_run_url=$run_url --snapshot-tag github_workflow=$workflow_id"
         if [ "${{ inputs.snapshot-type }}" == "public" ];then
           snapshot_type="--share $snapshot_tags"
         elif [ "${{ inputs.snapshot-type }}" == "private" ];then
