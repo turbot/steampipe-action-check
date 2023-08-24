@@ -143,7 +143,8 @@ runs:
         snapshot_tags="--snapshot-tag github_repo=$GITHUB_REPOSITORY --snapshot-tag github_run_url=$run_url --snapshot-tag github_workflow=$workflow_id"
         pipes_inputs=""
         if [[ -n "${{ inputs.pipes-token }}" ]];then
-          pipes_inputs="--cloud-host \"pipes.turbot.com\" --cloud-token \"${{ inputs.pipes-token }}\" "
+          echo "pipes-token received, adding CLI arg"
+          pipes_inputs="--cloud-token \"${{ inputs.pipes-token }}\""
         fi
 
         if [ "${{ inputs.snapshot-visibility }}" == "anyone_with_link" ];then
