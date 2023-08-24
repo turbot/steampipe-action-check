@@ -118,11 +118,10 @@ function getAnnotationsForControl(controlRun) {
 
       const match = (dim.value || "").match(regex);
       if (match) {
-        console.log("regex match: " + (dim.value || ""));
         const fileName = match[1];
         const startLine = parseInt(match[2]);
-        const endLine = match[3] ? parseInt(match[3]) : startLine;
-        console.log(fileName.replace(process.cwd() + "/", "") + " - " + startLine + " - " + endLine)
+        const endLine = startLine // match[3] ? parseInt(match[3]) : startLine;
+        // NOTE: Setting endLine moves the annotations to the end line rather than the start line, so set to startLine for now.
         annotations.push({
           path: fileName.replace(process.cwd() + "/", ""),
           start_line: parseInt(startLine),
