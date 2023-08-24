@@ -103,7 +103,7 @@ function getAnnotationsForGroup(group) {
 }
 
 function getAnnotationsForControl(controlRun) {
-  const lineRegex = new RegExp(`.*:[\d]*`);
+  const regex = new RegExp(`^(.*?):(\d+)(?:-(\d+))?$`);
   const annotations = [];
 
   for (let result of controlRun.results || []) {
@@ -116,23 +116,23 @@ function getAnnotationsForControl(controlRun) {
         continue;
       }
 
-      if (!lineRegex.test(dim.value || "")) {
-        // this is not a file_path:line_number value
-        continue;
+      const match = (dim.value || "").match(regex)
+      if (match) {
+        const fileName = match[1];
+        const startLine = parseInt(match[2]);
+        const endLine = match[3] ? parseInt(match[3]) : startLine;
+
+        annotations.push({
+          path: fileName.replace(process.cwd() + "/", ""),
+          start_line: parseInt(startLine),
+          end_line: parseInt(endLine),
+          annotation_level: "failure",
+          message: result.reason,
+          title: controlRun.title,
+          start_column: 0,
+          end_column: 0,
+        });
       }
-
-      const [fileName, lineNumber, ...rest] = dim.value.split(":", 2);
-
-      annotations.push({
-        path: fileName.replace(process.cwd() + "/", ""),
-        start_line: parseInt(lineNumber),
-        end_line: parseInt(lineNumber),
-        annotation_level: "failure",
-        message: result.reason,
-        title: controlRun.title,
-        start_column: 0,
-        end_column: 0,
-      });
     }
   }
 
