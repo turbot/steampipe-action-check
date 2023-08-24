@@ -10,28 +10,24 @@ inputs:
     description: "Mod URL to clone. Examples: https://github.com/turbot/steampipe-mod-aws-compliance"
     required: true
   mod-branch:
-    description: 'Mod branch or tag to clone. Defaults to "main". Examples: main, release/v0.7, 0.5, 1.0.'
+    description: "Mod branch or tag to clone. Defaults to 'main'. Examples: main, release/v0.7, 0.5, 1.0."
     required: false
     default: main
   checks:
-    description: 'Space separated list of benchmarks and controls to run. Can also pass in as a multi-line string. Defaults to "all".'
-    required: true
+    description: Space separated list of benchmarks and controls to run. Can also pass in as a multi-line string. Defaults to 'all'.
+    required: false
     default: all
-  create-annotations:
-    description: If true, create annotations in pull requests for controls that have a "path" additional dimension with the format `filename:linenumber`.
-    required: false
-    default: false
   additional-args:
-    description: 'Space separated args to add to the "steampipe check" command.'
+    description: Space separated args to add to the 'steampipe check' command.
     required: false
-  snapshot-type:
-    description: If set to 'public' or 'private' will create a snapshot on Turbot Pipes *requires input 'pipes-token'*.
+  snapshot-visibility:
+    description: If set to 'anyone_with_link' or 'workspace' will create a snapshot on Turbot Pipes.
     required: false
   pipes-token:
-    description: The Turbot Pipes token used to save snapshots, required if 'snapshot-type' is set.
+    description: The Turbot Pipes token used to save snapshots, can also be set via environment variable (https://steampipe.io/docs/reference/env-vars/pipes_token).
     required: false
   github-token:
-    description: GitHub token used to push annotations and job summaries.
+    description: GitHub token used for git/GitHub operations.
     required: false
     default: ${{ github.token }}
 
@@ -50,6 +46,8 @@ runs:
 
     - name: Get mod
       shell: bash
+      env:
+        GITHUB_TOKEN: ${{ inputs.github-token }}
       run: |
         # Clone and setup mod
         if [ -z "${{inputs.mod-branch}}" ]; then
@@ -84,46 +82,61 @@ runs:
       id: run-checks
       shell: bash
       env:
-        STEAMPIPE_CLOUD_HOST: pipes.turbot.com
-        STEAMPIPE_CLOUD_TOKEN: ${{ inputs.pipes-token }}
+        GITHUB_TOKEN: ${{ inputs.github-token }}
         STEAMPIPE_CHECK_DISPLAY_WIDTH: 120
         STEAMPIPE_DISPLAY_WIDTH: 120
       run: |
         set +e
+        # Set outputs for artifact naming
         echo "uuid=$(echo $RANDOM | md5sum | head -c 20)" >> $GITHUB_OUTPUT
         echo "mod=$(echo ${{ inputs.mod-url }} | rev | cut -d '/' -f 1 | rev)" >> $GITHUB_OUTPUT
 
+        # Set workflow_id / run_url for later use
+        workflow_id=$(echo $GITHUB_WORKFLOW | sed -e "s/ /_/g")
+        run_url="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+
+        # Clear snapshot flags from additional args (should be via input)
+        additional_args=$(echo "${{ inputs.additional-args }}" | sed -e "s/--share//g" | sed -e "s/--snapshot//g")
+
+        # Allow override for output if set in additional-args
         control_output="--output=brief"
-        control_exports="--export=check-output.json --export=check-output.md --export=check-output.csv"
         if [[ "${{ inputs.additional-args }}" == *"--output"* ]]; then
           control_output=""
         fi
 
-        additional_args=$(echo "${{ inputs.additional-args }}" | sed -e "s/--share//g" | sed -e "s/--snapshot//g")
+        # Set required json/md exports for annotations/summary
+        control_exports="--export=check-output.json --export=check-output.md"
 
+        # Snapshot setup
         snapshot_type=""
-        workflow_id=$(echo $GITHUB_WORKFLOW | sed -e "s/ /_/g")
-        run_url="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
         snapshot_tags="--snapshot-tag github_repo=$GITHUB_REPOSITORY --snapshot-tag github_run_url=$run_url --snapshot-tag github_workflow=$workflow_id"
-        if [ "${{ inputs.snapshot-type }}" == "public" ];then
+        pipes_inputs=""
+        if [[ -n "${{ inputs.pipes-token }}" ]];then
+          pipes_inputs="--cloud-host \"pipes.turbot.com\" --cloud-token \"${{ inputs.pipes-token }}\" "
+        fi
+
+        if [ "${{ inputs.snapshot-visibility }}" == "anyone_with_link" ];then
           snapshot_type="--share $snapshot_tags"
-        elif [ "${{ inputs.snapshot-type }}" == "private" ];then
+        elif [ "${{ inputs.snapshot-visibility }}" == "workspace" ];then
           snapshot_type="--snapshot $snapshot_tags"
-        elif [[ -n "${{ inputs.snapshot-type }}" ]];then
-          echo "Error: invalid value for input 'snapshot-type' provided: ${{ inputs.snapshot-type }} - valid values are 'public' and 'private'"
+        elif [[ -n "${{ inputs.snapshot-visibility }}" ]];then
+          echo "Error: invalid value for input 'snapshot-visibility' provided: ${{ inputs.snapshot-visibility }} - valid values are 'anyone_with_link' and 'workspace'"
           exit 3
         fi
 
-        steampipe check ${{ steps.get-checks.outputs.run_list }} $control_output $control_exports --mod-location=${{ steps.make-temp-dir.outputs.tmp-mod-dir }} $snapshot_type $additional_args | tee /tmp/output.log
+        # Run check command
+        steampipe check ${{ steps.get-checks.outputs.run_list }} $control_output $control_exports --mod-location=${{ steps.make-temp-dir.outputs.tmp-mod-dir }} $snapshot_type $pipes_inputs $additional_args | tee /tmp/output.log
         exit_code=$?
 
+        # Write summary
         snapshot_url=$(cat /tmp/output.log | grep "Snapshot uploaded" | sed -e "s/^Snapshot uploaded to //")
         if [ -n "$snapshot_url" ];then
           echo "> Turbot Pipes Snapshot" >> $GITHUB_STEP_SUMMARY
-          echo "> ${{ inputs.snapshot-type }} snapshot: $snapshot_url" >> $GITHUB_STEP_SUMMARY
+          echo "> ${{ inputs.snapshot-visibility }} snapshot url: $snapshot_url" >> $GITHUB_STEP_SUMMARY
         fi
         echo "$(cat check-output.md)" >> $GITHUB_STEP_SUMMARY
-        # 0 ok, 1 alarms, 2 errors, these should exit ok - other codes should exit out with error code
+
+        # Handle exit code: 0 ok, 1 alarms, 2 errors, these should exit ok - other codes should exit out with error code
         if [[ $exit_code -le 2 ]];then
           exit 0
         else
@@ -134,16 +147,16 @@ runs:
       id: upload-artifacts
       continue-on-error: true
       uses: actions/upload-artifact@v3
+      env:
+        GITHUB_TOKEN: ${{ inputs.github-token }}
       with:
         name: ${{ steps.run-checks.outputs.mod }}-${{ steps.run-checks.outputs.uuid }}
         path: ./check-output.*
 
     - name: Setup Node
-      if: inputs.create-annotations == 'true'
       uses: actions/setup-node@v3
 
     - name: Annotate
-      if: inputs.create-annotations == 'true'
       shell: bash
       run: |
         node ${{ github.action_path }}/dist/index.js ${{ steps.get-checks.outputs.run_list }}
