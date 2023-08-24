@@ -90,20 +90,20 @@ runs:
         inputs=${{ inputs.artifact-exports }}
         exports="--export=check-output.json --export=check-output.md"
         paths=""
-        for i in ${inputs//,/ }
-        do
-          if [ "$i" != "json" ] && [ "$i" != "md" ];then
-            exports="$exports --export=check-output.$i"
-          fi
-          if [[ "$paths" == "" ]];then
-            paths="./check-output.${i}"
-          else
-            paths=$(echo "${paths}\n./check-output.${i}")
-          fi
-          
-        done
-        echo "control_exports=$exports"
-        echo "artifact_paths=$paths"
+        if [ "$inputs" != "" ];then
+          for i in ${inputs//,/ }
+          do
+            if [ "$i" != "json" ] && [ "$i" != "md" ];then
+              exports="$exports --export=check-output.$i"
+            fi
+            if [[ "$paths" == "" ]];then
+              paths="./check-output.${i}"
+            else
+              paths=$(echo "${paths}\n./check-output.${i}")
+            fi
+          done
+        fi
+
         echo "control_exports=$exports" >> $GITHUB_OUTPUT
         echo "artifact_paths=$paths" >> $GITHUB_OUTPUT
 
