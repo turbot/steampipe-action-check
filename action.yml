@@ -98,7 +98,7 @@ runs:
           if [[ "$paths" == "" ]];then
             paths="./check-output.${i}"
           else
-            paths=$(echo "\n${paths}./check-output.${i}")
+            paths=$(echo "${paths}\n./check-output.${i}")
           fi
           
         done
