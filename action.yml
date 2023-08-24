@@ -144,7 +144,7 @@ runs:
         pipes_inputs=""
         if [[ -n "${{ inputs.pipes-token }}" ]];then
           echo "pipes-token received, adding CLI arg"
-          pipes_inputs="--cloud-token \"${{ inputs.pipes-token }}\""
+          pipes_inputs="--cloud-token ${{ inputs.pipes-token }}"
         fi
 
         if [ "${{ inputs.snapshot-visibility }}" == "anyone_with_link" ];then
