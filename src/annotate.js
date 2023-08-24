@@ -103,7 +103,7 @@ function getAnnotationsForGroup(group) {
 }
 
 function getAnnotationsForControl(controlRun) {
-  const regex = new RegExp(`^(.*?):(\d+)(?:-(\d+))?$`);
+  const regex = new RegExp("^(.*?):(\\d+)(?:-(\\d+))?$");
   const annotations = [];
 
   for (let result of controlRun.results || []) {
@@ -116,8 +116,8 @@ function getAnnotationsForControl(controlRun) {
         continue;
       }
 
-      console.log("dim value:" + (dim.value || ""));
-      const match = (dim.value || "").match(regex)
+      console.log("dim value: " + (dim.value || ""));
+      const match = (dim.value || "").match(regex);
       if (match) {
         console.log("regex match");
         const fileName = match[1];
