@@ -99,13 +99,13 @@ runs:
             if [[ "$paths" == "" ]];then
               paths="check-output.${i}"
             else
-              paths=$(echo "${paths}\ncheck-output.${i}")
+              paths=$(echo -e "${paths}\ncheck-output.${i}")
             fi
           done
         fi
 
         echo "control_exports=$exports" >> $GITHUB_OUTPUT
-        echo -e "artifact_paths=$paths" >> $GITHUB_OUTPUT
+        echo "artifact_paths=$paths" >> $GITHUB_OUTPUT
 
     - name: Run checks
       id: run-checks
