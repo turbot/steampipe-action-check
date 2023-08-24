@@ -17,6 +17,10 @@ inputs:
     description: Space separated list of benchmarks and controls to run. Can also pass in as a multi-line string. Defaults to 'all'.
     required: false
     default: all
+  artifact-exports:
+    description: "Comma separated export types to save as artifacts. Example: 'json,csv'. Defaults to 'csv'. Valid values: 'asff,csv,html,json,md,nunit13,sps'."
+    required: false
+    default: csv
   additional-args:
     description: Space separated args to add to the 'steampipe check' command.
     required: false
@@ -78,6 +82,24 @@ runs:
         fi
         echo "run_list=$run_list" >> $GITHUB_OUTPUT
 
+    - name: Parse exports and artifact paths
+      id: export-paths
+      shell: bash
+      run: |
+        # Parse exports & artifact paths
+        inputs=${{ inputs.artifact-exports }}
+        exports="--export=check-output.json --export=check-output.md"
+        paths=""
+        for i in ${inputs//,/ }
+        do
+          if [ "$i" != "json" ] && [ "$i" != "md" ];then
+            exports="$exports --export=check-output.$i"
+          fi
+          paths=$(echo "${paths}./check-output.${i}\n")
+        done
+        echo "control_exports=$exports" >> $GITHUB_OUTPUT
+        echo -e "artifact_paths=$paths" >> $GITHUB_OUTPUT
+
     - name: Run checks
       id: run-checks
       shell: bash
@@ -105,7 +127,7 @@ runs:
         fi
 
         # Set required json/md exports for annotations/summary
-        control_exports="--export=check-output.json --export=check-output.md"
+        control_exports="${{ steps.export-paths.control_exports }}"
 
         # Snapshot setup
         snapshot_type=""
@@ -145,13 +167,15 @@ runs:
 
     - name: Upload Artifacts
       id: upload-artifacts
+      if: steps.export-paths.artifact_paths != ''
       continue-on-error: true
       uses: actions/upload-artifact@v3
       env:
         GITHUB_TOKEN: ${{ inputs.github-token }}
       with:
         name: ${{ steps.run-checks.outputs.mod }}-${{ steps.run-checks.outputs.uuid }}
-        path: ./check-output.*
+        path: |
+          ${{ steps.export-paths.artifact_paths }}
 
     - name: Setup Node
       uses: actions/setup-node@v3
