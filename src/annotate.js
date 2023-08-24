@@ -116,8 +116,10 @@ function getAnnotationsForControl(controlRun) {
         continue;
       }
 
+      console.log("dim value:" + (dim.value || ""));
       const match = (dim.value || "").match(regex)
       if (match) {
+        console.log("regex match");
         const fileName = match[1];
         const startLine = parseInt(match[2]);
         const endLine = match[3] ? parseInt(match[3]) : startLine;
@@ -132,6 +134,8 @@ function getAnnotationsForControl(controlRun) {
           start_column: 0,
           end_column: 0,
         });
+      } else {
+        console.log("regex didn't match");
       }
     }
   }
