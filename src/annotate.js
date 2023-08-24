@@ -130,8 +130,6 @@ function getAnnotationsForControl(controlRun) {
           annotation_level: "failure",
           message: result.reason,
           title: controlRun.title,
-          start_column: 0,
-          end_column: 0,
         });
       }
     }
