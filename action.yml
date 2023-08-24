@@ -97,9 +97,9 @@ runs:
               exports="$exports --export=check-output.$i"
             fi
             if [[ "$paths" == "" ]];then
-              paths="./check-output.${i}"
+              paths="check-output.${i}"
             else
-              paths=$(echo "${paths}\n./check-output.${i}")
+              paths=$(echo "${paths}\ncheck-output.${i}")
             fi
           done
         fi
