@@ -122,7 +122,7 @@ function getAnnotationsForControl(controlRun) {
         const fileName = match[1];
         const startLine = parseInt(match[2]);
         const endLine = match[3] ? parseInt(match[3]) : startLine;
-        console.log(fileName + " - " + startLine + " - " + endLine)
+        console.log(fileName.replace(process.cwd() + "/", "") + " - " + startLine + " - " + endLine)
         annotations.push({
           path: fileName.replace(process.cwd() + "/", ""),
           start_line: parseInt(startLine),
