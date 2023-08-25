@@ -15,7 +15,7 @@ jobs:
           plugin-connections: |
             connection "aws_tf" {
               plugin = "terraform"
-              paths  = [ "./examples/terraform/aws/**/*.tf" ]
+              paths  = [ "./test-files/terraform/aws/**/*.tf" ]
             }
       - name: Steampipe AWS TF scan action
         uses: ./
