@@ -239,6 +239,36 @@ jobs:
           additional-args: "--output=none" # Pass additional CLI args to Steampipe.
 ```
 
+## Advanced Examples
+
+### Using a Turbot Pipes workspace
+
+You can execute the querying via Turbot Pipes, which is useful if you do not wish to store credentials in GitHub for all your plugin connections.
+
+The below example shows how to configure an [implicit workspace](https://steampipe.io/docs/managing/workspaces#implicit-workspaces) 
+
+```yaml
+steps:
+  # Checkout the repository
+  - name: Repository Checkout
+    uses: actions/checkout@v3
+  # Steampipe CLI is required, but we will be using connection from Turbot Pipes
+  - name: Steampipe Setup
+    uses: turbot/steampipe-action-setup@v1.4.0
+    with:
+      plugin-connections: | # AWS plugin is required to satisfy the mod install, no configuration required.
+        connection "aws" {
+          plugin = "aws"
+        }
+  - name: Steampipe Checks
+    uses: turbot/steampipe-action-check@v0.0.1
+    with:
+      mod-url: https://github.com/turbot/steampipe-mod-aws-compliance
+      pipes-token: ${{ secrets.PIPES_TOKEN }}
+      snapshot-visibility: workspace 
+      additional-args: '--workspace="graza/default"' # The workspace passed here in format <owner>/<workspace> needs to be accessible by your token.
+```
+
 ### Use the action multiple times to scan multi-cloud Terraform resources in the same job
 
 You can utilise this action multiple times in the same workflow, there are a couple of approaches to doing so.
