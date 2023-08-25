@@ -245,7 +245,7 @@ jobs:
 
 You can execute the querying via Turbot Pipes, which is useful if you do not wish to store credentials in GitHub for all your plugin connections.
 
-The below example shows how to configure an [implicit workspace](https://steampipe.io/docs/managing/workspaces#implicit-workspaces) 
+The below example shows how to configure an [implicit workspace](https://steampipe.io/docs/managing/workspaces#implicit-workspaces) within the `additional-args` input.
 
 ```yaml
 steps:
@@ -266,8 +266,22 @@ steps:
       mod-url: https://github.com/turbot/steampipe-mod-aws-compliance
       pipes-token: ${{ secrets.PIPES_TOKEN }}
       snapshot-visibility: workspace 
-      additional-args: '--workspace="graza/default"' # The workspace passed here in format <owner>/<workspace> needs to be accessible by your token.
+      additional-args: '--workspace="username/default"' # The workspace passed here in format <owner>/<workspace> needs to be accessible by your token.
 ```
+
+Note: you can also set this as the `STEAMPIPE_WORKSPACE` environment variable.
+
+```yaml
+  - name: Steampipe Checks
+    uses: turbot/steampipe-action-check@v0.0.1
+    env:
+      STEAMPIPE_WORKSPACE: 'username/default'
+    with:
+      mod-url: https://github.com/turbot/steampipe-mod-aws-compliance
+      pipes-token: ${{ secrets.PIPES_TOKEN }}
+      snapshot-visibility: workspace
+```
+
 
 ### Use the action multiple times to scan multi-cloud Terraform resources in the same job
 
