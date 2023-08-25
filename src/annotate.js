@@ -5,6 +5,8 @@ import { readFile } from "fs/promises";
 import * as utils from "./utils";
 
 export async function processAnnotations(input) {
+  info("Context SHA: " + context.sha);
+  info("PR SHA: " + context.payload.pull_request.head.sha);
   if (context.payload.pull_request == null) {
     return;
   }
