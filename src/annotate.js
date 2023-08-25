@@ -5,13 +5,6 @@ import { readFile } from "fs/promises";
 import * as utils from "./utils";
 
 export async function processAnnotations(input) {
-  info("Context SHA: " + context.sha);
-  if (context.payload.pull_request) {
-    info("PR SHA: " + context.payload.pull_request.head.sha);
-  }
-  if (context.payload.pull_request == null) {
-    return;
-  }
   startGroup("Processing output");
   info("Fetching output");
   const annotations = [];
@@ -70,22 +63,28 @@ export async function pushAnnotations(input, annotations) {
     chunks[chunks.length - 1].push(ann);
   }
 
-  // TODO: Are all of these values correct and standard?
+  const checkCore = {
+    ...context.repo,
+    check_run_id: context.runId,
+    name: "steampipe-check",
+    status: "completed",
+    conclusion: "action_required",
+  }
+
+  if (context.payload.pull_request) {
+    checkCore.pull_number = context.payload.pull_request.number;
+    checkCore.head_sha = context.payload.pull_request.head.sha;
+  } else {
+    checkCore.head_sha = context.sha;
+  }
+
   for (let chunk of chunks) {
-    await octokit.rest.checks.create({
-      ...context.repo,
-      pull_number: context.payload.pull_request.number,
-      head_sha: context.payload.pull_request["head"]["sha"],
-      check_run_id: context.runId,
-      name: "steampipe-check",
-      status: "completed",
-      conclusion: "action_required",
-      output: {
-        title: "Steampipe Check",
-        summary: "Control check failed",
-        annotations: chunk,
-      },
-    });
+    checkCore.output = {
+      title: "Steampipe Check",
+      summary: "Control check failed",
+      annotations: chunk,
+    }
+    await octokit.rest.checks.create(checkCore);
   }
 }
 
