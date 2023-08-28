@@ -16,7 +16,7 @@ export async function processAnnotations(input) {
 
   info(`Pushing Annotations`);
   await pushAnnotations(input, annotations);
-  utils.removeFiles([jsonFiles]);
+  utils.removeFiles(jsonFiles);
   endGroup();
 }
 
