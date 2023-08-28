@@ -7,13 +7,16 @@ import * as utils from "./utils";
 export async function processAnnotations(input) {
   startGroup("Processing output");
   info("Fetching output");
+  const jsonFiles = await utils.getExportedJSONFiles(input);
   const annotations = [];
-  const result = await parseResultFile("check-output.json");
-  annotations.push(...getAnnotations(result));
+  for (let j of jsonFiles) {
+    const result = await parseResultFile(j);
+    annotations.push(...getAnnotations(result));
+  }
 
   info(`Pushing Annotations`);
   await pushAnnotations(input, annotations);
-  utils.removeFiles(["check-output.json"]);
+  utils.removeFiles([jsonFiles]);
   endGroup();
 }
 

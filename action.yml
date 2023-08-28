@@ -88,23 +88,25 @@ runs:
       run: |
         # Parse exports & artifact paths
         inputs=${{ inputs.artifact-exports }}
-        exports="--export=check-output.json --export=check-output.md"
+        exports="--export=json --export=md"
         paths=""
+        date=$(date '+%Y%m%d')
         if [ "$inputs" != "" ];then
           for i in ${inputs//,/ }
           do
             if [ "$i" != "json" ] && [ "$i" != "md" ];then
-              exports="$exports --export=check-output.$i"
+              exports="$exports --export=$i"
             fi
             if [[ "$paths" == "" ]];then
-              paths="check-output.${i}"
+              paths="*$date*.${i}"
             else
-              paths=$(echo -e "${paths}\ncheck-output.${i}")
+              paths=$(echo -e "${paths}\n*$date*.${i}")
             fi
           done
         fi
 
         echo "control_exports=$exports" >> $GITHUB_OUTPUT
+        echo "summary_file_pattern=*$date*.md" >> $GITHUB_OUTPUT
         echo "artifact_paths<<EOF" >> $GITHUB_OUTPUT
         echo "$paths" >> $GITHUB_OUTPUT
         echo "EOF" >> $GITHUB_OUTPUT
@@ -135,7 +137,7 @@ runs:
           control_output=""
         fi
 
-        # Set required json/md exports for annotations/summary
+        # Set export types
         control_exports="${{ steps.export-paths.outputs.control_exports }}"
 
         # Snapshot setup
@@ -143,7 +145,6 @@ runs:
         snapshot_tags="--snapshot-tag github_repo=$GITHUB_REPOSITORY --snapshot-tag github_run_url=$run_url --snapshot-tag github_workflow=$workflow_id"
         pipes_inputs=""
         if [[ -n "${{ inputs.pipes-token }}" ]];then
-          echo "pipes-token received, adding CLI arg"
           pipes_inputs="--cloud-host pipes.turbot.com --cloud-token ${{ inputs.pipes-token }}"
         fi
 
@@ -166,7 +167,10 @@ runs:
           echo "> Turbot Pipes Snapshot" >> $GITHUB_STEP_SUMMARY
           echo "> ${{ inputs.snapshot-visibility }} snapshot url: $snapshot_url" >> $GITHUB_STEP_SUMMARY
         fi
-        echo "$(cat check-output.md)" >> $GITHUB_STEP_SUMMARY
+        for f in $(echo "${{ steps.export-paths.outputs.summary_file_pattern }}")
+        do
+          echo "$(cat $f)" >> $GITHUB_STEP_SUMMARY
+        done
 
         # Handle exit code: 0 ok, 1 alarms, 2 errors, these should exit ok - other codes should exit out with error code
         if [[ $exit_code -le 2 ]];then
