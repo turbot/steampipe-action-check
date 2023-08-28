@@ -164,8 +164,8 @@ runs:
         # Write summary
         snapshot_url=$(cat /tmp/output.log | grep "Snapshot uploaded" | sed -e "s/^Snapshot uploaded to //")
         if [ -n "$snapshot_url" ];then
-          echo "> Turbot Pipes Snapshot" >> $GITHUB_STEP_SUMMARY
-          echo "> ${{ inputs.snapshot-visibility }} snapshot url: $snapshot_url" >> $GITHUB_STEP_SUMMARY
+          echo "> Turbot Pipes ${{ inputs.snapshot-visibility }} snapshot(s)" >> $GITHUB_STEP_SUMMARY
+          echo "> $snapshot_url" >> $GITHUB_STEP_SUMMARY
         fi
         for f in $(echo "${{ steps.export-paths.outputs.summary_file_pattern }}")
         do
