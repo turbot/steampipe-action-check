@@ -192,7 +192,7 @@ Alternatively, we can pass the `--var` command in the `additional-args` input.
     uses: turbot/steampipe-action-check@v0.0.1
     with:
       mod-url: https://github.com/turbot/steampipe-mod-kubernetes-compliance
-      additional-args: "--var='common_dimensions=[\"namespace\", \"path\", \"source_type\"]'"
+      additional-args: "--var 'common_dimensions=[\"namespace\", \"path\", \"source_type\"]'"
 ```
 
 ### Comprehensive Example
