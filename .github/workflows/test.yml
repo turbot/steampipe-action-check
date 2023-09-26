@@ -1,5 +1,9 @@
 name: Run Steampipe awstf compliance
-on: [pull_request,push]
+on: 
+  pull_request:
+  push:
+    branches:
+      - main
 
 jobs:
   steampipe-awstf-compliance:
