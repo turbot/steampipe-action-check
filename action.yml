@@ -88,6 +88,7 @@ runs:
       run: |
         # Parse exports & artifact paths
         inputs=${{ inputs.artifact-exports }}
+        # Default exports: markdown is used for Summary page and json for creating annotations (only saved as artifacts if requested)
         exports="--export=json --export=md"
         paths=""
         date=$(date '+%Y%m%d')
