@@ -31,7 +31,7 @@ inputs:
     description: The Turbot Pipes token used to save snapshots, can also be set via the PIPES_TOKEN environment variable - see https://steampipe.io/docs/reference/env-vars/pipes_token.
     required: false
   github-token:
-    description: GitHub token used for git/GitHub operations.
+    description: GitHub token used to download the Steampipe mod, upload artifacts, and create annotations.
     required: false
     default: ${{ github.token }}
 
