@@ -201,6 +201,38 @@ Alternatively, we can pass the `--var` flag in the `additional-args` input.
       additional-args: "--var 'common_dimensions=[\"namespace\", \"path\", \"source_type\"]'"
 ```
 
+### Running AWS Compliance Checks
+
+The below example assumes you've setup [OIDC](https://aws.amazon.com/blogs/security/use-iam-roles-to-connect-github-actions-to-actions-in-aws/) and configured permissions to assume a specific IAM role saved as a secret `AWS_IAM_ROLE`.
+
+> Note: In order to use OIDC we need to elevate the permission for `id-token` to `write` as per these [docs](https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/configuring-openid-connect-in-amazon-web-services#adding-permissions-settings)
+
+
+```yaml
+steps:
+  - name: Repository Checkout
+    uses: actions/checkout@v3
+  - name: Setup AWS Credentials
+    uses: aws-actions/configure-aws-credentials@v4
+    with:
+      role-to-assume: ${{secrets.AWS_IAM_ROLE}}
+      aws-region: us-east-1
+  - name: Steampipe Setup
+    uses: turbot/steampipe-action-setup@v1.5.0
+    with:
+      plugin-connections: |
+        connection "aws" {
+          plugin = "aws"
+        }
+  - name: Steampipe Checks
+    uses: turbot/steampipe-action-check@v1.0.0
+    with:
+      mod-url: https://github.com/turbot/steampipe-mod-aws-compliance
+      checks: benchmark.cis_v200
+```
+
+_Refer to the benchmarks/controls available for AWS Compliance [here](https://hub.steampipe.io/mods/turbot/aws_compliance/controls)._
+
 ### Comprehensive Example
 
 ```yaml
