@@ -8,7 +8,7 @@ import { processAnnotations } from "./annotate";
 // as separate arguments in the argument vector
 async function run() {
   try {
-    let token = process.env["GITHUB_TOKEN"];
+    const token = process.env["GITHUB_TOKEN"];
     if (token.trim().length == 0) {
       throw new Error("Error: github token is required but was not supplied");
     }
