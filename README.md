@@ -29,10 +29,8 @@ For a list of IaC mods offered by Turbot, please see [IaC mods](https://hub.stea
 In order to use this action, you will be required at a minimum to pass in the `mod-url` of the mod containing the controls you wish to use.
 
 ```yaml
-# Checkout your code
   - name: Repository Checkout
     uses: actions/checkout@v3
-# Setup Steampipe with required plugin(s) and configuration
   - name: Setup Steampipe
     uses: turbot/steampipe-action-setup@v1.4.0
     with:
@@ -41,7 +39,6 @@ In order to use this action, you will be required at a minimum to pass in the `m
           plugin = "terraform"
           paths  = [ "./**/*.tf" ]
         }
-# Run Steampipe Checks from Terraform AWS Compliance mod
   - name: Run AWS compliance on Terraform resources
     uses: turbot/steampipe-action-check@v0.0.1
     with:
@@ -55,10 +52,8 @@ _Refer to [terraform plugin docs](https://hub.steampipe.io/plugins/turbot/terraf
 You can use code for a mod not yet currently on it's main (default) branch by passing the `mod-branch` input.
 
 ```yaml
-# Checkout your code
   - name: Repository Checkout
     uses: actions/checkout@v3
-# Setup Steampipe with required plugin(s) and configuration
   - name: Setup Steampipe
     uses: turbot/steampipe-action-setup@v1.4.0
     with:
@@ -67,7 +62,6 @@ You can use code for a mod not yet currently on it's main (default) branch by pa
           plugin = "terraform"
           paths  = [ "./**/*.tf" ]
         }
-# Run Steampipe Checks from Terraform AWS Compliance mod non-default branch
   - name: Run AWS compliance on Terraform resources
     uses: turbot/steampipe-action-check@v0.0.1
     with:
@@ -78,10 +72,8 @@ You can use code for a mod not yet currently on it's main (default) branch by pa
 ### Run specific benchmarks and/or controls with the `checks` input
 
 ```yaml
-# Checkout your code
   - name: Repository Checkout
     uses: actions/checkout@v3
-# Setup Steampipe with required plugin(s) and configuration
   - name: Setup Steampipe
     uses: turbot/steampipe-action-setup@v1.4.0
     with:
@@ -90,7 +82,6 @@ You can use code for a mod not yet currently on it's main (default) branch by pa
           plugin = "terraform"
           paths  = [ "./**/*.tf" ]
         }
-# Run Steampipe Checks from Terraform AWS Compliance mod non-default branch
   - name: Run AWS compliance on Terraform resources
     uses: turbot/steampipe-action-check@v0.0.1
     with:
@@ -119,10 +110,8 @@ You can create snapshots on [Turbot Pipes](https://turbot.com/pipes) by passing 
 You will also need to ensure your workflow is authenticated to Turbot Pipes by either using the `pipes-token` input or setting the relevant [Environment Variables](https://steampipe.io/docs/reference/env-vars/steampipe_cloud_host) on or prior to this step.
 
 ```yaml
-# Checkout your code
   - name: Repository Checkout
     uses: actions/checkout@v3
-# Setup Steampipe with required plugin(s) and configuration
   - name: Setup Steampipe
     uses: turbot/steampipe-action-setup@v1.4.0
     with:
@@ -131,7 +120,6 @@ You will also need to ensure your workflow is authenticated to Turbot Pipes by e
           plugin = "terraform"
           paths  = [ "./**/*.tf" ]
         }
-# Run Steampipe Checks from Terraform AWS Compliance mod
   - name: Run AWS compliance on Terraform resources
     uses: turbot/steampipe-action-check@v0.0.1
     with:
@@ -149,10 +137,8 @@ In this mod, we would like to have the `path` in the `common_dimensions` variabl
 You can set this by passing an environment variable in the format `SP_VAR_<mod-variable-name>`.
 
 ```yaml
-# Checkout your code
   - name: Repository Checkout
     uses: actions/checkout@v3
-# Setup Steampipe with required plugin(s) and configuration
   - name: Setup Steampipe
     uses: turbot/steampipe-action-setup@v1.4.0
     with:
@@ -162,7 +148,6 @@ You can set this by passing an environment variable in the format `SP_VAR_<mod-v
           manifest_file_paths  = ["k8s/*.yaml"]
           source_type = "manifest"
         }
-# Run Steampipe Checks from K8s compliance
   - name: Run K8s compliance on manifest files
     uses: turbot/steampipe-action-check@v0.0.1
     env:
@@ -174,10 +159,8 @@ You can set this by passing an environment variable in the format `SP_VAR_<mod-v
 Alternatively, we can pass the `--var` command in the `additional-args` input.
 
 ```yaml
-# Checkout your code
   - name: Repository Checkout
     uses: actions/checkout@v3
-# Setup Steampipe with required plugin(s) and configuration
   - name: Setup Steampipe
     uses: turbot/steampipe-action-setup@v1.4.0
     with:
@@ -187,7 +170,6 @@ Alternatively, we can pass the `--var` command in the `additional-args` input.
           manifest_file_paths  = ["k8s/*.yaml"]
           source_type = "manifest"
         }
-# Run Steampipe Checks from K8s compliance
   - name: Run K8s compliance on manifest files
     uses: turbot/steampipe-action-check@v0.0.1
     with:
@@ -210,10 +192,8 @@ jobs:
   k8s_compliance_checks:
     runs-on: ubuntu-latest
     steps:
-      # Checkout repository
       - name: Repository Checkout
         uses: actions/checkout@v3
-      # Install and configure Steampipe
       - name: Steampipe Setup
         uses: turbot/steampipe-action-setup@v1.4.0
         with:
@@ -223,20 +203,19 @@ jobs:
               manifest_file_paths  = ["k8s/*.yaml"]
               source_type = "manifest"
             }
-      # Run Checks
       - name: Steampipe Checks K8s Compliance
         uses: turbot/steampipe-action-check@v0.0.1
         env:
           SP_VAR_common_dimensions: '["connection_name", "context_name", "namespace", "path", "source_type"]' # Include path dimension for annotations.
         with:
-          mod-url: https://github.com/turbot/steampipe-mod-kubernetes-compliance # The url of the mod to clone.
-          mod-branch: main # The branch of the mod to clone, defaults to 'main'.
-          checks: all # The benchmarks and/or controls to run, defaults to 'all'.
-          snapshot-visibility: anyone_with_link # The visibility of snapshot to create on Turbot Pipes, default is not set to omit the snapshot creation.
-          pipes-token: ${{ secrets.PIPES_TOKEN }} # A convenient way to pass in a Turbot Pipes api token for authentication for snapshots.
-          artifact-exports: csv,json,html,md # Comma separated list of exportable file types to save as artifacts against the run, defaults to 'csv'.
-          github-token: ${{ secrets.MY_GITHUB_TOKEN }} # GitHub token, if set will override the default used by workflow for git/GitHub operations.
-          additional-args: "--output=none" # Pass additional CLI args to Steampipe.
+          mod-url: https://github.com/turbot/steampipe-mod-kubernetes-compliance
+          mod-branch: main 
+          checks: all
+          snapshot-visibility: anyone_with_link 
+          pipes-token: ${{ secrets.PIPES_TOKEN }} 
+          artifact-exports: csv,json,html,md 
+          github-token: ${{ secrets.MY_GITHUB_TOKEN }} 
+          additional-args: "--output=none" 
 ```
 
 ## Advanced Examples
@@ -249,14 +228,12 @@ The below example shows how to configure an [implicit workspace](https://steampi
 
 ```yaml
 steps:
-  # Checkout the repository
   - name: Repository Checkout
     uses: actions/checkout@v3
-  # Steampipe CLI is required, but we will be using connection from Turbot Pipes
   - name: Steampipe Setup
     uses: turbot/steampipe-action-setup@v1.4.0
     with:
-      plugin-connections: | # AWS plugin is required to satisfy the mod install, no configuration required.
+      plugin-connections: |
         connection "aws" {
           plugin = "aws"
         }
@@ -266,7 +243,7 @@ steps:
       mod-url: https://github.com/turbot/steampipe-mod-aws-compliance
       pipes-token: ${{ secrets.PIPES_TOKEN }}
       snapshot-visibility: workspace 
-      additional-args: '--workspace="username/default"' # The workspace passed here in format <owner>/<workspace> needs to be accessible by your token.
+      additional-args: '--workspace="username/default"' # The workspace passed here in format <owner>/<workspace> needs to be accessible by your pipes-token.
 ```
 
 Note: you can also set this as the `STEAMPIPE_WORKSPACE` environment variable.
@@ -290,10 +267,8 @@ You can utilise this action multiple times in the same workflow, there are a cou
 The first approach is to explicitly repeat the step and change the parameters.
 
 ```yaml
-# Checkout your code
   - name: Repository Checkout
     uses: actions/checkout@v3
-# Setup Steampipe with required plugin(s) and configuration
   - name: Setup Steampipe
     uses: turbot/steampipe-action-setup@v1.4.0
     with:
@@ -364,7 +339,6 @@ jobs:
           mod-url: 'https://github.com/turbot/steampipe-mod-terraform-${{ matrix.cloud }}-compliance'
           additional-args: '--search-path-prefix=${{ matrix.search_path }}'
 ```
-
 
 ## Helpful links
 
