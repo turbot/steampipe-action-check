@@ -116,7 +116,6 @@ runs:
       id: run-checks
       shell: bash
       env:
-        GITHUB_TOKEN: ${{ inputs.github-token }}
         STEAMPIPE_CHECK_DISPLAY_WIDTH: 120
         STEAMPIPE_DISPLAY_WIDTH: 120
       run: |
