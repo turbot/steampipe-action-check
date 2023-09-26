@@ -32,7 +32,7 @@ In order to use this action, you will be required at a minimum to pass in the `m
   - name: Repository Checkout
     uses: actions/checkout@v3
   - name: Setup Steampipe
-    uses: turbot/steampipe-action-setup@v1.5.0
+    uses: turbot/steampipe-action-setup@v1
     with:
       plugin-connections: |
         connection "terraform" {
@@ -40,7 +40,7 @@ In order to use this action, you will be required at a minimum to pass in the `m
           paths  = [ "./**/*.tf" ]
         }
   - name: Run AWS compliance on Terraform resources
-    uses: turbot/steampipe-action-check@v1.0.0
+    uses: turbot/steampipe-action-check@v1
     with:
       mod-url: https://github.com/turbot/steampipe-mod-terraform-aws-compliance
 ```
@@ -55,7 +55,7 @@ You can use code for a mod not yet currently on it's main (default) branch by pa
   - name: Repository Checkout
     uses: actions/checkout@v3
   - name: Setup Steampipe
-    uses: turbot/steampipe-action-setup@v1.5.0
+    uses: turbot/steampipe-action-setup@v1
     with:
       plugin-connections: |
         connection "terraform" {
@@ -63,7 +63,7 @@ You can use code for a mod not yet currently on it's main (default) branch by pa
           paths  = [ "./**/*.tf" ]
         }
   - name: Run AWS compliance on Terraform resources
-    uses: turbot/steampipe-action-check@v1.0.0
+    uses: turbot/steampipe-action-check@v1
     with:
       mod-url: https://github.com/turbot/steampipe-mod-terraform-aws-compliance
       mod-branch: my-feature-branch
@@ -75,7 +75,7 @@ You can use code for a mod not yet currently on it's main (default) branch by pa
   - name: Repository Checkout
     uses: actions/checkout@v3
   - name: Setup Steampipe
-    uses: turbot/steampipe-action-setup@v1.5.0
+    uses: turbot/steampipe-action-setup@v1
     with:
       plugin-connections: |
         connection "terraform" {
@@ -83,7 +83,7 @@ You can use code for a mod not yet currently on it's main (default) branch by pa
           paths  = [ "./**/*.tf" ]
         }
   - name: Run AWS compliance on Terraform resources
-    uses: turbot/steampipe-action-check@v1.0.0
+    uses: turbot/steampipe-action-check@v1
     with:
       mod-url: https://github.com/turbot/steampipe-mod-terraform-aws-compliance
       checks: benchmark.s3 benchmark.kms control.ecs_task_definition_encryption_in_transit_enabled
@@ -109,7 +109,7 @@ Any mod which contains benchmarks/controls can be used with this GitHub Action, 
 - name: Repository Checkout
   uses: actions/checkout@v3
 - name: Steampipe Setup
-  uses: turbot/steampipe-action-setup@v1.5.0
+  uses: turbot/steampipe-action-setup@v1
   with:
     plugin-connections: |
       connection "github" {
@@ -137,7 +137,7 @@ You will also need to ensure your workflow is authenticated to Turbot Pipes by e
   - name: Repository Checkout
     uses: actions/checkout@v3
   - name: Setup Steampipe
-    uses: turbot/steampipe-action-setup@v1.5.0
+    uses: turbot/steampipe-action-setup@v1
     with:
       plugin-connections: |
         connection "terraform" {
@@ -145,7 +145,7 @@ You will also need to ensure your workflow is authenticated to Turbot Pipes by e
           paths  = [ "./**/*.tf" ]
         }
   - name: Run AWS compliance on Terraform resources
-    uses: turbot/steampipe-action-check@v1.0.0
+    uses: turbot/steampipe-action-check@v1
     with:
       mod-url: https://github.com/turbot/steampipe-mod-terraform-aws-compliance
       snapshot-visibility: workspace
@@ -164,7 +164,7 @@ You can set this by passing an environment variable in the format `SP_VAR_<mod-v
   - name: Repository Checkout
     uses: actions/checkout@v3
   - name: Setup Steampipe
-    uses: turbot/steampipe-action-setup@v1.5.0
+    uses: turbot/steampipe-action-setup@v1
     with:
       plugin-connections: |
         connection "k8s" {
@@ -173,7 +173,7 @@ You can set this by passing an environment variable in the format `SP_VAR_<mod-v
           source_type = "manifest"
         }
   - name: Run K8s compliance on manifest files
-    uses: turbot/steampipe-action-check@v1.0.0
+    uses: turbot/steampipe-action-check@v1
     env:
       SP_VAR_common_dimensions: '["namespace", "path", "source_type"]'
     with:
@@ -186,7 +186,7 @@ Alternatively, we can pass the `--var` flag in the `additional-args` input.
   - name: Repository Checkout
     uses: actions/checkout@v3
   - name: Setup Steampipe
-    uses: turbot/steampipe-action-setup@v1.5.0
+    uses: turbot/steampipe-action-setup@v1
     with:
       plugin-connections: |
         connection "k8s" {
@@ -195,7 +195,7 @@ Alternatively, we can pass the `--var` flag in the `additional-args` input.
           source_type = "manifest"
         }
   - name: Run K8s compliance on manifest files
-    uses: turbot/steampipe-action-check@v1.0.0
+    uses: turbot/steampipe-action-check@v1
     with:
       mod-url: https://github.com/turbot/steampipe-mod-kubernetes-compliance
       additional-args: "--var 'common_dimensions=[\"namespace\", \"path\", \"source_type\"]'"
@@ -218,14 +218,14 @@ steps:
       role-to-assume: ${{secrets.AWS_IAM_ROLE}}
       aws-region: us-east-1
   - name: Steampipe Setup
-    uses: turbot/steampipe-action-setup@v1.5.0
+    uses: turbot/steampipe-action-setup@v1
     with:
       plugin-connections: |
         connection "aws" {
           plugin = "aws"
         }
   - name: Steampipe Checks
-    uses: turbot/steampipe-action-check@v1.0.0
+    uses: turbot/steampipe-action-check@v1
     with:
       mod-url: https://github.com/turbot/steampipe-mod-aws-compliance
       checks: benchmark.cis_v200
@@ -251,7 +251,7 @@ jobs:
       - name: Repository Checkout
         uses: actions/checkout@v3
       - name: Steampipe Setup
-        uses: turbot/steampipe-action-setup@v1.5.0
+        uses: turbot/steampipe-action-setup@v1
         with:
           plugin-connections: |
             connection "k8s" {
@@ -260,7 +260,7 @@ jobs:
               source_type = "manifest"
             }
       - name: Steampipe Checks K8s Compliance
-        uses: turbot/steampipe-action-check@v1.0.0
+        uses: turbot/steampipe-action-check@v1
         env:
           SP_VAR_common_dimensions: '["connection_name", "context_name", "namespace", "path", "source_type"]' # Include path dimension for annotations.
         with:
@@ -287,14 +287,14 @@ steps:
   - name: Repository Checkout
     uses: actions/checkout@v3
   - name: Steampipe Setup
-    uses: turbot/steampipe-action-setup@v1.5.0
+    uses: turbot/steampipe-action-setup@v1
     with:
       plugin-connections: |
         connection "aws" {
           plugin = "aws"
         }
   - name: Steampipe Checks
-    uses: turbot/steampipe-action-check@v1.0.0
+    uses: turbot/steampipe-action-check@v1
     with:
       mod-url: https://github.com/turbot/steampipe-mod-aws-compliance
       pipes-token: ${{ secrets.PIPES_TOKEN }}
@@ -306,7 +306,7 @@ Note: you can also set this as the `STEAMPIPE_WORKSPACE` environment variable.
 
 ```yaml
   - name: Steampipe Checks
-    uses: turbot/steampipe-action-check@v1.0.0
+    uses: turbot/steampipe-action-check@v1
     env:
       STEAMPIPE_WORKSPACE: 'username/default'
     with:
@@ -326,7 +326,7 @@ The first approach is to explicitly repeat the step and change the parameters.
   - name: Repository Checkout
     uses: actions/checkout@v3
   - name: Setup Steampipe
-    uses: turbot/steampipe-action-setup@v1.5.0
+    uses: turbot/steampipe-action-setup@v1
     with:
       plugin-connections: |
         connection "aws_tf" {
@@ -345,11 +345,11 @@ The first approach is to explicitly repeat the step and change the parameters.
           ]
         }
   - name: Run Steampipe Terraform Compliance on AWS
-    uses: turbot/steampipe-action-check@v1.0.0
+    uses: turbot/steampipe-action-check@v1
     with:
       mod-url: https://github.com/turbot/steampipe-mod-terraform-aws-compliance
   - name: Run Steampipe Terraform Compliance on GCP
-    uses: turbot/steampipe-action-check@v1.0.0
+    uses: turbot/steampipe-action-check@v1
     with:
       mod-url: https://github.com/turbot/steampipe-mod-terraform-gcp-compliance
       additional-args: '--search-path-prefix=gcp_tf'
@@ -374,7 +374,7 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v3
       - name: Setup Steampipe
-        uses: turbot/steampipe-action-setup@v1.5.0
+        uses: turbot/steampipe-action-setup@v1
         with:
           plugin-connections: |
             connection "aws_tf" {
@@ -390,7 +390,7 @@ jobs:
               paths  = ["cloud_infra/terraform/azure/**/*.tf"]
             }
       - name: Run Steampipe Terraform Compliance - ${{ matrix.cloud }}
-        uses: turbot/steampipe-action-check@v1.0.0
+        uses: turbot/steampipe-action-check@v1
         with:
           mod-url: 'https://github.com/turbot/steampipe-mod-terraform-${{ matrix.cloud }}-compliance'
           additional-args: '--search-path-prefix=${{ matrix.search_path }}'

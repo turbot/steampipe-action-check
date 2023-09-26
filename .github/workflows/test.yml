@@ -25,4 +25,4 @@ jobs:
         uses: ./
         with:
           mod-url: https://github.com/turbot/steampipe-mod-terraform-aws-compliance
-          additional-args: --output=none
+          additional-args: --output=none # Added to reduce stdout when running tests
