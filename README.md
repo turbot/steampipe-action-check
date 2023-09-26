@@ -32,7 +32,7 @@ In order to use this action, you will be required at a minimum to pass in the `m
   - name: Repository Checkout
     uses: actions/checkout@v3
   - name: Setup Steampipe
-    uses: turbot/steampipe-action-setup@v1.4.0
+    uses: turbot/steampipe-action-setup@v1.5.0
     with:
       plugin-connections: |
         connection "terraform" {
@@ -55,7 +55,7 @@ You can use code for a mod not yet currently on it's main (default) branch by pa
   - name: Repository Checkout
     uses: actions/checkout@v3
   - name: Setup Steampipe
-    uses: turbot/steampipe-action-setup@v1.4.0
+    uses: turbot/steampipe-action-setup@v1.5.0
     with:
       plugin-connections: |
         connection "terraform" {
@@ -75,7 +75,7 @@ You can use code for a mod not yet currently on it's main (default) branch by pa
   - name: Repository Checkout
     uses: actions/checkout@v3
   - name: Setup Steampipe
-    uses: turbot/steampipe-action-setup@v1.4.0
+    uses: turbot/steampipe-action-setup@v1.5.0
     with:
       plugin-connections: |
         connection "terraform" {
@@ -99,6 +99,30 @@ Note: `checks` can also be passed as a multiline input:
 
 _Refer to the benchmarks/controls available for your cloud provider [here](#helpful-links)._
 
+### Running non-IaC Checks
+
+Any mod which contains benchmarks/controls can be used with this GitHub Action, in the below example we're performing a CIS benchmark on our GitHub account.
+
+> Note: In the below example we're passing in a PAT (personal access token) to use as our default workflow token may not have all the privileges/repo access we want to use for our checks.
+
+```yaml
+- name: Repository Checkout
+  uses: actions/checkout@v3
+- name: Steampipe Setup
+  uses: turbot/steampipe-action-setup@v1.5.0
+  with:
+    plugin-connections: |
+      connection "github" {
+        plugin = "github"
+        token  = "${{secrets.GH_PAT}}"
+      }
+- name: Steampipe Checks
+  uses: turbot/steampipe-action-check@update-check-action
+  with:
+    mod-url: https://github.com/turbot/steampipe-mod-github-compliance
+    checks: benchmark.cis_supply_chain_v100
+```
+
 ### Creating snapshots on Turbot Pipes
 
 > Note: This example assumes you have a [Turbot Pipes](https://turbot.com/pipes) account and have [generated an API token](https://turbot.com/pipes/docs/profile#tokens) stored as a secret `PIPES_TOKEN` available to your repository.
@@ -113,7 +137,7 @@ You will also need to ensure your workflow is authenticated to Turbot Pipes by e
   - name: Repository Checkout
     uses: actions/checkout@v3
   - name: Setup Steampipe
-    uses: turbot/steampipe-action-setup@v1.4.0
+    uses: turbot/steampipe-action-setup@v1.5.0
     with:
       plugin-connections: |
         connection "terraform" {
@@ -140,7 +164,7 @@ You can set this by passing an environment variable in the format `SP_VAR_<mod-v
   - name: Repository Checkout
     uses: actions/checkout@v3
   - name: Setup Steampipe
-    uses: turbot/steampipe-action-setup@v1.4.0
+    uses: turbot/steampipe-action-setup@v1.5.0
     with:
       plugin-connections: |
         connection "k8s" {
@@ -156,13 +180,13 @@ You can set this by passing an environment variable in the format `SP_VAR_<mod-v
       mod-url: https://github.com/turbot/steampipe-mod-kubernetes-compliance
 ```
 
-Alternatively, we can pass the `--var` command in the `additional-args` input.
+Alternatively, we can pass the `--var` flag in the `additional-args` input.
 
 ```yaml
   - name: Repository Checkout
     uses: actions/checkout@v3
   - name: Setup Steampipe
-    uses: turbot/steampipe-action-setup@v1.4.0
+    uses: turbot/steampipe-action-setup@v1.5.0
     with:
       plugin-connections: |
         connection "k8s" {
@@ -195,7 +219,7 @@ jobs:
       - name: Repository Checkout
         uses: actions/checkout@v3
       - name: Steampipe Setup
-        uses: turbot/steampipe-action-setup@v1.4.0
+        uses: turbot/steampipe-action-setup@v1.5.0
         with:
           plugin-connections: |
             connection "k8s" {
@@ -231,7 +255,7 @@ steps:
   - name: Repository Checkout
     uses: actions/checkout@v3
   - name: Steampipe Setup
-    uses: turbot/steampipe-action-setup@v1.4.0
+    uses: turbot/steampipe-action-setup@v1.5.0
     with:
       plugin-connections: |
         connection "aws" {
@@ -270,7 +294,7 @@ The first approach is to explicitly repeat the step and change the parameters.
   - name: Repository Checkout
     uses: actions/checkout@v3
   - name: Setup Steampipe
-    uses: turbot/steampipe-action-setup@v1.4.0
+    uses: turbot/steampipe-action-setup@v1.5.0
     with:
       plugin-connections: |
         connection "aws_tf" {
@@ -318,7 +342,7 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v3
       - name: Setup Steampipe
-        uses: turbot/steampipe-action-setup@v1.4.0
+        uses: turbot/steampipe-action-setup@v1.5.0
         with:
           plugin-connections: |
             connection "aws_tf" {
