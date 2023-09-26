@@ -28,7 +28,7 @@ inputs:
     description: If set to 'anyone_with_link' or 'workspace' will create a snapshot on Turbot Pipes.
     required: false
   pipes-token:
-    description: The Turbot Pipes token used to save snapshots, can also be set via environment variable (https://steampipe.io/docs/reference/env-vars/pipes_token).
+    description: The Turbot Pipes token used to save snapshots, can also be set via the PIPES_TOKEN environment variable - see https://steampipe.io/docs/reference/env-vars/pipes_token.
     required: false
   github-token:
     description: GitHub token used for git/GitHub operations.
