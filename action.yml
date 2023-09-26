@@ -18,9 +18,8 @@ inputs:
     required: false
     default: all
   artifact-exports:
-    description: "Comma separated export types to save as artifacts. Example: 'json,csv'. Defaults to 'csv'. For all valid formats please see https://steampipe.io/docs/reference/cli/check#output-formats."
+    description: "Comma separated export types to save as artifacts. Example: 'json,csv'. For all valid formats please see https://steampipe.io/docs/reference/cli/check#output-formats."
     required: false
-    default: csv
   additional-args:
     description: Space separated args to add to the 'steampipe check' command.
     required: false
