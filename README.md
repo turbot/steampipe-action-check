@@ -40,7 +40,7 @@ In order to use this action, you will be required at a minimum to pass in the `m
           paths  = [ "./**/*.tf" ]
         }
   - name: Run AWS compliance on Terraform resources
-    uses: turbot/steampipe-action-check@v0.0.1
+    uses: turbot/steampipe-action-check@v1.0.0
     with:
       mod-url: https://github.com/turbot/steampipe-mod-terraform-aws-compliance
 ```
@@ -63,7 +63,7 @@ You can use code for a mod not yet currently on it's main (default) branch by pa
           paths  = [ "./**/*.tf" ]
         }
   - name: Run AWS compliance on Terraform resources
-    uses: turbot/steampipe-action-check@v0.0.1
+    uses: turbot/steampipe-action-check@v1.0.0
     with:
       mod-url: https://github.com/turbot/steampipe-mod-terraform-aws-compliance
       mod-branch: my-feature-branch
@@ -83,7 +83,7 @@ You can use code for a mod not yet currently on it's main (default) branch by pa
           paths  = [ "./**/*.tf" ]
         }
   - name: Run AWS compliance on Terraform resources
-    uses: turbot/steampipe-action-check@v0.0.1
+    uses: turbot/steampipe-action-check@v1.0.0
     with:
       mod-url: https://github.com/turbot/steampipe-mod-terraform-aws-compliance
       checks: benchmark.s3 benchmark.kms control.ecs_task_definition_encryption_in_transit_enabled
@@ -121,7 +121,7 @@ You will also need to ensure your workflow is authenticated to Turbot Pipes by e
           paths  = [ "./**/*.tf" ]
         }
   - name: Run AWS compliance on Terraform resources
-    uses: turbot/steampipe-action-check@v0.0.1
+    uses: turbot/steampipe-action-check@v1.0.0
     with:
       mod-url: https://github.com/turbot/steampipe-mod-terraform-aws-compliance
       snapshot-visibility: workspace
@@ -149,7 +149,7 @@ You can set this by passing an environment variable in the format `SP_VAR_<mod-v
           source_type = "manifest"
         }
   - name: Run K8s compliance on manifest files
-    uses: turbot/steampipe-action-check@v0.0.1
+    uses: turbot/steampipe-action-check@v1.0.0
     env:
       SP_VAR_common_dimensions: '["namespace", "path", "source_type"]'
     with:
@@ -171,7 +171,7 @@ Alternatively, we can pass the `--var` command in the `additional-args` input.
           source_type = "manifest"
         }
   - name: Run K8s compliance on manifest files
-    uses: turbot/steampipe-action-check@v0.0.1
+    uses: turbot/steampipe-action-check@v1.0.0
     with:
       mod-url: https://github.com/turbot/steampipe-mod-kubernetes-compliance
       additional-args: "--var 'common_dimensions=[\"namespace\", \"path\", \"source_type\"]'"
@@ -204,7 +204,7 @@ jobs:
               source_type = "manifest"
             }
       - name: Steampipe Checks K8s Compliance
-        uses: turbot/steampipe-action-check@v0.0.1
+        uses: turbot/steampipe-action-check@v1.0.0
         env:
           SP_VAR_common_dimensions: '["connection_name", "context_name", "namespace", "path", "source_type"]' # Include path dimension for annotations.
         with:
@@ -238,7 +238,7 @@ steps:
           plugin = "aws"
         }
   - name: Steampipe Checks
-    uses: turbot/steampipe-action-check@v0.0.1
+    uses: turbot/steampipe-action-check@v1.0.0
     with:
       mod-url: https://github.com/turbot/steampipe-mod-aws-compliance
       pipes-token: ${{ secrets.PIPES_TOKEN }}
@@ -250,7 +250,7 @@ Note: you can also set this as the `STEAMPIPE_WORKSPACE` environment variable.
 
 ```yaml
   - name: Steampipe Checks
-    uses: turbot/steampipe-action-check@v0.0.1
+    uses: turbot/steampipe-action-check@v1.0.0
     env:
       STEAMPIPE_WORKSPACE: 'username/default'
     with:
@@ -289,11 +289,11 @@ The first approach is to explicitly repeat the step and change the parameters.
           ]
         }
   - name: Run Steampipe Terraform Compliance on AWS
-    uses: turbot/steampipe-action-check@v0.0.1
+    uses: turbot/steampipe-action-check@v1.0.0
     with:
       mod-url: https://github.com/turbot/steampipe-mod-terraform-aws-compliance
   - name: Run Steampipe Terraform Compliance on GCP
-    uses: turbot/steampipe-action-check@v0.0.1
+    uses: turbot/steampipe-action-check@v1.0.0
     with:
       mod-url: https://github.com/turbot/steampipe-mod-terraform-gcp-compliance
       additional-args: '--search-path-prefix=gcp_tf'
@@ -334,7 +334,7 @@ jobs:
               paths  = ["cloud_infra/terraform/azure/**/*.tf"]
             }
       - name: Run Steampipe Terraform Compliance - ${{ matrix.cloud }}
-        uses: turbot/steampipe-action-check@v0.0.1
+        uses: turbot/steampipe-action-check@v1.0.0
         with:
           mod-url: 'https://github.com/turbot/steampipe-mod-terraform-${{ matrix.cloud }}-compliance'
           additional-args: '--search-path-prefix=${{ matrix.search_path }}'
