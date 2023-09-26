@@ -235,7 +235,7 @@ jobs:
           snapshot-visibility: anyone_with_link # The visibility of snapshot to create on Turbot Pipes, default is not set to omit the snapshot creation.
           pipes-token: ${{ secrets.PIPES_TOKEN }} # A convenient way to pass in a Turbot Pipes api token for authentication for snapshots.
           artifact-exports: csv,json,html,md # Comma separated list of exportable file types to save as artifacts against the run, defaults to 'csv'.
-          github-token: gh_s0meTok3nHere # GitHub token, if set will override the default used by workflow for git/GitHub operations.
+          github-token: ${{ secrets.MY_GITHUB_TOKEN }} # GitHub token, if set will override the default used by workflow for git/GitHub operations.
           additional-args: "--output=none" # Pass additional CLI args to Steampipe.
 ```
 
