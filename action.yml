@@ -1,7 +1,7 @@
 ---
 name: Steampipe Check
 author: Turbot
-description: Run Steampipe mod benchmarks and controls. Create annotations for Infrastructure as Code controls.
+description: Run Steampipe mod benchmarks and controls. Create annotations for Infrastructure as Code (IaC) controls.
 branding:
   color: red
   icon: shield
