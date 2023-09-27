@@ -39,8 +39,6 @@ See [action.yml](action.yml).
       mod-url: https://github.com/turbot/steampipe-mod-terraform-aws-compliance
 ```
 
-_Refer to [terraform plugin docs](https://hub.steampipe.io/plugins/turbot/terraform#configuring-local-file-paths) for local file path configuration._
-
 ### Run specific benchmarks and controls
 
 ```yaml
