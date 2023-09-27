@@ -1,7 +1,7 @@
 ---
 name: Steampipe Check
 author: Turbot
-description: Run Steampipe mod controls and create annotations for Infrastructure as Code controls.
+description: Run Steampipe mod benchmarks and controls. Create annotations for Infrastructure as Code controls.
 branding:
   color: red
   icon: shield
@@ -10,24 +10,24 @@ inputs:
     description: "Mod URL to clone. Examples: https://github.com/turbot/steampipe-mod-aws-compliance"
     required: true
   mod-branch:
-    description: "Mod branch or tag to clone. Defaults to 'main'. Examples: 'main', 'release/v0.7', 'v0.5', 'v1.0-beta.0'."
+    description: "Mod branch or tag to clone. Defaults to 'main'. Examples: main, release/v0.7, v0.5, 'v1.0-beta.0"
     required: false
     default: main
-  checks:
+  mod-checks:
     description: Space separated list of benchmarks and controls to run. Can also pass in as a multi-line string. Defaults to 'all'.
     required: false
     default: all
-  artifact-exports:
-    description: "Comma separated export types to save as artifacts. Example: 'json,csv'. For all valid formats please see https://steampipe.io/docs/reference/cli/check#output-formats."
+  pipes-snapshot-visibility:
+    description: Set this to 'anyone_with_link' or 'workspace' to create a snapshot in Turbot Pipes with the specified visibility.
+    required: false
+  pipes-token:
+    description: The Turbot Pipes token used to save snapshots. Can also be set via the PIPES_TOKEN environment variable (https://steampipe.io/docs/reference/env-vars/pipes_token).
     required: false
   additional-args:
     description: Space separated args to add to the 'steampipe check' command.
     required: false
-  snapshot-visibility:
-    description: If set to 'anyone_with_link' or 'workspace' will create a snapshot on Turbot Pipes.
-    required: false
-  pipes-token:
-    description: The Turbot Pipes token used to save snapshots, can also be set via the PIPES_TOKEN environment variable - see https://steampipe.io/docs/reference/env-vars/pipes_token.
+  artifact-exports:
+    description: "Comma separated export types to save as artifacts. Example: 'csv,json'. For all valid formats please see https://steampipe.io/docs/reference/cli/check#output-formats."
     required: false
   github-token:
     description: GitHub token used to download the Steampipe mod, upload artifacts, and create annotations.
@@ -47,7 +47,7 @@ runs:
         mkdir -p $tmp_mod_dir
         echo "tmp-mod-dir=$tmp_mod_dir" >> $GITHUB_OUTPUT
 
-    - name: Get mod
+    - name: Clone the mod and install dependencies
       shell: bash
       env:
         GITHUB_TOKEN: ${{ inputs.github-token }}
@@ -62,12 +62,12 @@ runs:
         steampipe mod install
         cd -
 
-    - name: Get checks
+    - name: Get Steampipe checks
       id: get-checks
       shell: bash
       run: |
         # Convert multiline 'checks' input to single line arguments which we can send to 'check'
-        if [ -z "${{ inputs.checks }}" ]
+        if [ -z "${{ inputs.mod-checks }}" ]
         then
           # default to all
           run_list="all"
@@ -76,7 +76,7 @@ runs:
           while read line; do
             run_list="$run_list $line"
           done <<EOF
-        ${{ inputs.checks }}
+        ${{ inputs.mod-checks }}
         EOF
         fi
         echo "run_list=$run_list" >> $GITHUB_OUTPUT
@@ -111,7 +111,7 @@ runs:
         echo "$paths" >> $GITHUB_OUTPUT
         echo "EOF" >> $GITHUB_OUTPUT
 
-    - name: Run checks
+    - name: Run Steampipe checks
       id: run-checks
       shell: bash
       env:
@@ -147,12 +147,12 @@ runs:
           pipes_inputs="--cloud-host pipes.turbot.com --cloud-token ${{ inputs.pipes-token }}"
         fi
 
-        if [ "${{ inputs.snapshot-visibility }}" == "anyone_with_link" ];then
+        if [ "${{ inputs.pipes-snapshot-visibility }}" == "anyone_with_link" ];then
           snapshot_type="--share $snapshot_tags"
-        elif [ "${{ inputs.snapshot-visibility }}" == "workspace" ];then
+        elif [ "${{ inputs.pipes-snapshot-visibility }}" == "workspace" ];then
           snapshot_type="--snapshot $snapshot_tags"
-        elif [[ -n "${{ inputs.snapshot-visibility }}" ]];then
-          echo "Error: invalid value for input 'snapshot-visibility' provided: ${{ inputs.snapshot-visibility }} - valid values are 'anyone_with_link' and 'workspace'"
+        elif [[ -n "${{ inputs.pipes-snapshot-visibility }}" ]];then
+          echo "Error: invalid value for input 'snapshot-visibility' provided: ${{ inputs.pipes-snapshot-visibility }} - valid values are 'anyone_with_link' and 'workspace'"
           exit 3
         fi
 
@@ -163,7 +163,7 @@ runs:
         # Write summary
         snapshot_url=$(cat /tmp/output.log | grep "Snapshot uploaded" | sed -e "s/^Snapshot uploaded to //")
         if [ -n "$snapshot_url" ];then
-          echo "> Turbot Pipes ${{ inputs.snapshot-visibility }} snapshot(s)" >> $GITHUB_STEP_SUMMARY
+          echo "> Turbot Pipes ${{ inputs.pipes-snapshot-visibility }} snapshot(s)" >> $GITHUB_STEP_SUMMARY
           echo "> $snapshot_url" >> $GITHUB_STEP_SUMMARY
         fi
         for f in $(echo "${{ steps.export-paths.outputs.summary_file_pattern }}")
@@ -178,7 +178,7 @@ runs:
           exit $exit_code
         fi
 
-    - name: Upload Artifacts
+    - name: Upload artifacts
       id: upload-artifacts
       if: steps.export-paths.outputs.artifact_paths != ''
       continue-on-error: true
@@ -193,7 +193,7 @@ runs:
     - name: Setup Node
       uses: actions/setup-node@v3
 
-    - name: Annotate
+    - name: Create annotations
       shell: bash
       run: |
         node ${{ github.action_path }}/dist/index.js ${{ steps.get-checks.outputs.run_list }}
