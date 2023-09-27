@@ -1,0 +1,15 @@
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Swap files
+*.swp
+
+# Folders
+node_modules
+
+# Ignore Desktop Services Store files
+.DS_Store

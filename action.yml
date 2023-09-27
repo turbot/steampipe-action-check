@@ -1,0 +1,201 @@
+---
+name: Steampipe Check
+author: Turbot
+description: Run Steampipe mod benchmarks and controls. Create annotations for Infrastructure as Code (IaC) controls.
+branding:
+  color: red
+  icon: shield
+inputs:
+  mod-url:
+    description: "Mod URL to clone. Examples: https://github.com/turbot/steampipe-mod-aws-compliance"
+    required: true
+  mod-branch:
+    description: "Mod branch or tag to clone. Defaults to 'main'. Examples: main, release/v0.7, v0.5, 'v1.0-beta.0"
+    required: false
+    default: main
+  mod-checks:
+    description: Space separated list of benchmarks and controls to run. Can also pass in as a multi-line string. Defaults to 'all'.
+    required: false
+    default: all
+  pipes-snapshot-visibility:
+    description: Set this to 'anyone_with_link' or 'workspace' to create a snapshot in Turbot Pipes with the specified visibility.
+    required: false
+  pipes-token:
+    description: The Turbot Pipes token used to save snapshots. Can also be set via the PIPES_TOKEN environment variable (https://steampipe.io/docs/reference/env-vars/pipes_token).
+    required: false
+  additional-args:
+    description: Space separated args to add to the 'steampipe check' command.
+    required: false
+  artifact-exports:
+    description: "Comma separated export types to save as artifacts. Example: 'csv,json'. For all valid formats please see https://steampipe.io/docs/reference/cli/check#output-formats."
+    required: false
+  github-token:
+    description: GitHub token used to download the Steampipe mod, upload artifacts, and create annotations.
+    required: false
+    default: ${{ github.token }}
+
+runs:
+  using: composite
+  steps:
+    - name: Create temporary directories
+      shell: bash
+      id: make-temp-dir
+      run: |
+        # Create temporary directories for Steampipe and mod installation
+        tmp=$(mktemp -d)
+        tmp_mod_dir=$tmp/mod_dir
+        mkdir -p $tmp_mod_dir
+        echo "tmp-mod-dir=$tmp_mod_dir" >> $GITHUB_OUTPUT
+
+    - name: Clone the mod and install dependencies
+      shell: bash
+      env:
+        GITHUB_TOKEN: ${{ inputs.github-token }}
+      run: |
+        # Clone and setup mod
+        if [ -z "${{inputs.mod-branch}}" ]; then
+          git clone --depth 1 "${{ inputs.mod-url }}" "${{ steps.make-temp-dir.outputs.tmp-mod-dir }}"
+        else
+          git clone --depth 1 -b "${{ inputs.mod-branch }}" --single-branch "${{ inputs.mod-url }}" "${{ steps.make-temp-dir.outputs.tmp-mod-dir }}"
+        fi
+        cd ${{ steps.make-temp-dir.outputs.tmp-mod-dir }}
+        steampipe mod install
+        cd -
+
+    - name: Get Steampipe checks
+      id: get-checks
+      shell: bash
+      run: |
+        # Convert multiline 'checks' input to single line arguments which we can send to 'check'
+        if [ -z "${{ inputs.mod-checks }}" ]
+        then
+          # default to all
+          run_list="all"
+        else
+          run_list=
+          while read line; do
+            run_list="$run_list $line"
+          done <<EOF
+        ${{ inputs.mod-checks }}
+        EOF
+        fi
+        echo "run_list=$run_list" >> $GITHUB_OUTPUT
+
+    - name: Parse exports and artifact paths
+      id: export-paths
+      shell: bash
+      run: |
+        # Parse exports & artifact paths
+        inputs=${{ inputs.artifact-exports }}
+        # Default exports: markdown is used for Summary page and json for creating annotations (only saved as artifacts if requested)
+        exports="--export=json --export=md"
+        paths=""
+        date=$(date '+%Y%m%d')
+        if [ "$inputs" != "" ];then
+          for i in ${inputs//,/ }
+          do
+            if [ "$i" != "json" ] && [ "$i" != "md" ];then
+              exports="$exports --export=$i"
+            fi
+            if [[ "$paths" == "" ]];then
+              paths="*$date*.${i}"
+            else
+              paths=$(echo -e "${paths}\n*$date*.${i}")
+            fi
+          done
+        fi
+
+        echo "control_exports=$exports" >> $GITHUB_OUTPUT
+        echo "summary_file_pattern=*$date*.md" >> $GITHUB_OUTPUT
+        echo "artifact_paths<<EOF" >> $GITHUB_OUTPUT
+        echo "$paths" >> $GITHUB_OUTPUT
+        echo "EOF" >> $GITHUB_OUTPUT
+
+    - name: Run Steampipe checks
+      id: run-checks
+      shell: bash
+      env:
+        STEAMPIPE_CHECK_DISPLAY_WIDTH: 120
+        STEAMPIPE_DISPLAY_WIDTH: 120
+      run: |
+        set +e
+        # Set outputs for artifact naming
+        echo "uuid=$(echo $RANDOM | md5sum | head -c 20)" >> $GITHUB_OUTPUT
+        echo "mod=$(echo ${{ inputs.mod-url }} | rev | cut -d '/' -f 1 | rev)" >> $GITHUB_OUTPUT
+
+        # Set workflow_id / run_url for later use
+        workflow_id=$(echo $GITHUB_WORKFLOW | sed -e "s/ /_/g")
+        run_url="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+
+        # Clear snapshot flags from additional args (should be via input)
+        additional_args=$(echo "${{ inputs.additional-args }}" | sed -e "s/--share//g" | sed -e "s/--snapshot//g")
+
+        # Allow override for output if set in additional-args
+        control_output="--output=brief"
+        if [[ "${{ inputs.additional-args }}" == *"--output"* ]]; then
+          control_output=""
+        fi
+
+        # Set export types
+        control_exports="${{ steps.export-paths.outputs.control_exports }}"
+
+        # Snapshot setup
+        snapshot_type=""
+        snapshot_tags="--snapshot-tag github_repo=$GITHUB_REPOSITORY --snapshot-tag github_run_url=$run_url --snapshot-tag github_workflow=$workflow_id"
+        pipes_inputs=""
+        if [[ -n "${{ inputs.pipes-token }}" ]];then
+          pipes_inputs="--cloud-host pipes.turbot.com --cloud-token ${{ inputs.pipes-token }}"
+        fi
+
+        if [ "${{ inputs.pipes-snapshot-visibility }}" == "anyone_with_link" ];then
+          snapshot_type="--share $snapshot_tags"
+        elif [ "${{ inputs.pipes-snapshot-visibility }}" == "workspace" ];then
+          snapshot_type="--snapshot $snapshot_tags"
+        elif [[ -n "${{ inputs.pipes-snapshot-visibility }}" ]];then
+          echo "Error: invalid value for input 'snapshot-visibility' provided: ${{ inputs.pipes-snapshot-visibility }} - valid values are 'anyone_with_link' and 'workspace'"
+          exit 3
+        fi
+
+        # Run check command
+        steampipe check ${{ steps.get-checks.outputs.run_list }} $control_output $control_exports --mod-location=${{ steps.make-temp-dir.outputs.tmp-mod-dir }} $snapshot_type $pipes_inputs $additional_args | tee /tmp/output.log
+        exit_code=$?
+
+        # Write summary
+        snapshot_url=$(cat /tmp/output.log | grep "Snapshot uploaded" | sed -e "s/^Snapshot uploaded to //")
+        if [ -n "$snapshot_url" ];then
+          echo "> Turbot Pipes ${{ inputs.pipes-snapshot-visibility }} snapshot(s)" >> $GITHUB_STEP_SUMMARY
+          echo "> $snapshot_url" >> $GITHUB_STEP_SUMMARY
+        fi
+        for f in $(echo "${{ steps.export-paths.outputs.summary_file_pattern }}")
+        do
+          echo "$(cat $f)" >> $GITHUB_STEP_SUMMARY
+        done
+
+        # Handle exit code: 0 ok, 1 alarms, 2 errors, these should exit ok - other codes should exit out with error code
+        if [[ $exit_code -le 2 ]];then
+          exit 0
+        else
+          exit $exit_code
+        fi
+
+    - name: Upload artifacts
+      id: upload-artifacts
+      if: steps.export-paths.outputs.artifact_paths != ''
+      continue-on-error: true
+      uses: actions/upload-artifact@v3
+      env:
+        GITHUB_TOKEN: ${{ inputs.github-token }}
+      with:
+        name: ${{ steps.run-checks.outputs.mod }}-${{ steps.run-checks.outputs.uuid }}
+        path: |
+          ${{ steps.export-paths.outputs.artifact_paths }}
+
+    - name: Setup Node
+      uses: actions/setup-node@v3
+
+    - name: Create annotations
+      shell: bash
+      run: |
+        node ${{ github.action_path }}/dist/index.js ${{ steps.get-checks.outputs.run_list }}
+      env:
+        GITHUB_TOKEN: ${{ inputs.github-token }}

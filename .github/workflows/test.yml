@@ -1,0 +1,29 @@
+name: Test Steampipe Check action
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v3
+
+      - name: Setup Steampipe and install plugins
+        id: setup-steampipe
+        uses: turbot/steampipe-action-setup@v1
+        with:
+          plugin-connections: |
+            connection "aws_tf" {
+              plugin = "terraform"
+              configuration_file_paths = [ "./tests/terraform/aws/**/*.tf" ]
+            }
+
+      - name: Run Terraform checks
+        uses: ./
+        with:
+          mod-url: https://github.com/turbot/steampipe-mod-terraform-aws-compliance
+          additional-args: --output=none # Added to reduce stdout when running tests
