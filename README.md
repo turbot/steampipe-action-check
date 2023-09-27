@@ -1,4 +1,4 @@
-# Steampipe Check Action for GitHub Actions
+# Steampipe Check for GitHub Actions
 
 This action runs [Steampipe](https://steampipe.io/) benchmarks and controls from [Steampipe Mods](https://hub.steampipe.io/mods).
 
