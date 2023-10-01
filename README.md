@@ -22,7 +22,7 @@ See [action.yml](action.yml).
 
 ```yaml
   - name: Checkout repo
-    uses: actions/checkout@v3
+    uses: actions/checkout@v4
 
   - name: Setup Steampipe
     uses: turbot/steampipe-action-setup@v1
@@ -43,7 +43,7 @@ See [action.yml](action.yml).
 
 ```yaml
   - name: Checkout repo
-    uses: actions/checkout@v3
+    uses: actions/checkout@v4
 
   - name: Setup Steampipe
     uses: turbot/steampipe-action-setup@v1
@@ -68,7 +68,7 @@ See [action.yml](action.yml).
 
 ```yaml
   - name: Checkout repo
-    uses: actions/checkout@v3
+    uses: actions/checkout@v4
 
   - name: Setup Steampipe
     uses: turbot/steampipe-action-setup@v1
@@ -107,7 +107,7 @@ See [action.yml](action.yml).
 
 ```yaml
   - name: Checkout repo
-    uses: actions/checkout@v3
+    uses: actions/checkout@v4
 
   - name: Setup Steampipe
     uses: turbot/steampipe-action-setup@v1
@@ -131,7 +131,7 @@ This action can also be used to run benchmarks and controls in mods that don't s
 
 ```yaml
   - name: Checkout repo
-    uses: actions/checkout@v3
+    uses: actions/checkout@v4
 
   - name: Setup Steampipe
     uses: turbot/steampipe-action-setup@v1
@@ -159,7 +159,7 @@ This example uses an [IAM OIDC identity provider](https://aws.amazon.com/blogs/s
 ```yaml
 steps:
   - name: Checkout repo
-    uses: actions/checkout@v3
+    uses: actions/checkout@v4
 
   - name: Setup AWS Credentials
     uses: aws-actions/configure-aws-credentials@v4
@@ -194,7 +194,7 @@ Snapshot visibility is set by the `pipes-snapshot-visibility` input:
 
 ```yaml
   - name: Checkout repo
-    uses: actions/checkout@v3
+    uses: actions/checkout@v4
 
   - name: Setup Steampipe
     uses: turbot/steampipe-action-setup@v1
@@ -220,7 +220,7 @@ Variables can be passed into Steampipe multiple ways, for more information on ho
 
 ```yaml
   - name: Checkout repo
-    uses: actions/checkout@v3
+    uses: actions/checkout@v4
 
   - name: Setup AWS Credentials
     uses: aws-actions/configure-aws-credentials@v4
@@ -258,7 +258,7 @@ The following example shows how to specify an [implicit workspace](https://steam
 ```yaml
 steps:
   - name: Checkout repo
-    uses: actions/checkout@v3
+    uses: actions/checkout@v4
 
   - name: Setup Steampipe
     uses: turbot/steampipe-action-setup@v1
@@ -308,7 +308,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup Steampipe
         uses: turbot/steampipe-action-setup@v1
