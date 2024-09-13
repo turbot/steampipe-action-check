@@ -1,4 +1,8 @@
 # Steampipe Check for GitHub Actions
+![Deprecated](https://camo.githubusercontent.com/ca21b63f789c7042bd0cbb1f972441c269a158afaeeac86f5800747323ea2431/68747470733a2f2f696d672e736869656c64732e696f2f62616467652f7374617475732d646570726563617465642d726564)
+
+## ⚠️ Deprecated
+**This GitHub Action is deprecated and will no longer be maintained. Please use [powerpipe-check](https://github.com/turbot/powerpipe-action-check).**
 
 This action runs [Steampipe](https://steampipe.io/) benchmarks and controls from [Steampipe Mods](https://hub.steampipe.io/mods).
 
